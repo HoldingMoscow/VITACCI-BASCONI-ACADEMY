@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VITACCI | BASCONI ACADEMY</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/montserrat@5.0.0/index.css">
 <script>
   tailwind.config = {
@@ -21,65 +20,107 @@
   }
 </script>
 <style>
-body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
-.gradient-header { background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); }
-.gradient-btn { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); }
-.gradient-btn:hover { opacity: 0.9; }
-.card-hover { transition: all 0.3s ease; }
-.card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(139, 30, 63, 0.15); }
-.fade-in { animation: fadeIn 0.4s ease-in; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.progress-bar { transition: width 0.5s ease; }
-.modal-backdrop { backdrop-filter: blur(4px); }
-.tab-active { border-bottom: 3px solid #8B1E3F; color: #fff !important; font-weight: 600; }
-.scrollbar::-webkit-scrollbar { width: 6px; }
-.scrollbar::-webkit-scrollbar-thumb { background: #D4A5A0; border-radius: 3px; }
-.btn-primary { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
-.btn-primary:hover { opacity: 0.9; }
-.btn-secondary { background: #f3f4f6; color: #1A1A1A; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
-.btn-secondary:hover { background: #e5e7eb; }
-.btn-danger { background: #fee2e2; color: #dc2626; padding: 0.375rem 0.625rem; border-radius: 0.375rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.75rem; }
-.btn-ghost { background: transparent; color: #6b7280; padding: 0.375rem; border-radius: 0.375rem; cursor: pointer; border: none; }
-.btn-ghost:hover { background: #f3f4f6; }
-.btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
-.btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
-.btn-info:hover { opacity: 0.9; }
-.admin-badge { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.625rem; font-weight: 700; }
-.admin-card { border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
-.chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; }
-.score-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
-.score-excellent { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-.score-good { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
-.score-average { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
-.score-low { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
-.top-score-bar { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-.password-status { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
-.password-set { background: #dcfce7; color: #166534; }
-.password-not-set { background: #fee2e2; color: #991b1b; }
-.edit-email-btn { background: #f3f4f6; color: #6b7280; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; border: none; }
-.brand-card-vitacci { border-left: 4px solid #8B1E3F; }
-.brand-card-basconi { border-left: 4px solid #1A1A1A; }
-.login-page { min-height: 100vh; background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; }
-.login-card { background: white; border-radius: 1.5rem; padding: 2.5rem; max-width: 480px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
-.token-input { font-family: 'Courier New', monospace; letter-spacing: 0.1em; font-weight: 600; text-transform: uppercase; }
-.token-display { font-family: 'Courier New', monospace; background: linear-gradient(135deg, #fdf2f4 0%, #fef3c7 100%); border: 2px dashed #8B1E3F; border-radius: 0.75rem; padding: 1rem; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; color: #8B1E3F; text-align: center; word-break: break-all; }
-.admin-login-btn { background: linear-gradient(135deg, #1A1A1A 0%, #4B5563 100%); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; width: 100%; justify-content: center; }
-.admin-login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
-.detail-row { transition: all 0.2s; }
-.detail-row:hover { background: #f9fafb; }
-.test-result-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
-.test-stat-box { background: white; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-.test-stat-value { font-size: 2rem; font-weight: 700; color: #8B1E3F; }
-.test-stat-label { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
-.sync-indicator { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
-.sync-online { background: #dcfce7; color: #166534; }
-.sync-offline { background: #fee2e2; color: #991b1b; }
-.sync-syncing { background: #fef3c7; color: #92400e; }
-.sync-error { background: #fee2e2; color: #991b1b; }
-.loading-overlay { position: fixed; inset: 0; background: rgba(139, 30, 63, 0.95); z-index: 100; display: flex; align-items: center; justify-content: center; flex-direction: column; color: white; }
-.loading-spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@media print { .no-print { display: none !important; } body { background: white; } }
+  body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
+  .gradient-header { background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); }
+  .gradient-btn { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); }
+  .gradient-btn:hover { opacity: 0.9; }
+  .card-hover { transition: all 0.3s ease; }
+  .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(139, 30, 63, 0.15); }
+  .fade-in { animation: fadeIn 0.4s ease-in; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .progress-bar { transition: width 0.5s ease; }
+  .modal-backdrop { backdrop-filter: blur(4px); }
+  .tab-active { border-bottom: 3px solid #8B1E3F; color: #fff; font-weight: 600; }
+  .scrollbar::-webkit-scrollbar { width: 6px; }
+  .scrollbar::-webkit-scrollbar-thumb { background: #D4A5A0; border-radius: 3px; }
+  .drop-zone { border: 2px dashed #D4A5A0; border-radius: 0.75rem; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; background: #fdf2f4; }
+  .drop-zone:hover, .drop-zone.dragover { border-color: #8B1E3F; background: #fce7ef; }
+  .video-container { position: relative; background: #000; border-radius: 0.75rem; overflow: hidden; }
+  .video-container video { width: 100%; display: block; }
+  .chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; }
+  .editor-block { border-left: 3px solid transparent; transition: all 0.2s; }
+  .editor-block.active { border-left-color: #8B1E3F; background: #fdf2f4; }
+  .rich-editor { min-height: 120px; font-family: 'Montserrat', sans-serif; }
+  .rich-editor:focus { outline: none; }
+  .toolbar-btn { padding: 0.375rem 0.5rem; border-radius: 0.375rem; color: #475569; cursor: pointer; }
+  .toolbar-btn:hover { background: #f1e5e7; }
+  .btn-primary { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; transition: opacity 0.2s; cursor: pointer; border: none; font-size: 0.875rem; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: #f3f4f6; color: #1A1A1A; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+  .btn-secondary:hover { background: #e5e7eb; }
+  .btn-danger { background: #fee2e2; color: #dc2626; padding: 0.375rem 0.625rem; border-radius: 0.375rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.75rem; }
+  .btn-danger:hover { background: #fecaca; }
+  .btn-ghost { background: transparent; color: #6b7280; padding: 0.375rem; border-radius: 0.375rem; cursor: pointer; border: none; }
+  .btn-ghost:hover { background: #f3f4f6; }
+  .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+  .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+  .btn-info:hover { opacity: 0.9; }
+  .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+  .btn-success:hover { opacity: 0.9; }
+  .brand-divider { height: 1px; background: linear-gradient(90deg, transparent, #D4A5A0, transparent); }
+  .webinar-live { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .logo-upload-area { border: 2px dashed #D4A5A0; border-radius: 0.75rem; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .logo-upload-area:hover { border-color: #8B1E3F; background: #fdf2f4; }
+  .content-block { border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; background: white; position: relative; }
+  .practice-card { border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; background: #fafafa; }
+  .answer-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; margin-bottom: 0.5rem; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: linear-gradient(135deg, #fdf2f4 0%, #fef3c7 100%); border-radius: 0.75rem; margin-bottom: 1rem; border-left: 4px solid #8B1E3F; }
+  .brand-card-vitacci { border-left: 4px solid #8B1E3F; }
+  .brand-card-basconi { border-left: 4px solid #1A1A1A; }
+  .preview-banner { background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%); color: white; position: relative; overflow: hidden; }
+  .preview-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%); pointer-events: none; }
+  .preview-banner .preview-badge { background: rgba(255,255,255,0.95); color: #dc2626; font-weight: 700; padding: 0.5rem 1rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 0.875rem; }
+  .preview-banner .btn-back { background: rgba(255,255,255,0.95); color: #dc2626; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  .preview-banner .btn-back:hover { background: white; transform: translateY(-1px); }
+  .admin-badge { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.625rem; font-weight: 700; }
+  .admin-card { border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+  .theory-type-btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 0.875rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; cursor: pointer; border: 1px solid #e5e7eb; background: white; transition: all 0.2s; }
+  .theory-type-btn:hover { background: #fdf2f4; border-color: #8B1E3F; color: #8B1E3F; }
+  @media print { .no-print { display: none !important; } body { background: white; } }
+  .login-page { min-height: 100vh; background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .login-card { background: white; border-radius: 1.5rem; padding: 2.5rem; max-width: 480px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+  .token-display { font-family: 'Courier New', monospace; background: linear-gradient(135deg, #fdf2f4 0%, #fef3c7 100%); border: 2px dashed #8B1E3F; border-radius: 0.75rem; padding: 1rem; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; color: #8B1E3F; text-align: center; word-break: break-all; }
+  .token-input { font-family: 'Courier New', monospace; letter-spacing: 0.1em; font-weight: 600; text-transform: uppercase; }
+  .admin-login-btn { background: linear-gradient(135deg, #1A1A1A 0%, #4B5563 100%); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; width: 100%; justify-content: center; }
+  .admin-login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+  .detail-row { transition: all 0.2s; }
+  .detail-row:hover { background: #f9fafb; }
+  .score-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+  .score-excellent { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+  .score-good { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
+  .score-average { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+  .score-low { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+  .test-result-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+  .test-stat-box { background: white; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .test-stat-value { font-size: 2rem; font-weight: 700; color: #8B1E3F; }
+  .test-stat-label { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+  .top-score-bar { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+  .password-status { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+  .password-set { background: #dcfce7; color: #166534; }
+  .password-not-set { background: #fee2e2; color: #991b1b; }
+  .edit-email-btn { background: #f3f4f6; color: #6b7280; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; border: none; transition: all 0.2s; }
+  .edit-email-btn:hover { background: #e5e7eb; color: #1f2937; }
+  .library-card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.3s ease; border: 1px solid #e5e7eb; }
+  .library-card:hover { box-shadow: 0 8px 24px rgba(139, 30, 63, 0.15); transform: translateY(-2px); }
+  .file-icon { width: 48px; height: 48px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+  .file-icon-pdf { background: #fee2e2; color: #dc2626; }
+  .file-icon-excel { background: #dcfce7; color: #16a34a; }
+  .file-icon-word { background: #dbeafe; color: #2563eb; }
+  .file-icon-video { background: #f3e8ff; color: #9333ea; }
+  .file-icon-other { background: #f3f4f6; color: #6b7280; }
+  .category-filter { padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: 1px solid #e5e7eb; background: white; transition: all 0.2s; }
+  .category-filter:hover { background: #fdf2f4; border-color: #8B1E3F; }
+  .category-filter.active { background: #8B1E3F; color: white; border-color: #8B1E3F; }
+  .student-answer-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.5rem; }
+  .practice-answer-editor { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 2px solid #10b981; border-radius: 1rem; padding: 1.25rem; margin-top: 1rem; }
+  .answer-type-btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; cursor: pointer; border: 2px solid #e5e7eb; background: white; transition: all 0.2s; }
+  .answer-type-btn:hover { background: #fdf2f4; border-color: #8B1E3F; }
+  .save-indicator { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: all 0.3s; }
+  .save-indicator.saved { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .save-indicator.unsaved { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  .save-notification { animation: slideIn 0.3s ease-out; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -90,7 +131,7 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
   <div class="text-sm opacity-80" id="loadingStatus">Подключение к облаку...</div>
 </div>
 
-<div id="loginPage" class="login-page hidden">
+<div id="loginPage" class="login-page">
   <div class="login-card">
     <div class="text-center mb-6">
       <div class="flex items-center justify-center gap-3 mb-4">
@@ -100,55 +141,35 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
       </div>
       <h1 class="text-2xl font-bold text-gray-800">VITACCI | BASCONI ACADEMY</h1>
       <p class="text-sm text-gray-500 mt-1">Обучающий портал холдинга</p>
-      <div id="syncStatus" class="mt-2"></div>
     </div>
-    <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-6">
-      <div class="flex items-start gap-3">
-        <div class="text-2xl">🎓</div>
-        <div>
-          <div class="font-bold text-gray-800 text-sm">Вход по коду доступа</div>
-          <div class="text-xs text-gray-600 mt-1">Введите код, который вам отправил администратор</div>
+    <div id="loginFormContainer">
+      <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-6">
+        <div class="flex items-start gap-3">
+          <div class="text-2xl">🎓</div>
+          <div>
+            <div class="font-bold text-gray-800 text-sm">Вход по коду доступа</div>
+            <div class="text-xs text-gray-600 mt-1">Введите код, который вам отправил администратор</div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="space-y-4">
-      <div>
-        <label class="text-sm text-gray-600 font-medium">Код доступа</label>
-        <input id="tokenInput" type="text" placeholder="Например: tk_abc123..." class="token-input w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-3 text-lg focus:border-vitacci focus:outline-none">
-        <div class="text-xs text-gray-500 mt-1">💡 Код начинается с <b>tk_</b></div>
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-gray-600 font-medium">Код доступа</label>
+          <input id="tokenInput" type="text" placeholder="Например: tk_abc123..." class="token-input w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-3 text-lg focus:border-vitacci focus:outline-none transition">
+          <div class="text-xs text-gray-500 mt-1">💡 Код начинается с <b>tk_</b></div>
+        </div>
+        <div id="loginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
+        <button onclick="loginByToken()" class="btn-primary w-full py-3 text-base font-semibold">🚀 Начать обучение</button>
       </div>
-      <div id="loginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
-      <button type="button" onclick="loginByToken()" class="btn-primary w-full py-3 text-base font-semibold">🚀 Начать обучение</button>
-    </div>
-    <div class="mt-6 pt-6 border-t border-gray-200">
-      <div class="text-center mb-3"><div class="text-xs text-gray-400">— или —</div></div>
-      <button type="button" onclick="showAdminLoginModal()" class="admin-login-btn">
-        <span class="text-lg">🔐</span>
-        <span>Войти как администратор</span>
-      </button>
-      <div class="text-center mt-3"><div class="text-xs text-gray-400">Для владельцев и администраторов портала</div></div>
-    </div>
-  </div>
-</div>
-
-<div id="adminLoginModal" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-xl font-bold text-gray-800">🔐 Вход администратора</h3>
-      <button type="button" onclick="closeAdminLoginModal()" class="btn-ghost text-xl">✕</button>
-    </div>
-    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-      <div class="text-xs text-amber-900"><b>Введите email и пароль</b> администратора</div>
-    </div>
-    <div class="space-y-3">
-      <div><label class="text-sm text-gray-600 font-medium">Email</label><input id="adminLoginEmail" type="email" placeholder="admin@academy.ru" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
-      <div><label class="text-sm text-gray-600 font-medium">Пароль</label><input id="adminLoginPassword" type="password" placeholder="Введите пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
-      <div id="adminLoginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
-      <button type="button" onclick="performAdminLogin()" class="btn-primary w-full py-3">Войти</button>
-      <button type="button" onclick="closeAdminLoginModal()" class="btn-secondary w-full">Отмена</button>
-      <div class="text-center">
-        <button type="button" onclick="showMasterLoginModal()" class="text-xs text-amber-700 hover:underline font-semibold">🔑 Экстренный вход (master2024)</button>
+      <div class="mt-6 pt-6 border-t border-gray-200">
+        <div class="text-center mb-3"><div class="text-xs text-gray-400">— или —</div></div>
+        <button type="button" onclick="showAdminLoginModal()" class="admin-login-btn">
+          <span class="text-lg"></span>
+          <span>Войти как администратор</span>
+        </button>
+        <div class="text-center mt-3"><div class="text-xs text-gray-400">Для владельцев и администраторов портала</div></div>
       </div>
+      <div class="mt-4 pt-4 border-t border-gray-100 text-center"><div class="text-xs text-gray-400">Нет кода доступа? Обратитесь к администратору</div></div>
     </div>
   </div>
 </div>
@@ -156,17 +177,48 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
 <div id="masterLoginModal" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-xl font-bold text-gray-800"> Экстренный вход</h3>
-      <button type="button" onclick="closeMasterLoginModal()" class="btn-ghost text-xl">✕</button>
+      <h3 class="text-xl font-bold text-gray-800">🔑 Экстренный вход</h3>
+      <button onclick="closeMasterLoginModal()" class="btn-ghost text-xl">✕</button>
     </div>
     <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-      <div class="text-xs text-amber-900">Используется, если пароль утерян</div>
+      <div class="text-xs text-amber-900"><b>Экстренный вход</b> используется, если пароль администратора утерян.</div>
     </div>
     <div class="space-y-3">
-      <div><label class="text-sm text-gray-600 font-medium">Ключ</label><input id="masterKeyInput" type="password" placeholder="Введите ключ" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
+      <div><label class="text-sm text-gray-600 font-medium">Ключ экстренного доступа</label><input id="masterKeyInput" type="password" placeholder="Введите ключ" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
       <div id="masterLoginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
-      <button type="button" onclick="performMasterLogin()" class="btn-primary w-full py-3" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">🔑 Войти</button>
+      <button onclick="performMasterLogin()" class="btn-primary w-full py-3 text-base font-semibold" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">🔑 Войти</button>
     </div>
+  </div>
+</div>
+
+<div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold text-gray-800">🔑 Сброс пароля</h3>
+      <button onclick="closeForgotPasswordModal()" class="btn-ghost text-xl">✕</button>
+    </div>
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+      <div class="text-xs text-blue-900"><b>Внимание!</b> Для сброса пароля используйте экстренный вход.</div>
+    </div>
+    <div class="text-center space-y-2">
+      <button onclick="closeForgotPasswordModal(); showMasterLoginModal();" class="btn-primary w-full">🔑 Использовать экстренный вход</button>
+      <button onclick="closeForgotPasswordModal()" class="btn-secondary w-full">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<div id="courseMode" class="hidden min-h-screen bg-gradient-to-br from-rose-50 to-stone-50">
+  <div class="max-w-4xl mx-auto p-6">
+    <div id="courseHeader" class="gradient-header text-white rounded-2xl p-6 mb-6 shadow-xl">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div><div class="text-sm opacity-80">Добро пожаловать,</div><div id="studentName" class="text-2xl font-bold"></div><div id="studentStore" class="text-sm opacity-80"></div></div>
+        <div class="text-right"><div class="text-sm opacity-80">Общий прогресс</div><div id="totalProgress" class="text-3xl font-bold">0%</div></div>
+      </div>
+      <div class="mt-4 bg-white/20 rounded-full h-2 overflow-hidden"><div id="totalProgressBar" class="bg-white h-full progress-bar" style="width:0%"></div></div>
+      <div id="courseTitleBox" class="mt-4 text-sm opacity-90"></div>
+    </div>
+    <div id="blocksContainer" class="space-y-4"></div>
+    <div class="mt-8 text-center text-gray-500 text-sm" id="courseFooter">© VITACCI | BASCONI ACADEMY</div>
   </div>
 </div>
 
@@ -177,38 +229,37 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-2">
             <div class="flex items-center gap-2">
-              <div class="w-8 h-8 bg-vitacci rounded flex items-center justify-center text-white font-bold text-xs">V</div>
+              <div id="logoVPlaceholder" class="w-8 h-8 bg-vitacci rounded flex items-center justify-center text-white font-bold text-xs">V</div>
               <span id="brandNameV" class="text-lg font-bold tracking-wider">VITACCI</span>
             </div>
             <div class="w-px h-8 bg-white/30"></div>
             <div class="flex items-center gap-2">
-              <div class="w-8 h-8 bg-basconi-black rounded flex items-center justify-center text-white font-bold text-xs">B</div>
+              <div id="logoBPlaceholder" class="w-8 h-8 bg-basconi-black rounded flex items-center justify-center text-white font-bold text-xs">B</div>
               <span id="brandNameB" class="text-lg font-bold tracking-wider">BASCONI</span>
             </div>
           </div>
           <div><div id="siteTitle" class="text-xl font-bold">VITACCI | BASCONI ACADEMY</div><div id="siteSubtitle" class="text-xs opacity-80">Обучающий портал холдинга</div></div>
         </div>
         <div class="flex items-center gap-2">
-          <button type="button" id="cloudStatusBadge" onclick="syncToSupabase()" class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold cursor-pointer hover:bg-green-600 transition" title="Нажмите для синхронизации с облаком">☁️ Облако</button>
-          <span class="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👑 Администратор</span>
-          <button type="button" onclick="exitAdminMode()" class="btn-ghost text-white/80 hover:text-white text-sm">🚪 Выйти</button>
+          <span id="currentUserBadge" class="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👑 Администратор</span>
+          <button onclick="exitAdminMode()" class="btn-ghost text-white/80 hover:text-white text-sm">🚪 Выйти</button>
         </div>
       </div>
       <nav class="flex gap-6 overflow-x-auto scrollbar">
-        <button type="button" onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📊 Обзор</button>
-        <button type="button" onclick="switchTab('stores')" data-tab="stores" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🏪 Магазины</button>
-        <button type="button" onclick="switchTab('employees')" data-tab="employees" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">👥 Сотрудники</button>
-        <button type="button" onclick="switchTab('courses')" data-tab="courses" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📚 Курсы</button>
-        <button type="button" onclick="switchTab('library')" data-tab="library" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer"> Библиотека</button>
-        <button type="button" onclick="switchTab('webinars')" data-tab="webinars" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🎥 Вебинары</button>
-        <button type="button" onclick="switchTab('links')" data-tab="links" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🔗 Ссылки</button>
-        <button type="button" onclick="switchTab('progress')" data-tab="progress" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📈 Успеваемость</button>
-        <button type="button" onclick="switchTab('settings')" data-tab="settings" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">⚙️ Настройки</button>
+        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📊 Обзор</button>
+        <button onclick="switchTab('stores')" data-tab="stores" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🏪 Магазины</button>
+        <button onclick="switchTab('employees')" data-tab="employees" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">👥 Сотрудники</button>
+        <button onclick="switchTab('courses')" data-tab="courses" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📚 Курсы</button>
+        <button onclick="switchTab('library')" data-tab="library" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📖 Библиотека</button>
+        <button onclick="switchTab('webinars')" data-tab="webinars" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🎥 Вебинары</button>
+        <button onclick="switchTab('links')" data-tab="links" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🔗 Ссылки</button>
+        <button onclick="switchTab('progress')" data-tab="progress" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📈 Успеваемость</button>
+        <button onclick="switchTab('settings')" data-tab="settings" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">⚙️ Настройки</button>
       </nav>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto p-6">
+<main class="max-w-7xl mx-auto p-6">
     <section id="tab-dashboard" class="tab-content fade-in">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">Обзор системы</h2>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -217,26 +268,26 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
         <div class="bg-white rounded-2xl p-5 shadow-sm card-hover border-l-4 border-vitacci-light"><div class="text-gray-500 text-sm">Курсов</div><div id="statCourses" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
         <div class="bg-white rounded-2xl p-5 shadow-sm card-hover border-l-4 border-green-500"><div class="text-gray-500 text-sm">Средний прогресс</div><div id="statProgress" class="text-3xl font-bold text-gray-800 mt-1">0%</div></div>
       </div>
-      <h3 class="text-xl font-bold text-gray-800 mb-4">📊 Статистика по брендам</h3>
+      <h3 class="text-xl font-bold text-gray-800 mb-4"> Статистика по брендам</h3>
       <div id="brandStatsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm"><h3 class="font-bold text-gray-800 mb-4">🏆 Топ сотрудников</h3><div id="topEmployees" class="space-y-3"></div></div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm"><h3 class="font-bold text-gray-800 mb-4">🏆 Топ сотрудников по результатам тестирования</h3><div id="topEmployees" class="space-y-3"></div></div>
         <div class="bg-white rounded-2xl p-6 shadow-sm"><h3 class="font-bold text-gray-800 mb-4">🏪 Прогресс по магазинам</h3><div id="storeProgress" class="space-y-3"></div></div>
       </div>
     </section>
 
     <section id="tab-stores" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Магазины</h2><button type="button" onclick="openStoreModal()" class="btn-primary">+ Добавить магазин</button></div>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Магазины</h2><button onclick="openStoreModal()" class="btn-primary">+ Добавить магазин</button></div>
       <div id="storesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
     <section id="tab-employees" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Сотрудники</h2><button type="button" onclick="openEmployeeModal()" class="btn-primary">+ Добавить сотрудника</button></div>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Сотрудники</h2><button onclick="openEmployeeModal()" class="btn-primary">+ Добавить сотрудника</button></div>
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr class="text-left text-sm text-gray-600"><th class="p-4">Сотрудник</th><th class="p-4">Магазин</th><th class="p-4">Должность</th><th class="p-4">Роль</th><th class="p-4">Прогресс</th><th class="p-4">Действия</th></tr></thead><tbody id="employeesTable"></tbody></table></div></div>
     </section>
 
     <section id="tab-courses" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Курсы</h2><button type="button" onclick="openCourseEditor(null)" class="btn-primary">+ Создать курс</button></div>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Конструктор курсов</h2><button onclick="openCourseEditor(null)" class="btn-primary">+ Создать курс</button></div>
       <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
     </section>
 
@@ -265,22 +316,37 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
       <div id="libraryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
-    <section id="tab-webinars" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">🎥 Вебинары</h2><button type="button" onclick="openWebinarModal()" class="btn-primary">+ Создать вебинар</button></div>
+  <section id="tab-webinars" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Вебинары</h2><button onclick="openWebinarModal()" class="btn-primary">+ Создать вебинар</button></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-red-500"><div class="text-gray-500 text-sm">Предстоящих</div><div id="statUpcoming" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-green-500"><div class="text-gray-500 text-sm">Завершенных</div><div id="statCompleted" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-vitacci"><div class="text-gray-500 text-sm">Всего участников</div><div id="statParticipants" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
+      </div>
       <div id="webinarsList" class="space-y-4"></div>
     </section>
 
     <section id="tab-links" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Коды доступа</h2><button type="button" onclick="openLinkModal()" class="btn-primary">+ Создать код</button></div>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Коды доступа</h2><button onclick="openLinkModal()" class="btn-primary">+ Создать код</button></div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"><div class="flex items-start gap-3"><div class="text-2xl">💡</div><div><div class="font-bold text-amber-900 text-sm">Как передать доступ сотруднику</div><div class="text-xs text-amber-800 mt-1">Скопируйте <b>код доступа</b> и отправьте его сотруднику.</div></div></div></div>
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr class="text-left text-sm text-gray-600"><th class="p-4">Сотрудник</th><th class="p-4">Курс</th><th class="p-4">Код доступа</th><th class="p-4">Статус</th><th class="p-4">Действия</th></tr></thead><tbody id="linksTable"></tbody></table></div></div>
     </section>
 
     <section id="tab-progress" class="tab-content hidden fade-in">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">Успеваемость</h2>
+      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <div class="flex gap-3 flex-wrap items-end">
+          <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-500 mb-1 block">🏷️ Бренд</label><select id="filterBrand" onchange="onBrandFilterChange()" class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm"><option value="">Все бренды</option></select></div>
+          <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-500 mb-1 block">🏪 Магазин</label><select id="filterStore" onchange="onStoreFilterChange()" class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm"><option value="">Все магазины</option></select></div>
+          <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-500 mb-1 block">📚 Курс</label><select id="filterCourse" onchange="renderProgress()" class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm"><option value="">Все курсы</option></select></div>
+          <div class="flex gap-2"><button onclick="exportReport('csv')" class="btn-primary">📥 CSV</button><button onclick="exportReport('print')" class="btn-secondary">🖨️ Печать</button><button onclick="resetFilters()" class="btn-ghost">🔄 Сбросить</button></div>
+        </div>
+        <div id="filterSummary" class="mt-4 text-sm text-gray-600"></div>
+      </div>
       <div id="progressList" class="space-y-4"></div>
     </section>
 
-     <section id="tab-settings" class="tab-content hidden fade-in">
+    <section id="tab-settings" class="tab-content hidden fade-in">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">⚙️ Настройки портала</h2>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white rounded-2xl p-6 shadow-sm">
@@ -301,7 +367,7 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
           </div>
         </div>
       </div>
-      <div class="mt-6 admin-card rounded-2xl p-6 shadow-sm">
+     <div class="mt-6 admin-card rounded-2xl p-6 shadow-sm">
         <div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white text-2xl">👑</div><div><h3 class="font-bold text-gray-800 text-lg">Администраторы системы</h3><div class="text-xs text-gray-600">Пользователи с полными правами доступа</div></div></div>
         <div class="bg-white/70 rounded-xl p-4 mb-4">
           <div class="text-sm text-gray-700 mb-2"><b>Полные права администратора:</b></div>
@@ -332,6 +398,18 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
 <div id="modalContainer" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4 no-print">
   <div id="modalContent" class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto scrollbar"></div>
 </div>
+
+<div id="saveNotification" class="hidden fixed top-4 right-4 z-[60] bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 save-notification">
+  <span class="text-xl">✅</span>
+  <span id="saveNotificationText">Ответ сохранён!</span>
+</div>
+
+<script>
+const MASTER_KEY = 'master2024';
+let currentLibraryFilter = 'all';
+let editorState = null;
+let currentToken = null, currentEmployee = null, currentCourse = null;
+let unsavedChanges = {};
 
 <script>
 // =========================================================================
