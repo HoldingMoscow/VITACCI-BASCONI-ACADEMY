@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VITACCI | BASCONI ACADEMY</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/montserrat@5.0.0/index.css">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+        colors: {
+          vitacci: { DEFAULT: '#8B1E3F', light: '#A82850', dark: '#6B1530' },
+          basconi: { DEFAULT: '#D4A5A0', light: '#E8C4C0', dark: '#B8887F', black: '#1A1A1A' }
+        }
+      }
+    }
+  }
+</script>
+<style>
+body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
+.gradient-header { background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); }
+.gradient-btn { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); }
+.gradient-btn:hover { opacity: 0.9; }
+.card-hover { transition: all 0.3s ease; }
+.card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(139, 30, 63, 0.15); }
+.fade-in { animation: fadeIn 0.4s ease-in; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.progress-bar { transition: width 0.5s ease; }
+.modal-backdrop { backdrop-filter: blur(4px); }
+.tab-active { border-bottom: 3px solid #8B1E3F; color: #fff !important; font-weight: 600; }
+.scrollbar::-webkit-scrollbar { width: 6px; }
+.scrollbar::-webkit-scrollbar-thumb { background: #D4A5A0; border-radius: 3px; }
+.btn-primary { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary { background: #f3f4f6; color: #1A1A1A; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-danger { background: #fee2e2; color: #dc2626; padding: 0.375rem 0.625rem; border-radius: 0.375rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.75rem; }
+.btn-ghost { background: transparent; color: #6b7280; padding: 0.375rem; border-radius: 0.375rem; cursor: pointer; border: none; }
+.btn-ghost:hover { background: #f3f4f6; }
+.btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+.btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+.btn-info:hover { opacity: 0.9; }
+.admin-badge { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.625rem; font-weight: 700; }
+.admin-card { border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+.chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; }
+.score-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+.score-excellent { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.score-good { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
+.score-average { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+.score-low { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+.top-score-bar { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.password-status { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+.password-set { background: #dcfce7; color: #166534; }
+.password-not-set { background: #fee2e2; color: #991b1b; }
+.edit-email-btn { background: #f3f4f6; color: #6b7280; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; border: none; }
+.brand-card-vitacci { border-left: 4px solid #8B1E3F; }
+.brand-card-basconi { border-left: 4px solid #1A1A1A; }
+.login-page { min-height: 100vh; background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.login-card { background: white; border-radius: 1.5rem; padding: 2.5rem; max-width: 480px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+.token-input { font-family: 'Courier New', monospace; letter-spacing: 0.1em; font-weight: 600; text-transform: uppercase; }
+.token-display { font-family: 'Courier New', monospace; background: linear-gradient(135deg, #fdf2f4 0%, #fef3c7 100%); border: 2px dashed #8B1E3F; border-radius: 0.75rem; padding: 1rem; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; color: #8B1E3F; text-align: center; word-break: break-all; }
+.admin-login-btn { background: linear-gradient(135deg, #1A1A1A 0%, #4B5563 100%); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; width: 100%; justify-content: center; }
+.admin-login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+.detail-row { transition: all 0.2s; }
+.detail-row:hover { background: #f9fafb; }
+.test-result-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+.test-stat-box { background: white; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.test-stat-value { font-size: 2rem; font-weight: 700; color: #8B1E3F; }
+.test-stat-label { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+.sync-indicator { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+.sync-online { background: #dcfce7; color: #166534; }
+.sync-offline { background: #fee2e2; color: #991b1b; }
+.sync-syncing { background: #fef3c7; color: #92400e; }
+.sync-error { background: #fee2e2; color: #991b1b; }
+.loading-overlay { position: fixed; inset: 0; background: rgba(139, 30, 63, 0.95); z-index: 100; display: flex; align-items: center; justify-content: center; flex-direction: column; color: white; }
+.loading-spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media print { .no-print { display: none !important; } body { background: white; } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="loading-spinner mb-4"></div>
+  <div class="text-xl font-bold mb-2">VITACCI | BASCONI ACADEMY</div>
+  <div class="text-sm opacity-80" id="loadingStatus">Подключение к облаку...</div>
+</div>
+
+<div id="loginPage" class="login-page hidden">
+  <div class="login-card">
+    <div class="text-center mb-6">
+      <div class="flex items-center justify-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-vitacci rounded-xl flex items-center justify-center text-white font-bold">V</div>
+        <div class="w-px h-10 bg-gray-300"></div>
+        <div class="w-12 h-12 bg-basconi-black rounded-xl flex items-center justify-center text-white font-bold">B</div>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-800">VITACCI | BASCONI ACADEMY</h1>
+      <p class="text-sm text-gray-500 mt-1">Обучающий портал холдинга</p>
+      <div id="syncStatus" class="mt-2"></div>
+    </div>
+    <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-6">
+      <div class="flex items-start gap-3">
+        <div class="text-2xl">🎓</div>
+        <div>
+          <div class="font-bold text-gray-800 text-sm">Вход по коду доступа</div>
+          <div class="text-xs text-gray-600 mt-1">Введите код, который вам отправил администратор</div>
+        </div>
+      </div>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="text-sm text-gray-600 font-medium">Код доступа</label>
+        <input id="tokenInput" type="text" placeholder="Например: tk_abc123..." class="token-input w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-3 text-lg focus:border-vitacci focus:outline-none">
+        <div class="text-xs text-gray-500 mt-1">💡 Код начинается с <b>tk_</b></div>
+      </div>
+      <div id="loginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
+      <button type="button" onclick="loginByToken()" class="btn-primary w-full py-3 text-base font-semibold">🚀 Начать обучение</button>
+    </div>
+    <div class="mt-6 pt-6 border-t border-gray-200">
+      <div class="text-center mb-3"><div class="text-xs text-gray-400">— или —</div></div>
+      <button type="button" onclick="showAdminLoginModal()" class="admin-login-btn">
+        <span class="text-lg">🔐</span>
+        <span>Войти как администратор</span>
+      </button>
+      <div class="text-center mt-3"><div class="text-xs text-gray-400">Для владельцев и администраторов портала</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="adminLoginModal" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold text-gray-800">🔐 Вход администратора</h3>
+      <button type="button" onclick="closeAdminLoginModal()" class="btn-ghost text-xl">✕</button>
+    </div>
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+      <div class="text-xs text-amber-900"><b>Введите email и пароль</b> администратора</div>
+    </div>
+    <div class="space-y-3">
+      <div><label class="text-sm text-gray-600 font-medium">Email</label><input id="adminLoginEmail" type="email" placeholder="admin@academy.ru" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
+      <div><label class="text-sm text-gray-600 font-medium">Пароль</label><input id="adminLoginPassword" type="password" placeholder="Введите пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
+      <div id="adminLoginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
+      <button type="button" onclick="performAdminLogin()" class="btn-primary w-full py-3">Войти</button>
+      <button type="button" onclick="closeAdminLoginModal()" class="btn-secondary w-full">Отмена</button>
+      <div class="text-center">
+        <button type="button" onclick="showMasterLoginModal()" class="text-xs text-amber-700 hover:underline font-semibold">🔑 Экстренный вход (master2024)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="masterLoginModal" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold text-gray-800"> Экстренный вход</h3>
+      <button type="button" onclick="closeMasterLoginModal()" class="btn-ghost text-xl">✕</button>
+    </div>
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+      <div class="text-xs text-amber-900">Используется, если пароль утерян</div>
+    </div>
+    <div class="space-y-3">
+      <div><label class="text-sm text-gray-600 font-medium">Ключ</label><input id="masterKeyInput" type="password" placeholder="Введите ключ" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
+      <div id="masterLoginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
+      <button type="button" onclick="performMasterLogin()" class="btn-primary w-full py-3" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">🔑 Войти</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminMode" class="hidden min-h-screen">
+  <header class="gradient-header text-white shadow-lg no-print">
+    <div class="max-w-7xl mx-auto px-6 py-5">
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-4">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-2">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-vitacci rounded flex items-center justify-center text-white font-bold text-xs">V</div>
+              <span id="brandNameV" class="text-lg font-bold tracking-wider">VITACCI</span>
+            </div>
+            <div class="w-px h-8 bg-white/30"></div>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-basconi-black rounded flex items-center justify-center text-white font-bold text-xs">B</div>
+              <span id="brandNameB" class="text-lg font-bold tracking-wider">BASCONI</span>
+            </div>
+          </div>
+          <div><div id="siteTitle" class="text-xl font-bold">VITACCI | BASCONI ACADEMY</div><div id="siteSubtitle" class="text-xs opacity-80">Обучающий портал холдинга</div></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" id="cloudStatusBadge" onclick="syncToSupabase()" class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold cursor-pointer hover:bg-green-600 transition" title="Нажмите для синхронизации с облаком">☁️ Облако</button>
+          <span class="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👑 Администратор</span>
+          <button type="button" onclick="exitAdminMode()" class="btn-ghost text-white/80 hover:text-white text-sm">🚪 Выйти</button>
+        </div>
+      </div>
+      <nav class="flex gap-6 overflow-x-auto scrollbar">
+        <button type="button" onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📊 Обзор</button>
+        <button type="button" onclick="switchTab('stores')" data-tab="stores" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🏪 Магазины</button>
+        <button type="button" onclick="switchTab('employees')" data-tab="employees" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">👥 Сотрудники</button>
+        <button type="button" onclick="switchTab('courses')" data-tab="courses" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📚 Курсы</button>
+        <button type="button" onclick="switchTab('library')" data-tab="library" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer"> Библиотека</button>
+        <button type="button" onclick="switchTab('webinars')" data-tab="webinars" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🎥 Вебинары</button>
+        <button type="button" onclick="switchTab('links')" data-tab="links" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🔗 Ссылки</button>
+        <button type="button" onclick="switchTab('progress')" data-tab="progress" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📈 Успеваемость</button>
+        <button type="button" onclick="switchTab('settings')" data-tab="settings" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">⚙️ Настройки</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-6">
+    <section id="tab-dashboard" class="tab-content fade-in">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Обзор системы</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-2xl p-5 shadow-sm card-hover border-l-4 border-vitacci"><div class="text-gray-500 text-sm">Магазинов</div><div id="statStores" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm card-hover border-l-4 border-basconi-dark"><div class="text-gray-500 text-sm">Сотрудников</div><div id="statEmployees" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm card-hover border-l-4 border-vitacci-light"><div class="text-gray-500 text-sm">Курсов</div><div id="statCourses" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
+        <div class="bg-white rounded-2xl p-5 shadow-sm card-hover border-l-4 border-green-500"><div class="text-gray-500 text-sm">Средний прогресс</div><div id="statProgress" class="text-3xl font-bold text-gray-800 mt-1">0%</div></div>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-4">📊 Статистика по брендам</h3>
+      <div id="brandStatsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm"><h3 class="font-bold text-gray-800 mb-4">🏆 Топ сотрудников</h3><div id="topEmployees" class="space-y-3"></div></div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm"><h3 class="font-bold text-gray-800 mb-4">🏪 Прогресс по магазинам</h3><div id="storeProgress" class="space-y-3"></div></div>
+      </div>
+    </section>
+
+    <section id="tab-stores" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Магазины</h2><button type="button" onclick="openStoreModal()" class="btn-primary">+ Добавить магазин</button></div>
+      <div id="storesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <section id="tab-employees" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Сотрудники</h2><button type="button" onclick="openEmployeeModal()" class="btn-primary">+ Добавить сотрудника</button></div>
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr class="text-left text-sm text-gray-600"><th class="p-4">Сотрудник</th><th class="p-4">Магазин</th><th class="p-4">Должность</th><th class="p-4">Роль</th><th class="p-4">Прогресс</th><th class="p-4">Действия</th></tr></thead><tbody id="employeesTable"></tbody></table></div></div>
+    </section>
+
+    <section id="tab-courses" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Курсы</h2><button type="button" onclick="openCourseEditor(null)" class="btn-primary">+ Создать курс</button></div>
+      <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+    </section>
+
+    <section id="tab-library" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">📖 Библиотека</h2><button type="button" onclick="openLibraryUploadModal()" class="btn-primary">+ Загрузить файл</button></div>
+      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <div class="flex gap-2 flex-wrap mb-4">
+          <button type="button" onclick="filterLibrary('all')" class="chip bg-gray-100 text-gray-700">Все файлы</button>
+          <button type="button" onclick="filterLibrary('pdf')" class="chip bg-gray-100 text-gray-700"> PDF</button>
+          <button type="button" onclick="filterLibrary('excel')" class="chip bg-gray-100 text-gray-700">📊 Excel</button>
+          <button type="button" onclick="filterLibrary('word')" class="chip bg-gray-100 text-gray-700">📝 Word</button>
+          <button type="button" onclick="filterLibrary('video')" class="chip bg-gray-100 text-gray-700">🎬 Видео</button>
+        </div>
+        <div class="flex gap-3">
+          <input id="librarySearch" type="text" placeholder=" Поиск..." class="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm" oninput="renderLibrary()">
+        </div>
+      </div>
+      <div id="libraryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <section id="tab-webinars" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">🎥 Вебинары</h2><button type="button" onclick="openWebinarModal()" class="btn-primary">+ Создать вебинар</button></div>
+      <div id="webinarsList" class="space-y-4"></div>
+    </section>
+
+    <section id="tab-links" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Коды доступа</h2><button type="button" onclick="openLinkModal()" class="btn-primary">+ Создать код</button></div>
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr class="text-left text-sm text-gray-600"><th class="p-4">Сотрудник</th><th class="p-4">Курс</th><th class="p-4">Код доступа</th><th class="p-4">Статус</th><th class="p-4">Действия</th></tr></thead><tbody id="linksTable"></tbody></table></div></div>
+    </section>
+
+    <section id="tab-progress" class="tab-content hidden fade-in">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Успеваемость</h2>
+      <div id="progressList" class="space-y-4"></div>
+    </section>
+
+    <section id="tab-settings" class="tab-content hidden fade-in">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">⚙️ Настройки</h2>
+      <div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+        <h3 class="font-bold text-gray-800 mb-4">🏷️ Название портала</h3>
+        <div class="space-y-3">
+          <div><label class="text-sm text-gray-600">Название</label><input id="settingSiteTitle" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
+          <div><label class="text-sm text-gray-600">Подзаголовок</label><input id="settingSiteSubtitle" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
+          <button type="button" onclick="saveSettings()" class="btn-primary">💾 Сохранить</button>
+        </div>
+      </div>
+      <div class="admin-card rounded-2xl p-6 shadow-sm">
+        <h3 class="font-bold text-gray-800 mb-4">👑 Администраторы</h3>
+        <div class="flex gap-2 mb-4"><input id="newAdminEmail" type="email" placeholder="Email нового администратора" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"><button type="button" onclick="addAdmin()" class="btn-primary">+ Добавить</button></div>
+        <div id="adminsList" class="space-y-2"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="courseMode" class="hidden min-h-screen bg-gradient-to-br from-rose-50 to-stone-50">
+  <div class="max-w-4xl mx-auto p-6">
+    <div id="courseHeader" class="gradient-header text-white rounded-2xl p-6 mb-6 shadow-xl">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div><div class="text-sm opacity-80">Добро пожаловать,</div><div id="studentName" class="text-2xl font-bold"></div><div id="studentStore" class="text-sm opacity-80"></div></div>
+        <div class="text-right"><div class="text-sm opacity-80">Общий прогресс</div><div id="totalProgress" class="text-3xl font-bold">0%</div></div>
+      </div>
+      <div class="mt-4 bg-white/20 rounded-full h-2 overflow-hidden"><div id="totalProgressBar" class="bg-white h-full progress-bar" style="width:0%"></div></div>
+      <div id="courseTitleBox" class="mt-4 text-sm opacity-90"></div>
+    </div>
+    <div id="blocksContainer" class="space-y-4"></div>
+    <div class="mt-8 text-center text-gray-500 text-sm" id="courseFooter">© VITACCI | BASCONI ACADEMY</div>
+  </div>
+</div>
+
+<div id="modalContainer" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4 no-print">
+  <div id="modalContent" class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto scrollbar"></div>
+</div>
+
+<script>
+// =========================================================================
+// SUPABASE КОНФИГУРАЦИЯ
+// =========================================================================
+const SUPABASE_URL = 'https://qomemfrwkkqdrsfmiicv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvbWVtZnJ3a2txZHJzZm1paWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NzYzOTcsImV4cCI6MjEwNjI1MjM5N30.SyJ-FE4tlZzX1H4hqg96IjB2XWQivU0oJNcUecBBIKo';
+
+let supabaseClient = null;
+let isSupabaseConnected = false;
+
+function updateSyncStatus(status, message) {
+  const syncEl = document.getElementById('syncStatus');
+  const cloudBadge = document.getElementById('cloudStatusBadge');
+  const loadingStatus = document.getElementById('loadingStatus');
+  if (syncEl) {
+    if (status === 'online') syncEl.innerHTML = '<span class="sync-indicator sync-online">☁️ Подключено к облаку</span>';
+    else if (status === 'offline') syncEl.innerHTML = '<span class="sync-indicator sync-offline"> Локальный режим</span>';
+    else if (status === 'error') syncEl.innerHTML = '<span class="sync-indicator sync-error">⚠️ Ошибка: ' + (message || '') + '</span>';
+    else syncEl.innerHTML = '<span class="sync-indicator sync-syncing">🔄 ' + (message || 'Синхронизация...') + '</span>';
+  }
+  if (cloudBadge) {
+    if (status === 'online') { cloudBadge.textContent = '☁️ Облако'; cloudBadge.className = 'bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold'; }
+    else if (status === 'offline') { cloudBadge.textContent = '💾 Локально'; cloudBadge.className = 'bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-semibold'; }
+    else { cloudBadge.textContent = '⚠️ Ошибка'; cloudBadge.className = 'bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold'; }
+  }
+  if (loadingStatus) loadingStatus.textContent = message || 'Загрузка...';
+}
+
+async function initSupabase() {
+  try {
+    if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('ВСТАВЬТЕ')) {
+      updateSyncStatus('offline');
+      return false;
+    }
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Таймаут')), 5000));
+      const queryPromise = supabaseClient.from('stores').select('id').limit(1);
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+      if (error) {
+        updateSyncStatus('error', error.message);
+        return false;
+      }
+      isSupabaseConnected = true;
+      updateSyncStatus('online');
+      console.log('✅ Supabase подключен');
+      return true;
+    }
+  } catch (e) {
+    updateSyncStatus('error', e.message);
+  }
+  return false;
+}
+async function syncToSupabase() {
+  if (!isSupabaseConnected || !supabaseClient) {
+    alert('❌ Supabase не подключен');
+    return;
+  }
+  
+  try {
+    updateSyncStatus('syncing', 'Синхронизация...');
+    
+    // Синхронизация магазинов
+    if (DB.stores.length > 0) {
+      const { error: storeError } = await supabaseClient
+        .from('stores')
+        .upsert(DB.stores.map(s => ({
+          id: s.id,
+          name: s.name,
+          address: s.address,
+          brand: s.brand
+        })));
+      if (storeError) console.error('Ошибка синхронизации магазинов:', storeError);
+    }
+    
+    // Синхронизация сотрудников
+    if (DB.employees.length > 0) {
+      const { error: empError } = await supabaseClient
+        .from('employees')
+        .upsert(DB.employees.map(e => ({
+          id: e.id,
+          name: e.name,
+          email: e.email,
+          store_id: e.storeId,
+          position: e.position,
+          is_admin: e.isAdmin || false
+        })));
+      if (empError) console.error('Ошибка синхронизации сотрудников:', empError);
+    }
+    
+    // Синхронизация кодов доступа
+    if (DB.links.length > 0) {
+      const { error: linkError } = await supabaseClient
+        .from('access_codes')
+        .upsert(DB.links.map(l => ({
+          id: 'code_' + l.token,
+          code: l.token,
+          employee_id: l.employeeId,
+          course_id: l.courseId,
+          status: 'Активен'
+        })));
+      if (linkError) console.error('Ошибка синхронизации кодов:', linkError);
+    }
+    
+    updateSyncStatus('online');
+    alert('✅ Данные синхронизированы с облаком!');
+    console.log('✅ Синхронизация завершена');
+  } catch (e) {
+    console.error('Ошибка синхронизации:', e);
+    updateSyncStatus('error', e.message);
+    alert('❌ Ошибка синхронизации: ' + e.message);
+  }
+}
+// =========================================================================
+// LOCALSTORAGE БАЗА ДАННЫХ
+// =========================================================================
+const MASTER_KEY = 'master2024';
+let editorState = null;
+let currentToken = null, currentEmployee = null, currentCourse = null;
+
+const DB = {
+  get stores() { return JSON.parse(localStorage.getItem('vba_stores') || '[]'); },
+  set stores(v) { localStorage.setItem('vba_stores', JSON.stringify(v)); },
+  get employees() { return JSON.parse(localStorage.getItem('vba_employees') || '[]'); },
+  set employees(v) { localStorage.setItem('vba_employees', JSON.stringify(v)); },
+  get links() { return JSON.parse(localStorage.getItem('vba_links') || '[]'); },
+  set links(v) { localStorage.setItem('vba_links', JSON.stringify(v)); },
+  get progress() { return JSON.parse(localStorage.getItem('vba_progress') || '{}'); },
+  set progress(v) { localStorage.setItem('vba_progress', JSON.stringify(v)); },
+  get courses() { return JSON.parse(localStorage.getItem('vba_courses') || '[]'); },
+  set courses(v) { localStorage.setItem('vba_courses', JSON.stringify(v)); },
+  get webinars() { return JSON.parse(localStorage.getItem('vba_webinars') || '[]'); },
+  set webinars(v) { localStorage.setItem('vba_webinars', JSON.stringify(v)); },
+  get library() { return JSON.parse(localStorage.getItem('vba_library') || '[]'); },
+  set library(v) { localStorage.setItem('vba_library', JSON.stringify(v)); },
+  get admins() { try { return JSON.parse(localStorage.getItem('vba_admins') || '["admin@academy.ru"]'); } catch(e) { return ['admin@academy.ru']; } },
+  set admins(v) { localStorage.setItem('vba_admins', JSON.stringify(v)); },
+  get passwords() { try { return JSON.parse(localStorage.getItem('vba_passwords') || '{}'); } catch(e) { return {}; } },
+  set passwords(v) { localStorage.setItem('vba_passwords', JSON.stringify(v)); },
+  get settings() { try { return JSON.parse(localStorage.getItem('vba_settings') || '{"siteTitle":"VITACCI | BASCONI ACADEMY","siteSubtitle":"Обучающий портал холдинга","brandV":"VITACCI","brandB":"BASCONI"}'); } catch(e) { return { siteTitle: 'VITACCI | BASCONI ACADEMY', siteSubtitle: 'Обучающий портал холдинга', brandV: 'VITACCI', brandB: 'BASCONI' }; } },
+  set settings(v) { localStorage.setItem('vba_settings', JSON.stringify(v)); }
+};
+
+function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+// =========================================================================
+// МОДАЛЬНЫЕ ОКНА
+// =========================================================================
+function openModal(html, sizeClass) {
+  sizeClass = sizeClass || 'max-w-6xl';
+  const mc = document.getElementById('modalContent');
+  mc.className = 'bg-white rounded-2xl shadow-2xl w-full max-h-[95vh] overflow-y-auto scrollbar ' + sizeClass;
+  mc.innerHTML = html;
+  document.getElementById('modalContainer').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modalContainer').classList.add('hidden'); }
+document.getElementById('modalContainer').addEventListener('click', e => { if (e.target.id === 'modalContainer') closeModal(); });
+
+// =========================================================================
+// ВХОД АДМИНИСТРАТОРА
+// =========================================================================
+function showAdminLoginModal() {
+  document.getElementById('adminLoginModal').classList.remove('hidden');
+  document.getElementById('adminLoginEmail').value = '';
+  document.getElementById('adminLoginPassword').value = '';
+  document.getElementById('adminLoginError').classList.add('hidden');
+  setTimeout(() => document.getElementById('adminLoginEmail').focus(), 100);
+}
+function closeAdminLoginModal() { document.getElementById('adminLoginModal').classList.add('hidden'); }
+function showMasterLoginModal() {
+  closeAdminLoginModal();
+  document.getElementById('masterLoginModal').classList.remove('hidden');
+  document.getElementById('masterKeyInput').value = '';
+  document.getElementById('masterLoginError').classList.add('hidden');
+  setTimeout(() => document.getElementById('masterKeyInput').focus(), 100);
+}
+function closeMasterLoginModal() { document.getElementById('masterLoginModal').classList.add('hidden'); }
+
+function performAdminLogin() {
+  const email = document.getElementById('adminLoginEmail').value.trim().toLowerCase();
+  const password = document.getElementById('adminLoginPassword').value;
+  const errorEl = document.getElementById('adminLoginError');
+  if (!email) { errorEl.textContent = 'Введите email'; errorEl.classList.remove('hidden'); return; }
+  if (!password) { errorEl.textContent = 'Введите пароль'; errorEl.classList.remove('hidden'); return; }
+  const admins = DB.admins;
+  if (!admins.some(a => a.toLowerCase() === email)) { errorEl.textContent = 'Этот email не имеет прав администратора'; errorEl.classList.remove('hidden'); return; }
+  const passwords = DB.passwords;
+  const storedPassword = passwords[email];
+  if (!storedPassword) {
+    if (password === MASTER_KEY) { closeAdminLoginModal(); enterAsAdmin(email, true); return; }
+    errorEl.textContent = 'Пароль не установлен. Используйте мастер-ключ: master2024';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  if (password !== storedPassword && password !== MASTER_KEY) { errorEl.textContent = 'Неверный пароль. Попробуйте master2024'; errorEl.classList.remove('hidden'); return; }
+  errorEl.classList.add('hidden');
+  closeAdminLoginModal();
+  enterAsAdmin(email, false);
+}
+
+function performMasterLogin() {
+  const masterKey = document.getElementById('masterKeyInput').value;
+  const errorEl = document.getElementById('masterLoginError');
+  if (masterKey !== MASTER_KEY) { errorEl.textContent = 'Неверный ключ. Попробуйте: master2024'; errorEl.classList.remove('hidden'); return; }
+  errorEl.classList.add('hidden');
+  closeMasterLoginModal();
+  enterAsAdmin('admin@academy.ru', true);
+}
+
+function enterAsAdmin(email, needsPasswordSetup) {
+  localStorage.setItem('vba_admin_mode', 'true');
+  if (email) localStorage.setItem('vba_admin_email', email);
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('adminMode').classList.remove('hidden');
+  document.getElementById('courseMode').classList.add('hidden');
+  switchTab('dashboard');
+  if (needsPasswordSetup) {
+    setTimeout(() => { alert(' Вы вошли через экстренный доступ.\n\nРекомендуем установить пароль в разделе "️ Настройки" → "Администраторы".'); }, 500);
+  }
+}
+
+function exitAdminMode() {
+  localStorage.removeItem('vba_admin_mode');
+  localStorage.removeItem('vba_admin_email');
+  document.getElementById('adminMode').classList.add('hidden');
+  document.getElementById('courseMode').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+  const tokenInput = document.getElementById('tokenInput');
+  if (tokenInput) tokenInput.value = '';
+}
+
+function isAdminModeActive() { return localStorage.getItem('vba_admin_mode') === 'true'; }
+function getCurrentAdminEmail() { return localStorage.getItem('vba_admin_email') || ''; }
+function hasPassword(email) { const passwords = DB.passwords; return passwords[email.toLowerCase()] !== undefined && passwords[email.toLowerCase()] !== ''; }
+function setPassword(email, password) { const passwords = DB.passwords; passwords[email.toLowerCase()] = password; DB.passwords = passwords; }
+function removePassword(email) { const passwords = DB.passwords; delete passwords[email.toLowerCase()]; DB.passwords = passwords; }
+
+function showSetPasswordModal(email) {
+  const currentPassword = DB.passwords[email.toLowerCase()] || '';
+  openModal(
+    '<div class="p-6 max-w-lg mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">🔐 Управление паролем</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"><div class="text-xs text-blue-900"><b>Email:</b> ' + esc(email) + '</div></div><div class="space-y-3"><div><label class="text-sm text-gray-600 font-medium">Новый пароль</label><input id="newPasswordInput" type="password" placeholder="Введите новый пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><div class="text-xs text-gray-500 mt-1">Минимум 6 символов</div></div><div><label class="text-sm text-gray-600 font-medium">Подтверждение пароля</label><input id="confirmPasswordInput" type="password" placeholder="Повторите пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div id="passwordError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSavePassword" class="btn-primary flex-1">💾 Сохранить пароль</button>' + (currentPassword ? '<button type="button" id="btnRemovePassword" class="btn-danger flex-1">️ Удалить пароль</button>' : '') + '</div></div>',
+    'max-w-lg'
+  );
+  document.getElementById('btnSavePassword').onclick = function() {
+    const newPass = document.getElementById('newPasswordInput').value;
+    const confirmPass = document.getElementById('confirmPasswordInput').value;
+    const errorEl = document.getElementById('passwordError');
+    if (newPass.length < 6) { errorEl.textContent = 'Пароль должен содержать минимум 6 символов'; errorEl.classList.remove('hidden'); return; }
+    if (newPass !== confirmPass) { errorEl.textContent = 'Пароли не совпадают'; errorEl.classList.remove('hidden'); return; }
+    setPassword(email, newPass); closeModal(); renderAdminsList();
+    alert('✅ Пароль успешно установлен для ' + email);
+  };
+  if (currentPassword) {
+    document.getElementById('btnRemovePassword').onclick = function() {
+      if (confirm('Удалить пароль для ' + email + '?')) { removePassword(email); closeModal(); renderAdminsList(); alert('Пароль удалён для ' + email); }
+    };
+  }
+}
+
+function showEditEmailModal(email, idx) {
+  const isMainAdmin = email.toLowerCase() === 'admin@academy.ru';
+  openModal(
+    '<div class="p-6 max-w-lg mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">✏️ Изменить email</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div>' + (isMainAdmin ? '<div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4"><div class="text-xs text-amber-900"><b>⚠️ Внимание!</b> Вы редактируете email главного администратора.</div></div>' : '') + '<div class="space-y-3"><div><label class="text-sm text-gray-600 font-medium">Текущий email</label><div class="w-full mt-1 bg-gray-100 rounded-lg px-4 py-2 text-gray-600 font-mono">' + esc(email) + '</div></div><div><label class="text-sm text-gray-600 font-medium">Новый email</label><input id="newAdminEmailInput" type="email" value="' + esc(email) + '" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div id="editEmailError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSaveEmail" class="btn-primary flex-1">💾 Сохранить</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Отмена</button></div></div>',
+    'max-w-lg'
+  );
+  document.getElementById('btnSaveEmail').onclick = function() {
+    const newEmail = document.getElementById('newAdminEmailInput').value.trim().toLowerCase();
+    const errorEl = document.getElementById('editEmailError');
+    if (!newEmail) { errorEl.textContent = 'Введите email'; errorEl.classList.remove('hidden'); return; }
+    if (!newEmail.includes('@')) { errorEl.textContent = 'Введите корректный email'; errorEl.classList.remove('hidden'); return; }
+    if (newEmail === email.toLowerCase()) { errorEl.textContent = 'Новый email совпадает с текущим'; errorEl.classList.remove('hidden'); return; }
+    const admins = DB.admins;
+    if (admins.some(a => a.toLowerCase() === newEmail)) { errorEl.textContent = 'Этот email уже используется'; errorEl.classList.remove('hidden'); return; }
+    const passwords = DB.passwords;
+    const oldPassword = passwords[email.toLowerCase()];
+    if (oldPassword) { passwords[newEmail] = oldPassword; delete passwords[email.toLowerCase()]; DB.passwords = passwords; }
+    admins[idx] = newEmail; DB.admins = admins;
+    const employees = DB.employees;
+    const empIdx = employees.findIndex(e => e.email && e.email.toLowerCase() === email.toLowerCase());
+    if (empIdx >= 0) { employees[empIdx].email = newEmail; DB.employees = employees; }
+    const currentAdmin = getCurrentAdminEmail();
+    if (currentAdmin.toLowerCase() === email.toLowerCase()) localStorage.setItem('vba_admin_email', newEmail);
+    closeModal(); renderAdminsList(); renderEmployees();
+    alert('✅ Email изменён: ' + email + ' → ' + newEmail);
+  };
+}
+
+function renderAdminsList() {
+  const admins = DB.admins; const employees = DB.employees; const el = document.getElementById('adminsList'); if (!el) return;
+  if (admins.length === 0) { el.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Нет администраторов</div>'; return; }
+  el.innerHTML = admins.map((email, idx) => {
+    const emp = employees.find(e => e.email && e.email.toLowerCase() === email.toLowerCase());
+    const empName = emp ? emp.name : email; const empPosition = emp ? emp.position : 'Внешний администратор';
+    const empStore = emp ? (DB.stores.find(s => s.id === emp.storeId)?.name || '') : '—';
+    const isMainAdmin = email.toLowerCase() === 'admin@academy.ru';
+    const hasPass = hasPassword(email);
+    return '<div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-amber-200"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold text-sm">' + empName.charAt(0) + '</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><div class="font-medium text-gray-800 text-sm truncate">' + esc(empName) + '</div>' + (isMainAdmin ? '<span class="admin-badge">ГЛАВНЫЙ АДМИН</span>' : '<span class="admin-badge">АДМИН</span>') + '</div><div class="text-xs text-gray-500">' + esc(empPosition) + (empStore ? ' · ' + esc(empStore) : '') + '</div><div class="flex items-center gap-1 mt-1"><div class="text-xs text-gray-400 truncate font-mono">' + esc(email) + '</div><button type="button" class="edit-email-btn" onclick="showEditEmailModal(\'' + esc(email) + '\', ' + idx + ')" title="Изменить email">️</button></div></div><div class="flex flex-col gap-1"><button type="button" class="btn-primary btn-sm" onclick="showSetPasswordModal(\'' + esc(email) + '\')">' + (hasPass ? '🔑 Изменить пароль' : '🔐 Установить пароль') + '</button><div class="text-center">' + (hasPass ? '<span class="password-status password-set">✓ Пароль установлен</span>' : '<span class="password-status password-not-set">⚠ Пароль не установлен</span>') + '</div>' + (isMainAdmin ? '' : '<button type="button" class="btn-danger btn-sm" onclick="removeAdmin(' + idx + ')">✕ Удалить</button>') + '</div></div>';
+  }).join('');
+}
+
+function addAdmin() {
+  const emailInput = document.getElementById('newAdminEmail'); const email = emailInput.value.trim().toLowerCase();
+  if (!email) return alert('Введите email'); if (!email.includes('@')) return alert('Введите корректный email');
+  const admins = DB.admins;
+  if (admins.some(a => a.toLowerCase() === email)) return alert('Этот email уже добавлен');
+  const employees = DB.employees; const empIdx = employees.findIndex(e => e.email && e.email.toLowerCase() === email);
+  if (empIdx >= 0) { employees[empIdx].isAdmin = true; DB.employees = employees; }
+  admins.push(email); DB.admins = admins; emailInput.value = '';
+  renderAdminsList(); renderEmployees();
+  setTimeout(() => showSetPasswordModal(email), 300);
+}
+
+function removeAdmin(idx) {
+  const admins = DB.admins; const email = admins[idx];
+  if (email.toLowerCase() === 'admin@academy.ru') return alert('Нельзя удалить главного администратора');
+  if (!confirm('Удалить администратора ' + email + '?')) return;
+  const employees = DB.employees; const empIdx = employees.findIndex(e => e.email && e.email.toLowerCase() === email.toLowerCase());
+  if (empIdx >= 0) { employees[empIdx].isAdmin = false; DB.employees = employees; }
+  removePassword(email); admins.splice(idx, 1); DB.admins = admins;
+  renderAdminsList(); renderEmployees();
+}
+
+// =========================================================================
+// ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+// =========================================================================
+let currentTab = 'dashboard';
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  const targetTab = document.getElementById('tab-' + tab);
+  if (targetTab) targetTab.classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('tab-active'); if (btn.dataset.tab === tab) btn.classList.add('tab-active'); });
+  renderAll();
+}
+
+function renderAll() { renderSettings(); renderDashboard(); renderStores(); renderEmployees(); renderCourses(); renderLibrary(); renderWebinars(); renderLinks(); renderProgress(); renderAdminsList(); }
+
+function renderSettings() {
+  const s = DB.settings;
+  document.getElementById('siteTitle').textContent = s.siteTitle || 'VITACCI | BASCONI ACADEMY';
+  document.getElementById('siteSubtitle').textContent = s.siteSubtitle || 'Обучающий портал холдинга';
+  document.getElementById('brandNameV').textContent = s.brandV || 'VITACCI';
+  document.getElementById('brandNameB').textContent = s.brandB || 'BASCONI';
+  document.getElementById('courseFooter').textContent = '© ' + (s.siteTitle || 'VITACCI | BASCONI ACADEMY');
+  document.title = s.siteTitle || 'VITACCI | BASCONI ACADEMY';
+  const st = document.getElementById('settingSiteTitle'), ss = document.getElementById('settingSiteSubtitle');
+  if (st) st.value = s.siteTitle || ''; if (ss) ss.value = s.siteSubtitle || '';
+}
+function saveSettings() { const s = DB.settings; s.siteTitle = document.getElementById('settingSiteTitle').value.trim() || 'VITACCI | BASCONI ACADEMY'; s.siteSubtitle = document.getElementById('settingSiteSubtitle').value.trim() || 'Обучающий портал холдинга'; DB.settings = s; renderSettings(); alert('Настройки сохранены!'); }
+
+function renderBrandStats() {
+  const stores = DB.stores; const employees = DB.employees; const s = DB.settings;
+  const brandV = s.brandV || 'VITACCI'; const brandB = s.brandB || 'BASCONI';
+  const vitacciStores = stores.filter(st => st.brand === 'vitacci'); const basconiStores = stores.filter(st => st.brand === 'basconi');
+  const vitacciEmps = employees.filter(e => vitacciStores.some(s => s.id === e.storeId)); const basconiEmps = employees.filter(e => basconiStores.some(s => s.id === e.storeId));
+  const vitacciAvg = vitacciEmps.length ? Math.round(vitacciEmps.reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / vitacciEmps.length) : 0;
+  const basconiAvg = basconiEmps.length ? Math.round(basconiEmps.reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / basconiEmps.length) : 0;
+  const vitacciCompleted = vitacciEmps.filter(e => getEmployeeProgress(e.id) === 100).length;
+  const basconiCompleted = basconiEmps.filter(e => getEmployeeProgress(e.id) === 100).length;
+  const container = document.getElementById('brandStatsContainer');
+  container.innerHTML = '<div class="bg-white rounded-2xl p-6 shadow-sm card-hover brand-card-vitacci"><div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 bg-vitacci rounded-xl flex items-center justify-center text-white font-bold text-lg">' + brandV.substring(0, 1) + '</div><div><div class="font-bold text-gray-800 text-lg">' + brandV + '</div><div class="text-xs text-gray-500">Статистика по бренду</div></div></div><div class="grid grid-cols-2 gap-3"><div class="bg-rose-50 rounded-lg p-3"><div class="text-xs text-gray-500">Магазинов</div><div class="text-2xl font-bold text-vitacci">' + vitacciStores.length + '</div></div><div class="bg-rose-50 rounded-lg p-3"><div class="text-xs text-gray-500">Сотрудников</div><div class="text-2xl font-bold text-vitacci">' + vitacciEmps.length + '</div></div><div class="bg-rose-50 rounded-lg p-3"><div class="text-xs text-gray-500">Средний прогресс</div><div class="text-2xl font-bold text-vitacci">' + vitacciAvg + '%</div><div class="w-full bg-gray-200 rounded-full h-1.5 mt-1"><div class="bg-vitacci h-full rounded-full progress-bar" style="width:' + vitacciAvg + '%"></div></div></div><div class="bg-rose-50 rounded-lg p-3"><div class="text-xs text-gray-500">Завершили курс</div><div class="text-2xl font-bold text-vitacci">' + vitacciCompleted + '<span class="text-sm text-gray-500">/' + vitacciEmps.length + '</span></div></div></div></div><div class="bg-white rounded-2xl p-6 shadow-sm card-hover brand-card-basconi"><div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 bg-basconi-black rounded-xl flex items-center justify-center text-white font-bold text-lg">' + brandB.substring(0, 1) + '</div><div><div class="font-bold text-gray-800 text-lg">' + brandB + '</div><div class="text-xs text-gray-500">Статистика по бренду</div></div></div><div class="grid grid-cols-2 gap-3"><div class="bg-stone-50 rounded-lg p-3"><div class="text-xs text-gray-500">Магазинов</div><div class="text-2xl font-bold text-basconi-black">' + basconiStores.length + '</div></div><div class="bg-stone-50 rounded-lg p-3"><div class="text-xs text-gray-500">Сотрудников</div><div class="text-2xl font-bold text-basconi-black">' + basconiEmps.length + '</div></div><div class="bg-stone-50 rounded-lg p-3"><div class="text-xs text-gray-500">Средний прогресс</div><div class="text-2xl font-bold text-basconi-black">' + basconiAvg + '%</div><div class="w-full bg-gray-200 rounded-full h-1.5 mt-1"><div class="bg-basconi-black h-full rounded-full progress-bar" style="width:' + basconiAvg + '%"></div></div></div><div class="bg-stone-50 rounded-lg p-3"><div class="text-xs text-gray-500">Завершили курс</div><div class="text-2xl font-bold text-basconi-black">' + basconiCompleted + '<span class="text-sm text-gray-500">/' + basconiEmps.length + '</span></div></div></div></div>';
+}
+
+function getEmployeeTestScore(empId) {
+  const courses = DB.courses; const empLinks = DB.links.filter(l => l.employeeId === empId);
+  if (empLinks.length === 0) return { avgScore: 0, totalCorrect: 0, totalQuestions: 0, completedTests: 0, totalTests: 0 };
+  let totalCorrect = 0; let totalQuestions = 0; let completedTests = 0; let totalTests = 0;
+  empLinks.forEach(link => {
+    const course = courses.find(c => c.id === link.courseId); if (!course) return;
+    const empProgress = DB.progress[empId]?.[link.courseId] || {};
+    course.blocks.forEach(b => {
+      const quizCount = (b.quiz || []).length;
+      if (quizCount > 0) { totalTests++; const bp = empProgress[b.id]; if (bp && bp.completed && bp.total > 0) { completedTests++; totalCorrect += (bp.score || 0); totalQuestions += bp.total; } }
+    });
+  });
+  const avgScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+  return { avgScore, totalCorrect, totalQuestions, completedTests, totalTests };
+}
+
+function getTestScoreBadgeClass(score) { if (score >= 80) return 'score-excellent'; if (score >= 60) return 'score-good'; if (score >= 40) return 'score-average'; return 'score-low'; }
+function getTestScoreLabel(score) { if (score >= 80) return 'Отлично'; if (score >= 60) return 'Хорошо'; if (score >= 40) return 'Удовлетворительно'; if (score > 0) return 'Требует повторения'; return 'Не тестирован'; }
+
+function renderDashboard() {
+  const stores = DB.stores, employees = DB.employees, courses = DB.courses;
+  document.getElementById('statStores').textContent = stores.length; document.getElementById('statEmployees').textContent = employees.length; document.getElementById('statCourses').textContent = courses.length;
+  const avgProgress = employees.length ? Math.round(employees.reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / employees.length) : 0;
+  document.getElementById('statProgress').textContent = avgProgress + '%';
+  renderBrandStats();
+  const topEl = document.getElementById('topEmployees');
+  const employeesWithScores = employees.map(e => { const scoreData = getEmployeeTestScore(e.id); return { employee: e, scoreData: scoreData }; });
+  const sorted = employeesWithScores.sort((a, b) => b.scoreData.avgScore - a.scoreData.avgScore).slice(0, 5);
+  if (sorted.length === 0) { topEl.innerHTML = '<div class="text-gray-400 text-sm text-center py-4">Нет сотрудников</div>'; }
+  else {
+    topEl.innerHTML = sorted.map((item, i) => {
+      const e = item.employee; const scoreData = item.scoreData; const store = stores.find(s => s.id === e.storeId);
+      const medals = ['🥇', '🥈', '🥉']; const badgeClass = getTestScoreBadgeClass(scoreData.avgScore); const scoreLabel = getTestScoreLabel(scoreData.avgScore);
+      return '<div class="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 card-hover"><div class="text-2xl">' + (medals[i] || '') + '</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><div class="font-medium text-gray-800 text-sm">' + esc(e.name) + (e.isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div></div><div class="text-xs text-gray-500">' + esc(store?.name || '—') + '</div><div class="text-xs text-gray-500 mt-1">📝 Тестов пройдено: ' + scoreData.completedTests + ' из ' + scoreData.totalTests + '</div></div><div class="text-right"><div class="text-3xl font-bold text-vitacci">' + scoreData.avgScore + '%</div><div class="text-xs text-gray-500 mb-1">средний балл</div><span class="score-badge ' + badgeClass + '">' + scoreLabel + '</span><div class="w-24 bg-gray-100 rounded-full h-1.5 mt-2"><div class="top-score-bar h-full rounded-full progress-bar" style="width:' + scoreData.avgScore + '%"></div></div><div class="text-xs text-gray-500 mt-1">' + scoreData.totalCorrect + '/' + scoreData.totalQuestions + ' правильных</div></div></div>';
+    }).join('');
+  }
+  const storeProgEl = document.getElementById('storeProgress');
+  storeProgEl.innerHTML = stores.length === 0 ? '<div class="text-gray-400 text-sm text-center py-4">Нет магазинов</div>' : stores.map(s => { const emps = employees.filter(e => e.storeId === s.id); const avg = emps.length ? Math.round(emps.reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / emps.length) : 0; return '<div><div class="flex justify-between text-sm mb-1"><span class="font-medium text-gray-700">' + esc(s.name) + '</span><span class="text-gray-500">' + avg + '% · ' + emps.length + ' сотр.</span></div><div class="bg-gray-100 rounded-full h-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + avg + '%"></div></div></div>'; }).join('');
+}
+
+function renderStores() {
+  const stores = DB.stores, employees = DB.employees; const el = document.getElementById('storesList');
+  if (stores.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">Нет магазинов</div>'; return; }
+  el.innerHTML = stores.map(s => { const count = employees.filter(e => e.storeId === s.id).length; const avg = count ? Math.round(employees.filter(e => e.storeId === s.id).reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / count) : 0; const brandColor = s.brand === 'vitacci' ? 'bg-vitacci' : s.brand === 'basconi' ? 'bg-basconi-black' : 'bg-gradient-to-r from-vitacci to-basconi-black'; const s2 = DB.settings; const brandLabel = s.brand === 'vitacci' ? s2.brandV : s.brand === 'basconi' ? s2.brandB : s2.brandV + ' | ' + s2.brandB; return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex justify-between items-start mb-3"><div class="w-12 h-12 ' + brandColor + ' rounded-xl flex items-center justify-center text-white text-xs font-bold">' + esc(brandLabel.substring(0, 3)) + '</div><div class="flex gap-1"><button type="button" class="btn-ghost" onclick="openStoreModal(\'' + s.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteStore(\'' + s.id + '\')">🗑️</button></div></div><h3 class="font-bold text-gray-800">' + esc(s.name) + '</h3><p class="text-sm text-gray-500 mt-1">📍 ' + esc(s.address) + '</p><div class="flex gap-3 mt-4 pt-4 border-t border-gray-100"><div class="flex-1"><div class="text-xs text-gray-500">Сотрудников</div><div class="font-bold text-gray-800">' + count + '</div></div><div class="flex-1"><div class="text-xs text-gray-500">Прогресс</div><div class="font-bold text-vitacci">' + avg + '%</div></div></div></div>'; }).join('');
+}
+
+function renderEmployees() {
+  const employees = DB.employees, stores = DB.stores; const el = document.getElementById('employeesTable');
+  if (employees.length === 0) { el.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-400">Нет сотрудников</td></tr>'; return; }
+  el.innerHTML = employees.map(e => { const store = stores.find(s => s.id === e.storeId); const p = getEmployeeProgress(e.id); const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase()); return '<tr class="border-t border-gray-100 hover:bg-gray-50"><td class="p-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full gradient-btn text-white flex items-center justify-center font-bold">' + e.name.charAt(0) + '</div><div><div class="font-medium text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.email || '') + '</div></div></div></td><td class="p-4 text-sm text-gray-700">' + esc(store?.name || '—') + '</td><td class="p-4 text-sm text-gray-700">' + esc(e.position) + '</td><td class="p-4">' + (isAdmin ? '<span class="admin-badge">Администратор</span>' : '<span class="chip bg-gray-100 text-gray-600">Сотрудник</span>') + '</td><td class="p-4"><div class="flex items-center gap-2"><div class="bg-gray-100 rounded-full h-2 w-24"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div><span class="text-sm font-medium">' + p + '%</span></div></td><td class="p-4"><div class="flex gap-1"><button type="button" class="btn-ghost" onclick="openEmployeeModal(\'' + e.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteEmployee(\'' + e.id + '\')">🗑️</button></div></td></tr>'; }).join('');
+}
+
+function renderCourses() {
+  const courses = DB.courses; const el = document.getElementById('coursesList');
+  if (courses.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">Нет курсов</div>'; return; }
+  el.innerHTML = courses.map(c => {
+    const totalQuiz = c.blocks.reduce((s, b) => s + (b.quiz?.length || 0), 0);
+    const totalTheory = c.blocks.reduce((s, b) => s + (b.theoryBlocks?.length || 0), 0);
+    const totalPractice = c.blocks.reduce((s, b) => s + (b.practice?.length || 0), 0);
+    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="gradient-header p-5 text-white"><div class="text-5xl mb-2">' + (c.icon || '📚') + '</div><h3 class="font-bold text-lg">' + esc(c.title) + '</h3><p class="text-sm opacity-90 mt-1">' + esc(c.description || '') + '</p></div><div class="p-5"><div class="flex gap-2 flex-wrap mb-4 text-xs"><span class="chip bg-rose-50 text-vitacci">⏱️ ' + (c.duration || '—') + '</span><span class="chip bg-stone-100 text-basconi-black">📖 ' + c.blocks.length + ' блоков</span><span class="chip bg-blue-50 text-blue-700">📝 ' + totalQuiz + ' вопросов</span><span class="chip bg-purple-50 text-purple-700">📚 ' + totalTheory + ' блоков теории</span><span class="chip bg-green-50 text-green-700">🎯 ' + totalPractice + ' ситуаций</span></div><div class="flex gap-2"><button type="button" class="btn-primary text-sm flex-1" onclick="openCourseEditor(\'' + c.id + '\')">✏️ Редактировать</button><button type="button" class="btn-secondary text-sm" onclick="previewCourse(\'' + c.id + '\')">👁️ Предпросмотр</button><button type="button" class="btn-danger text-sm" onclick="deleteCourse(\'' + c.id + '\')">🗑️</button></div></div></div>';
+  }).join('');
+}
+
+function renderLibrary() {
+  const library = DB.library; const el = document.getElementById('libraryList');
+  if (library.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">📚</div><div class="text-lg font-medium">Библиотека пуста</div></div>'; return; }
+  el.innerHTML = library.map(item => {
+    return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex items-start gap-3 mb-3"><div class="text-3xl">📄</div><div class="flex-1 min-w-0"><div class="font-bold text-gray-800 text-sm truncate">' + esc(item.name) + '</div><div class="text-xs text-gray-500 mt-1">' + esc(item.category || 'Без категории') + '</div></div></div><div class="text-xs text-gray-500 mb-3">📅 ' + new Date(item.createdAt).toLocaleDateString('ru-RU') + '</div><div class="flex gap-2"><button type="button" class="btn-primary btn-sm flex-1">⬇️ Скачать</button><button type="button" class="btn-danger btn-sm" onclick="deleteLibraryFile(\'' + item.id + '\')">🗑️</button></div></div>';
+  }).join('');
+}
+
+function deleteLibraryFile(id) {
+  if (!confirm('Удалить файл?')) return;
+  const library = DB.library;
+  DB.library = library.filter(i => i.id !== id);
+  renderLibrary();
+}
+
+function openLibraryUploadModal() {
+  openModal(
+    '<div class="p-6 max-w-2xl mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">📤 Загрузка файла</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="space-y-4"><div><label class="text-sm text-gray-600 font-medium">Название файла</label><input id="libraryFileName" type="text" placeholder="Например: Мерчбук VITACCI ОЗ 2024" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div><label class="text-sm text-gray-600 font-medium">Категория</label><select id="libraryFileCategory" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><option value="Мерчбуки">Мерчбуки</option><option value="Инструкции">Инструкции</option><option value="Видеоуроки">Видеоуроки</option><option value="Презентации">Презентации</option><option value="Другое">Другое</option></select></div><div class="flex gap-2 mt-6"><button type="button" onclick="saveLibraryFile()" class="btn-primary flex-1">📤 Загрузить</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Отмена</button></div></div></div>',
+    'max-w-2xl'
+  );
+}
+
+function saveLibraryFile() {
+  const fileName = document.getElementById('libraryFileName').value.trim();
+  const category = document.getElementById('libraryFileCategory').value;
+  if (!fileName) return alert('Введите название файла');
+  const library = DB.library;
+  library.push({ id: 'lib_' + Date.now(), name: fileName, category: category, createdAt: Date.now(), uploadedBy: getCurrentAdminEmail() });
+  DB.library = library;
+  closeModal();
+  renderLibrary();
+  alert('✅ Файл добавлен в библиотеку!');
+}
+
+function filterLibrary(category) {
+  renderLibrary();
+}
+
+function renderWebinars() {
+  const webinars = DB.webinars; const el = document.getElementById('webinarsList');
+  if (webinars.length === 0) { el.innerHTML = '<div class="text-center py-12 text-gray-400">Нет вебинаров</div>'; return; }
+  el.innerHTML = webinars.map(w => {
+    const date = new Date(w.date); const dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }); const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    const isUpcoming = w.status === 'upcoming';
+    return '<div class="bg-white rounded-2xl shadow-sm p-6 card-hover ' + (isUpcoming ? 'border-l-4 border-vitacci' : 'border-l-4 border-gray-300') + '"><div class="flex items-start justify-between mb-4 flex-wrap gap-3"><div><div class="flex items-center gap-2"><h3 class="font-bold text-gray-800 text-lg">' + esc(w.title) + '</h3>' + (isUpcoming ? '<span class="chip bg-red-100 text-red-700">● LIVE</span>' : '<span class="chip bg-green-100 text-green-700">✓ Завершен</span>') + '</div><div class="text-sm text-gray-500 mt-1">📅 ' + dateStr + ' в ' + timeStr + ' · ⏱️ ' + w.duration + '</div></div><div class="flex gap-2"><button type="button" class="btn-ghost" onclick="openWebinarModal(\'' + w.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteWebinar(\'' + w.id + '\')">🗑️</button></div></div><p class="text-sm text-gray-600 mb-4">' + esc(w.description || '') + '</p><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Ведущий</div><div class="font-medium text-gray-800 text-sm">' + esc(w.host || '—') + '</div></div><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Участники</div><div class="font-medium text-gray-800 text-sm">' + (w.participants?.length || 0) + ' / ' + (w.maxParticipants || '∞') + '</div></div><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Ссылка</div><div class="text-sm text-vitacci font-medium truncate">' + esc(w.link || '—') + '</div></div></div></div>';
+  }).join('');
+}
+
+function openWebinarModal(webinarId) {
+  const webinar = webinarId ? DB.webinars.find(w => w.id === webinarId) : null; const dateStr = webinar ? new Date(webinar.date).toISOString().slice(0, 16) : '';
+  openModal('<div class="p-6 max-w-2xl mx-auto"><h3 class="text-xl font-bold text-gray-800 mb-4">' + (webinar ? 'Редактировать' : 'Новый') + ' вебинар</h3><div class="space-y-3"><div><label class="text-sm text-gray-600">Название</label><input id="webinarTitle" value="' + escAttr(webinar?.title || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Описание</label><textarea id="webinarDesc" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2" rows="3">' + esc(webinar?.description || '') + '</textarea></div><div class="grid grid-cols-2 gap-3"><div><label class="text-sm text-gray-600">Дата и время</label><input type="datetime-local" id="webinarDate" value="' + dateStr + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Длительность</label><input id="webinarDuration" value="' + escAttr(webinar?.duration || '60 мин') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div></div><div><label class="text-sm text-gray-600">Ссылка (Zoom, Teams)</label><input id="webinarLink" value="' + escAttr(webinar?.link || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Статус</label><select id="webinarStatus" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"><option value="upcoming"' + (webinar?.status === 'upcoming' ? ' selected' : '') + '>Предстоящий</option><option value="completed"' + (webinar?.status === 'completed' ? ' selected' : '') + '>Завершен</option></select></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSaveWebinar" class="btn-primary flex-1">Сохранить</button><button type="button" id="btnCancelWebinar" class="btn-secondary flex-1">Отмена</button></div></div>', 'max-w-2xl');
+  document.getElementById('btnSaveWebinar').onclick = function() { saveWebinar(webinarId || ''); }; document.getElementById('btnCancelWebinar').onclick = closeModal;
+}
+function saveWebinar(id) { const title = document.getElementById('webinarTitle').value.trim(); const description = document.getElementById('webinarDesc').value.trim(); const date = document.getElementById('webinarDate').value; const duration = document.getElementById('webinarDuration').value.trim(); const link = document.getElementById('webinarLink').value.trim(); const status = document.getElementById('webinarStatus').value; if (!title) return alert('Введите название'); if (!date) return alert('Выберите дату'); const webinars = DB.webinars; if (id) { const idx = webinars.findIndex(w => w.id === id); webinars[idx] = Object.assign({}, webinars[idx], { title, description, date: new Date(date).toISOString(), duration, link, status }); } else { webinars.push({ id: 'w' + Date.now(), title, description, date: new Date(date).toISOString(), duration, link, status, participants: [], createdAt: Date.now() }); } DB.webinars = webinars; closeModal(); renderAll(); }
+function deleteWebinar(id) { if (!confirm('Удалить вебинар?')) return; DB.webinars = DB.webinars.filter(w => w.id !== id); renderAll(); }
+
+function renderLinks() {
+  const links = DB.links, employees = DB.employees, stores = DB.stores, courses = DB.courses;
+  const el = document.getElementById('linksTable');
+  if (links.length === 0) { el.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-gray-400">Нет кодов доступа</td></tr>'; return; }
+  el.innerHTML = links.map(l => {
+    const emp = employees.find(e => e.id === l.employeeId); const store = stores.find(s => s.id === emp?.storeId); const course = courses.find(c => c.id === l.courseId);
+    const p = getEmployeeProgress(l.employeeId, l.courseId);
+    const statusColor = p === 100 ? 'bg-green-100 text-green-700' : p > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600';
+    const statusText = p === 100 ? 'Завершен' : p > 0 ? 'В процессе' : 'Не начат';
+    return '<tr class="border-t border-gray-100 hover:bg-gray-50"><td class="p-4"><div class="font-medium text-gray-800">' + esc(emp?.name || '—') + '</div><div class="text-xs text-gray-500">' + esc(store?.name || '') + '</div></td><td class="p-4 text-sm text-gray-700">' + esc(course ? course.title.substring(0, 35) : '—') + '</td><td class="p-4"><div class="flex items-center gap-2"><div class="token-display text-base px-3 py-2 flex-1">' + esc(l.token) + '</div><button type="button" class="btn-primary btn-sm" onclick="copyToken(\'' + l.token + '\')">📋 Скопировать</button></div></td><td class="p-4"><span class="text-xs px-2 py-1 rounded-full ' + statusColor + '">' + statusText + ' · ' + p + '%</span></td><td class="p-4"><button type="button" class="btn-ghost" onclick="deleteLink(\'' + l.token + '\')">🗑️</button></td></tr>';
+  }).join('');
+}
+
+function copyToken(token) { navigator.clipboard.writeText(token).then(function() { alert('✅ Код скопирован: ' + token); }).catch(function() { alert('Код: ' + token); }); }
+
+function showEmployeeDetails(empId, courseId) {
+  const employee = DB.employees.find(e => e.id === empId); const course = DB.courses.find(c => c.id === courseId);
+  if (!employee || !course) return;
+  const store = DB.stores.find(s => s.id === employee.storeId);
+  const empProgress = DB.progress[empId]?.[courseId] || {};
+  let totalCorrect = 0; let totalQuestions = 0; let completedTests = 0;
+  let testResults = [];
+  course.blocks.forEach((b, i) => {
+    const bp = empProgress[b.id] || {}; const score = bp.score || 0; const total = bp.total || 0; const completed = bp.completed || false;
+    totalCorrect += score; totalQuestions += total; if (completed && total > 0) completedTests++;
+    testResults.push({ blockIndex: i, blockTitle: b.title, blockIcon: b.icon, score: score, total: total, completed: completed, percentage: total > 0 ? Math.round((score / total) * 100) : 0 });
+  });
+  const avgTestScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+  const testStatus = avgTestScore >= 80 ? 'Отлично' : avgTestScore >= 60 ? 'Хорошо' : avgTestScore >= 40 ? 'Удовлетворительно' : 'Требует повторения';
+  const testStatusColor = avgTestScore >= 80 ? 'score-excellent' : avgTestScore >= 60 ? 'score-good' : avgTestScore >= 40 ? 'score-average' : 'score-low';
+  let blocksHtml = testResults.map((tr, i) => {
+    const theoryCount = (course.blocks[i].theoryBlocks || []).length; const practiceCount = (course.blocks[i].practice || []).length; const quizCount = (course.blocks[i].quiz || []).length;
+    let scoreBadge = '<span class="chip bg-gray-100 text-gray-600">Не пройден</span>';
+    if (tr.completed && tr.total > 0) { const badgeClass = tr.percentage >= 80 ? 'score-excellent' : tr.percentage >= 60 ? 'score-good' : tr.percentage >= 40 ? 'score-average' : 'score-low'; scoreBadge = '<span class="score-badge ' + badgeClass + '">' + tr.score + '/' + tr.total + ' (' + tr.percentage + '%)</span>'; }
+    return '<div class="detail-row border border-gray-200 rounded-xl p-4 mb-3 ' + (tr.completed ? 'bg-green-50/30' : 'bg-white') + '"><div class="flex items-start justify-between mb-3 flex-wrap gap-2"><div class="flex items-center gap-3"><div class="text-2xl">' + tr.blockIcon + '</div><div><div class="font-bold text-gray-800">Блок ' + (tr.blockIndex + 1) + ': ' + esc(tr.blockTitle) + '</div><div class="text-xs text-gray-500 mt-1"> ' + theoryCount + ' · 🎯 ' + practiceCount + ' · 📝 ' + quizCount + '</div></div></div>' + (tr.completed ? '<span class="chip bg-green-100 text-green-700 font-semibold">✓ Завершён</span>' : '<span class="chip bg-gray-100 text-gray-600">Не начат</span>') + '</div><div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3"><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1">📚 Теория</div><span class="chip bg-blue-100 text-blue-700">' + theoryCount + ' блоков</span></div><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1">🎯 Практика</div><span class="chip bg-green-100 text-green-700">' + practiceCount + ' ситуаций</span></div><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1">📝 Тест</div>' + scoreBadge + '</div></div></div>';
+  }).join('');
+  const totalBlocks = course.blocks.length; const completedBlocks = testResults.filter(tr => tr.completed).length;
+  const totalPractice = course.blocks.reduce((sum, b) => sum + (b.practice?.length || 0), 0);
+  openModal(
+    '<div class="p-6"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-14 h-14 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-2xl">' + employee.name.charAt(0) + '</div><div><h3 class="text-xl font-bold text-gray-800">' + esc(employee.name) + '</h3><div class="text-sm text-gray-500">' + esc(employee.position) + ' · ' + esc(store?.name || '—') + '</div></div></div><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="bg-gradient-to-br from-rose-50 to-stone-50 rounded-2xl p-5 mb-5"><div class="flex items-center gap-3 mb-3"><span class="text-3xl">' + (course.icon || '📚') + '</span><div><div class="font-bold text-gray-800 text-lg">' + esc(course.title) + '</div><div class="text-xs text-gray-500">Детальная успеваемость</div></div></div><div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Прогресс</div><div class="text-2xl font-bold text-vitacci">' + getEmployeeProgress(empId, courseId) + '%</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Блоков пройдено</div><div class="text-2xl font-bold text-gray-800">' + completedBlocks + '/' + totalBlocks + '</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Практических ситуаций</div><div class="text-2xl font-bold text-gray-800">' + totalPractice + '</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Пройдено тестов</div><div class="text-2xl font-bold text-gray-800">' + completedTests + '/' + totalBlocks + '</div></div></div></div><div class="test-result-card"><h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="text-2xl"></span> Итоги тестирования</h4><div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4"><div class="test-stat-box"><div class="test-stat-value">' + totalCorrect + '/' + totalQuestions + '</div><div class="test-stat-label">Правильных ответов</div></div><div class="test-stat-box"><div class="test-stat-value">' + avgTestScore + '%</div><div class="test-stat-label">Средний балл</div></div><div class="test-stat-box"><div class="test-stat-value">' + completedTests + '</div><div class="test-stat-label">Пройдено тестов</div></div><div class="test-stat-box"><div class="test-stat-value"><span class="score-badge ' + testStatusColor + '">' + testStatus + '</span></div><div class="test-stat-label">Общий результат</div></div></div></div><h4 class="font-bold text-gray-800 mb-3 mt-6">📋 Детализация по блокам</h4><div class="max-h-[40vh] overflow-y-auto scrollbar pr-2">' + blocksHtml + '</div><div class="flex gap-2 mt-5 pt-4 border-t border-gray-200"><button type="button" class="btn-secondary flex-1" onclick="closeModal()">Закрыть</button></div></div>',
+    'max-w-5xl'
+  );
+}
+
+function renderProgress() {
+  const employees = DB.employees;
+  const el = document.getElementById('progressList');
+  if (employees.length === 0) { el.innerHTML = '<div class="text-center py-12 text-gray-400">Нет данных</div>'; return; }
+  el.innerHTML = employees.map(e => {
+    const p = getEmployeeProgress(e.id);
+    const store = DB.stores.find(s => s.id === e.storeId);
+    const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase());
+    const empLinks = DB.links.filter(l => l.employeeId === e.id);
+    const courseId = empLinks.length > 0 ? empLinks[0].courseId : null;
+    return '<div class="bg-white rounded-2xl p-5 shadow-sm"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-lg">' + e.name.charAt(0) + '</div><div><div class="font-bold text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.position) + ' · ' + esc(store?.name || '—') + '</div></div></div><div class="text-right"><div class="text-2xl font-bold text-vitacci">' + p + '%</div><div class="text-xs text-gray-500 mb-2">прогресс</div>' + (courseId ? '<button type="button" class="btn-info btn-sm" onclick="showEmployeeDetails(\'' + e.id + '\', \'' + courseId + '\')">📊 Подробнее</button>' : '') + '</div></div><div class="bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div></div>';
+  }).join('');
+}
+
+function getEmployeeProgress(empId, courseId) {
+  const courses = DB.courses;
+  if (courseId) { const course = courses.find(c => c.id === courseId); if (!course) return 0; const empProgress = DB.progress[empId]?.[courseId] || {}; const completedBlocks = Object.values(empProgress).filter(b => b.completed).length; return course.blocks.length ? Math.round((completedBlocks / course.blocks.length) * 100) : 0; }
+  const empLinks = DB.links.filter(l => l.employeeId === empId); if (empLinks.length === 0) return 0; const total = empLinks.reduce((sum, l) => sum + getEmployeeProgress(empId, l.courseId), 0); return Math.round(total / empLinks.length);
+}
+
+function openStoreModal(storeId) {
+  const store = storeId ? DB.stores.find(s => s.id === storeId) : null;
+  openModal('<div class="p-6 max-w-lg mx-auto"><h3 class="text-xl font-bold text-gray-800 mb-4">' + (store ? 'Редактировать' : 'Новый') + ' магазин</h3><div class="space-y-3"><div><label class="text-sm text-gray-600">Название</label><input id="storeName" value="' + escAttr(store?.name || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Адрес</label><input id="storeAddress" value="' + escAttr(store?.address || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Бренд</label><select id="storeBrand" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"><option value="vitacci"' + (store?.brand === 'vitacci' ? ' selected' : '') + '>VITACCI</option><option value="basconi"' + (store?.brand === 'basconi' ? ' selected' : '') + '>BASCONI</option><option value="both"' + (store?.brand === 'both' ? ' selected' : '') + '>VITACCI | BASCONI</option></select></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSaveStore" class="btn-primary flex-1">Сохранить</button><button type="button" id="btnCancelStore" class="btn-secondary flex-1">Отмена</button></div></div>', 'max-w-lg');
+  document.getElementById('btnSaveStore').onclick = function() { saveStore(storeId || ''); };
+  document.getElementById('btnCancelStore').onclick = closeModal;
+}
+function saveStore(id) { const name = document.getElementById('storeName').value.trim(); const address = document.getElementById('storeAddress').value.trim(); const brand = document.getElementById('storeBrand').value; if (!name) return alert('Введите название'); const stores = DB.stores; if (id) { const idx = stores.findIndex(s => s.id === id); stores[idx] = Object.assign({}, stores[idx], { name: name, address: address, brand: brand }); } else { stores.push({ id: 's' + Date.now(), name: name, address: address, brand: brand, createdAt: Date.now() }); } DB.stores = stores; closeModal(); renderAll(); }
+function deleteStore(id) { if (!confirm('Удалить магазин?')) return; DB.stores = DB.stores.filter(s => s.id !== id); DB.employees = DB.employees.filter(e => e.storeId !== id); renderAll(); }
+
+function openEmployeeModal(empId) {
+  const emp = empId ? DB.employees.find(e => e.id === empId) : null; const stores = DB.stores; if (stores.length === 0) return alert('Сначала добавьте магазин');
+  openModal('<div class="p-6 max-w-lg mx-auto"><h3 class="text-xl font-bold text-gray-800 mb-4">' + (emp ? 'Редактировать' : 'Новый') + ' сотрудник</h3><div class="space-y-3"><div><label class="text-sm text-gray-600">ФИО</label><input id="empName" value="' + escAttr(emp?.name || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Email</label><input id="empEmail" value="' + escAttr(emp?.email || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Магазин</label><select id="empStore" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2">' + stores.map(s => '<option value="' + s.id + '"' + (emp?.storeId === s.id ? ' selected' : '') + '>' + esc(s.name) + '</option>').join('') + '</select></div><div><label class="text-sm text-gray-600">Должность</label><select id="empPosition" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2">' + ['Продавец', 'Старший продавец', 'Директор магазина', 'Администратор', 'Стажер'].map(p => '<option' + (emp?.position === p ? ' selected' : '') + '>' + p + '</option>').join('') + '</select></div><div class="flex items-center gap-2 p-3 bg-amber-50 rounded-lg border border-amber-200"><input type="checkbox" id="empIsAdmin" ' + ((emp?.isAdmin || DB.admins.some(a => a.toLowerCase() === (emp?.email || '').toLowerCase())) ? 'checked' : '') + ' class="w-4 h-4 text-amber-600"><label for="empIsAdmin" class="text-sm text-gray-700"><b>👑 Назначить администратором</b></label></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSaveEmp" class="btn-primary flex-1">Сохранить</button><button type="button" id="btnCancelEmp" class="btn-secondary flex-1">Отмена</button></div></div>', 'max-w-lg');
+  document.getElementById('btnSaveEmp').onclick = function() { saveEmployee(empId || ''); };
+  document.getElementById('btnCancelEmp').onclick = closeModal;
+}
+function saveEmployee(id) {
+  const name = document.getElementById('empName').value.trim();
+  const email = document.getElementById('empEmail').value.trim();
+  const storeId = document.getElementById('empStore').value;
+  const position = document.getElementById('empPosition').value;
+  const isAdmin = document.getElementById('empIsAdmin').checked;
+  
+  if (!name) return alert('Введите ФИО');
+  
+  const employees = DB.employees;
+  if (id) {
+    const idx = employees.findIndex(e => e.id === id);
+    employees[idx] = Object.assign({}, employees[idx], {
+      name: name, email: email, storeId: storeId,
+      position: position, isAdmin: isAdmin
+    });
+  } else {
+    employees.push({
+      id: 'e' + Date.now(), name: name, email: email,
+      storeId: storeId, position: position, isAdmin: isAdmin
+    });
+  }
+  DB.employees = employees;
+  
+  const admins = DB.admins;
+  if (isAdmin && email && !admins.some(a => a.toLowerCase() === email.toLowerCase())) {
+    admins.push(email);
+  } else if (!isAdmin && email) {
+    const idx2 = admins.findIndex(a => a.toLowerCase() === email.toLowerCase());
+    if (idx2 >= 0 && email.toLowerCase() !== 'admin@academy.ru') admins.splice(idx2, 1);
+  }
+  DB.admins = admins;
+  
+  closeModal();
+  renderAll();
+  
+  // Автоматическая синхронизация с облаком
+  if (isSupabaseConnected) {
+    syncToSupabase();
+  }
+}
+async function deleteEmployee(id) {
+  if (!confirm('Удалить сотрудника?')) return;
+  
+  // Удаляем из localStorage
+  DB.employees = DB.employees.filter(e => e.id !== id);
+  DB.links = DB.links.filter(l => l.employeeId !== id);
+  const p = DB.progress;
+  delete p[id];
+  DB.progress = p;
+  
+  // Удаляем из Supabase
+  if (isSupabaseConnected && supabaseClient) {
+    try {
+      const { error } = await supabaseClient
+        .from('employees')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Ошибка удаления из Supabase:', error);
+      } else {
+        console.log('✅ Сотрудник удалён из облака');
+      }
+    } catch (e) {
+      console.error('Ошибка синхронизации:', e);
+    }
+  }
+  
+  renderAll();
+}
+async function loadFromCloud() {
+  if (!isSupabaseConnected || !supabaseClient) {
+    alert('❌ Supabase не подключен');
+    return;
+  }
+  
+  try {
+    updateSyncStatus('syncing', 'Загрузка из облака...');
+    
+    const { data: employees, error } = await supabaseClient
+      .from('employees')
+      .select('*');
+    
+    if (error) {
+      console.error('Ошибка загрузки:', error);
+      updateSyncStatus('error', error.message);
+      return;
+    }
+    
+    if (employees && employees.length > 0) {
+      DB.employees = employees.map(e => ({
+        id: e.id,
+        name: e.name,
+        email: e.email,
+        storeId: e.store_id,
+        position: e.position,
+        role: e.role,
+        isAdmin: e.is_admin
+      }));
+      renderAll();
+      updateSyncStatus('online');
+      alert('✅ Загружено ' + employees.length + ' сотрудников из облака');
+    }
+  } catch (e) {
+    console.error('Ошибка:', e);
+    updateSyncStatus('error', e.message);
+  }
+}
+function openLinkModal() {
+  const employees = DB.employees, courses = DB.courses;
+  if (employees.length === 0) return alert('Сначала добавьте сотрудника');
+  if (courses.length === 0) return alert('Сначала создайте курс');
+  openModal('<div class="p-6 max-w-lg mx-auto"><h3 class="text-xl font-bold text-gray-800 mb-4">Создать код доступа</h3><div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"><div class="text-xs text-blue-900"><b>💡 Как это работает:</b><br>Система создаст уникальный код. Скопируйте и отправьте сотруднику.</div></div><div class="space-y-3"><div><label class="text-sm text-gray-600">Сотрудник</label><select id="linkEmployee" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2">' + employees.map(e => { const store = DB.stores.find(s => s.id === e.storeId); return '<option value="' + e.id + '">' + esc(e.name) + (e.isAdmin ? ' 👑' : '') + ' (' + esc(store?.name || '—') + ')</option>'; }).join('') + '</select></div><div><label class="text-sm text-gray-600">Курс</label><select id="linkCourse" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2">' + courses.map(c => '<option value="' + c.id + '">' + (c.icon || '') + ' ' + esc(c.title) + '</option>').join('') + '</select></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSaveLink" class="btn-primary flex-1">Создать код</button><button type="button" id="btnCancelLink" class="btn-secondary flex-1">Отмена</button></div></div>', 'max-w-lg');
+  document.getElementById('btnSaveLink').onclick = saveLink;
+  document.getElementById('btnCancelLink').onclick = closeModal;
+}
+
+function saveLink() {
+  const employeeId = document.getElementById('linkEmployee').value;
+  const courseId = document.getElementById('linkCourse').value;
+  const token = 'tk_' + Math.random().toString(36).substring(2, 8) + Date.now().toString(36).substring(0, 6);
+  const links = DB.links;
+  links.push({ token: token, employeeId: employeeId, courseId: courseId, createdAt: Date.now() });
+  DB.links = links;
+  closeModal(); renderAll();
+  const emp = DB.employees.find(e => e.id === employeeId);
+  const course = DB.courses.find(c => c.id === courseId);
+  openModal('<div class="p-6 max-w-lg mx-auto text-center"><div class="text-6xl mb-4">🎉</div><h3 class="text-xl font-bold text-gray-800 mb-2">Код доступа создан!</h3><p class="text-sm text-gray-600 mb-4">Отправьте код сотруднику <b>' + esc(emp?.name || '') + '</b> для курса <b>' + esc(course?.title || '') + '</b></p><div class="token-display mb-4">' + token + '</div><div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-left"><div class="text-xs text-amber-900"><b>📋 Инструкция:</b><br>1. Откройте файл портала<br>2. Введите код доступа<br>3. Нажмите "Начать обучение"</div></div><div class="flex gap-2"><button type="button" onclick="copyToken(\'' + token + '\'); closeModal();" class="btn-primary flex-1"> Скопировать</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Закрыть</button></div></div>', 'max-w-lg');
+}
+
+function deleteLink(token) { if (!confirm('Удалить код?')) return; DB.links = DB.links.filter(l => l.token !== token); renderAll(); }
+
+async function loginByToken() {
+  const token = document.getElementById('tokenInput').value.trim();
+  const errorEl = document.getElementById('loginError');
+  if (!token) { errorEl.textContent = 'Введите код доступа'; errorEl.classList.remove('hidden'); return; }
+  if (token.toLowerCase() === 'admin') { errorEl.classList.add('hidden'); showAdminLoginModal(); return; }
+  const link = DB.links.find(l => l.token === token);
+  if (!link) { errorEl.textContent = 'Код доступа не найден. Проверьте правильность ввода или обратитесь к администратору.'; errorEl.classList.remove('hidden'); return; }
+  document.getElementById('loginPage').classList.add('hidden');
+  startCourseMode(token);
+}
+
+function openCourseEditor(courseId) {
+  try {
+    let course, isNew = false;
+    if (courseId) { const found = DB.courses.find(c => c.id === courseId); if (!found) { alert('Курс не найден'); return; } course = JSON.parse(JSON.stringify(found)); }
+    else { isNew = true; course = { id: 'course_' + Date.now(), title: '', description: '', duration: '15 мин', icon: '', createdAt: Date.now(), blocks: [] }; }
+    course.blocks.forEach(b => { if (b.theory && !b.theoryBlocks) b.theoryBlocks = [{ id: 'tb_' + Date.now(), type: 'text', content: b.theory }]; if (!b.theoryBlocks) b.theoryBlocks = []; if (!b.practice) b.practice = []; });
+    editorState = { course: course, isNew: isNew, activeBlockIdx: course.blocks.length > 0 ? 0 : -1 };
+    renderCourseEditor();
+  } catch (err) { alert('Ошибка: ' + err.message); }
+}
+
+function renderCourseEditor() {
+  if (!editorState) return;
+  var c = editorState.course, isNew = editorState.isNew;
+  var blocksListHtml = c.blocks.map(function(b, i) {
+    var isActive = editorState.activeBlockIdx === i;
+    var theoryCount = (b.theoryBlocks || []).length; var practiceCount = (b.practice || []).length;
+    return '<div onclick="selectBlock(' + i + ')" class="editor-block ' + (isActive ? 'active' : '') + ' p-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-3"><span class="text-2xl">' + (b.icon || '📖') + '</span><div class="flex-1 min-w-0"><div class="font-medium text-sm text-gray-800 truncate">' + esc(b.title || 'Без названия') + '</div><div class="text-xs text-gray-500">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' · 📝 ' + (b.quiz?.length || 0) + '</div></div><div class="flex gap-1"><button type="button" onclick="event.stopPropagation(); moveBlock(' + i + ', -1)" class="btn-ghost text-xs" ' + (i === 0 ? 'disabled' : '') + '>↑</button><button type="button" onclick="event.stopPropagation(); moveBlock(' + i + ', 1)" class="btn-ghost text-xs" ' + (i === c.blocks.length - 1 ? 'disabled' : '') + '>↓</button><button type="button" onclick="event.stopPropagation(); deleteBlock(' + i + ')" class="btn-ghost text-xs" style="color:#dc2626">✕</button></div></div>';
+  }).join('');
+  var activeBlock = editorState.activeBlockIdx >= 0 ? c.blocks[editorState.activeBlockIdx] : null;
+  var blockEditorHtml = '';
+  if (activeBlock) {
+    var theoryBlocksHtml = (activeBlock.theoryBlocks || []).map(function(tb, tbi) { return renderTheoryBlock(tb, tbi); }).join('');
+    var practiceHtml = (activeBlock.practice || []).map(function(p, pi) { return renderPracticeSituation(p, pi); }).join('');
+    var quizHtml = (activeBlock.quiz || []).map(function(q, qi) {
+      return '<div class="border border-gray-200 rounded-xl p-3"><div class="flex items-center justify-between mb-2"><span class="text-xs font-medium text-gray-500">Вопрос ' + (qi + 1) + '</span><button type="button" class="text-red-500 text-xs hover:underline" onclick="removeQuizQuestion(' + qi + ')">Удалить</button></div><input value="' + escAttr(q.q) + '" oninput="updateQuizQ(' + qi + ', this.value)" placeholder="Текст вопроса" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2"><div class="space-y-1.5">' + q.options.map(function(opt, oi) {
+        return '<div class="flex items-center gap-2"><input type="radio" name="quiz' + qi + '" ' + (q.correct === oi ? 'checked' : '') + ' onchange="setQuizCorrect(' + qi + ', ' + oi + ')" class="w-4 h-4"><input value="' + escAttr(opt) + '" oninput="updateQuizOption(' + qi + ', ' + oi + ', this.value)" placeholder="Вариант ' + (oi + 1) + '" class="flex-1 border border-gray-200 rounded px-2 py-1 text-sm"><button type="button" class="text-red-400 text-xs" onclick="removeQuizOption(' + qi + ', ' + oi + ')">✕</button></div>';
+      }).join('') + '</div><button type="button" class="text-xs text-vitacci hover:underline mt-2" onclick="addQuizOption(' + qi + ')">+ Вариант ответа</button></div>';
+    }).join('');
+    blockEditorHtml = '<div class="space-y-4"><div class="grid grid-cols-2 gap-3"><div><label class="text-sm text-gray-600">Название блока</label><input id="blockTitle" value="' + escAttr(activeBlock.title) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Иконка</label><input id="blockIcon" value="' + escAttr(activeBlock.icon || '') + '" maxlength="2" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div></div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-rose-50 to-white"><div class="section-header"><div class="flex items-center gap-2"><span class="text-xl">📚</span><div><div class="font-bold text-gray-800">Теория</div><div class="text-xs text-gray-500">' + (activeBlock.theoryBlocks?.length || 0) + ' блоков</div></div></div></div><div class="flex flex-wrap gap-2 mb-3"><button type="button" class="btn-primary btn-sm" onclick="addTheoryBlock(\'text\')">📝 Текст</button><button type="button" class="btn-primary btn-sm" onclick="addTheoryBlock(\'pdf\')"> PDF</button><button type="button" class="btn-primary btn-sm" onclick="addTheoryBlock(\'image\')">🖼️ Фото</button><button type="button" class="btn-primary btn-sm" onclick="addTheoryBlock(\'video\')">🎬 Видео</button></div><div>' + theoryBlocksHtml + '</div>' + (activeBlock.theoryBlocks?.length === 0 ? '<div class="text-center py-6 text-gray-400 text-sm">Добавьте блоки теории</div>' : '') + '</div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-green-50 to-white"><div class="section-header" style="border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><div><div class="font-bold text-gray-800">Практика</div><div class="text-xs text-gray-500">' + (activeBlock.practice?.length || 0) + ' ситуаций</div></div></div></div><button type="button" class="btn-primary mb-3" onclick="addPracticeSituation()">+ Добавить ситуацию</button><div>' + practiceHtml + '</div>' + (activeBlock.practice?.length === 0 ? '<div class="text-center py-6 text-gray-400 text-sm">Добавьте практические ситуации</div>' : '') + '</div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-blue-50 to-white"><div class="section-header" style="border-left-color: #3b82f6;"><div class="flex items-center gap-2"><span class="text-xl">📝</span><div><div class="font-bold text-gray-800">Тест</div><div class="text-xs text-gray-500">' + (activeBlock.quiz?.length || 0) + ' вопросов</div></div></div></div><button type="button" class="btn-primary mb-3" onclick="addQuizQuestion()">+ Добавить вопрос</button><div class="space-y-3">' + quizHtml + '</div></div></div>';
+  } else { blockEditorHtml = '<div class="text-center py-16 text-gray-400"><div class="text-5xl mb-3"></div><div>Выберите блок слева или создайте новый</div></div>'; }
+  var html = '<div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-wrap gap-3 z-10"><div class="flex items-center gap-3"><button type="button" class="btn-ghost text-xl" onclick="closeModal()">←</button><h3 class="text-xl font-bold text-gray-800">' + (isNew ? 'Новый курс' : 'Редактирование курса') + '</h3></div><div class="flex gap-2"><button type="button" class="btn-primary" onclick="saveCourse()">💾 Сохранить</button></div></div><div class="p-6"><div class="bg-gradient-to-br from-rose-50 to-stone-50 rounded-2xl p-5 mb-6"><h4 class="font-bold text-gray-800 mb-3">📋 Основная информация</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div class="md:col-span-2"><label class="text-sm text-gray-600">Название курса</label><input id="courseTitle" value="' + escAttr(c.title) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div><div class="md:col-span-2"><label class="text-sm text-gray-600">Описание</label><textarea id="courseDesc" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white" rows="2">' + esc(c.description || '') + '</textarea></div><div><label class="text-sm text-gray-600">Длительность</label><input id="courseDur" value="' + escAttr(c.duration) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div><div><label class="text-sm text-gray-600">Иконка</label><input id="courseIcon" value="' + escAttr(c.icon || '📚') + '" maxlength="2" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div></div></div><div><div class="flex items-center justify-between mb-3"><h4 class="font-bold text-gray-800">📖 Блоки курса</h4><button type="button" class="btn-primary" onclick="addBlock()">+ Добавить блок</button></div><div class="grid grid-cols-1 lg:grid-cols-3 gap-4"><div class="lg:col-span-1 bg-white border border-gray-200 rounded-2xl p-3"><div class="space-y-2">' + (blocksListHtml || '<div class="text-center py-8 text-gray-400 text-sm">Нет блоков</div>') + '</div></div><div class="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-5">' + blockEditorHtml + '</div></div></div></div>';
+  openModal(html);
+  bindEditorFieldEvents();
+}
+
+function renderTheoryBlock(tb, tbi) {
+  var icon = tb.type === 'text' ? '📝' : tb.type === 'pdf' ? '' : tb.type === 'image' ? '️' : '🎬';
+  var typeLabel = tb.type === 'text' ? 'Текст' : tb.type === 'pdf' ? 'PDF' : tb.type === 'image' ? 'Изображение' : 'Видео';
+  var contentHtml = '';
+  if (tb.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button type="button" class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button type="button" class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button type="button" class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button type="button" class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button type="button" class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button></div><div id="theoryText_' + tbi + '" contenteditable="true" class="rich-editor p-3" style="min-height:100px">' + (tb.content || '') + '</div></div>'; }
+  else if (tb.type === 'pdf') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'theoryPdf_' + tbi + '\').click()"><input type="file" id="theoryPdf_' + tbi + '" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadTheoryFile(' + tbi + ', event)"><div class="text-gray-500 text-sm">📕 Нажмите для загрузки PDF/DOC</div></div>' + (tb.fileName ? '<div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded"><span class="text-xl"></span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName) + '</div></div></div>' : '') + '</div>'; }
+  else if (tb.type === 'image') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'theoryImg_' + tbi + '\').click()"><input type="file" id="theoryImg_' + tbi + '" accept="image/*" class="hidden" onchange="uploadTheoryImage(' + tbi + ', event)"><div class="text-gray-500 text-sm">🖼️ Нажмите для загрузки изображения</div></div>' + (tb.dataUrl ? '<div class="mt-2"><img src="' + tb.dataUrl + '" class="w-full h-40 object-cover rounded-lg"></div>' : '') + '</div>'; }
+  else if (tb.type === 'video') { contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео</label><input value="' + escAttr(tb.videoUrl || '') + '" oninput="updateTheoryVideo(' + tbi + ', this.value)" placeholder="https://..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (tb.videoUrl ? '<div class="video-container mt-2"><video controls preload="metadata" src="' + tb.videoUrl + '"></video></div>' : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>'; }
+  return '<div class="content-block"><button type="button" class="remove-btn btn-danger" onclick="removeTheoryBlock(' + tbi + ')"></button><div class="flex items-center gap-2 mb-2"><span class="text-xl">' + icon + '</span><span class="text-sm font-medium text-gray-700">' + typeLabel + '</span></div>' + contentHtml + '</div>';
+}
+
+function renderPracticeSituation(p, pi) {
+  return '<div class="practice-card"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><div><input value="' + escAttr(p.title || '') + '" oninput="updatePracticeTitle(' + pi + ', this.value)" placeholder="Название ситуации" class="font-bold text-gray-800 border-b border-transparent hover:border-gray-300 focus:border-vitacci bg-transparent px-1 py-0.5 text-sm"></div></div><button type="button" class="btn-danger" onclick="removePracticeSituation(' + pi + ')"> Удалить</button></div><div class="space-y-2 mb-3"><div><label class="text-xs text-gray-500">Описание ситуации</label><textarea oninput="updatePracticeDesc(' + pi + ', this.value)" placeholder="Описание..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm" rows="2">' + esc(p.description || '') + '</textarea></div><div><label class="text-xs text-gray-500">Вопрос к ситуации</label><textarea oninput="updatePracticeQuestion(' + pi + ', this.value)" placeholder="Вопрос..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm" rows="2">' + esc(p.question || '') + '</textarea></div></div></div>';
+}
+
+function bindEditorFieldEvents() {
+  var mc = document.getElementById('modalContent');
+  var courseTitle = mc.querySelector('#courseTitle'); var courseDesc = mc.querySelector('#courseDesc'); var courseDur = mc.querySelector('#courseDur'); var courseIcon = mc.querySelector('#courseIcon');
+  if (courseTitle) courseTitle.oninput = function() { editorState.course.title = courseTitle.value; };
+  if (courseDesc) courseDesc.oninput = function() { editorState.course.description = courseDesc.value; };
+  if (courseDur) courseDur.oninput = function() { editorState.course.duration = courseDur.value; };
+  if (courseIcon) courseIcon.oninput = function() { editorState.course.icon = courseIcon.value; };
+  var blockTitle = mc.querySelector('#blockTitle'); var blockIcon = mc.querySelector('#blockIcon');
+  if (blockTitle) blockTitle.oninput = function() { if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].title = blockTitle.value; };
+  if (blockIcon) blockIcon.oninput = function() { if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].icon = blockIcon.value; };
+  document.querySelectorAll('[id^="theoryText_"]').forEach(function(el) { el.oninput = function() { var tbi = parseInt(el.id.replace('theoryText_', '')); if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].theoryBlocks[tbi].content = el.innerHTML; }; });
+}
+
+function selectBlock(i) { editorState.activeBlockIdx = i; renderCourseEditor(); }
+function addBlock() { var c = editorState.course; c.blocks.push({ id: 'b_' + Date.now(), title: 'Новый блок', icon: '📖', videoUrl: '', theoryBlocks: [], practice: [], quiz: [] }); editorState.activeBlockIdx = c.blocks.length - 1; renderCourseEditor(); }
+function deleteBlock(i) { if (!confirm('Удалить блок?')) return; var c = editorState.course; c.blocks.splice(i, 1); if (editorState.activeBlockIdx >= c.blocks.length) editorState.activeBlockIdx = c.blocks.length - 1; renderCourseEditor(); }
+function moveBlock(i, dir) { var c = editorState.course; var j = i + dir; if (j < 0 || j >= c.blocks.length) return; var tmp = c.blocks[i]; c.blocks[i] = c.blocks[j]; c.blocks[j] = tmp; if (editorState.activeBlockIdx === i) editorState.activeBlockIdx = j; else if (editorState.activeBlockIdx === j) editorState.activeBlockIdx = i; renderCourseEditor(); }
+function addTheoryBlock(type) { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.theoryBlocks) block.theoryBlocks = []; var newBlock = { id: 'tb_' + Date.now(), type: type, content: '', key: null, dataUrl: '', videoUrl: '', fileName: '', caption: '' }; block.theoryBlocks.push(newBlock); renderCourseEditor(); }
+function removeTheoryBlock(tbi) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks.splice(tbi, 1); renderCourseEditor(); }
+function uploadTheoryFile(tbi, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; tb.fileName = file.name; tb.type = 'pdf'; renderCourseEditor(); }
+function uploadTheoryImage(tbi, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; var reader = new FileReader(); reader.onload = function(e) { tb.dataUrl = e.target.result; tb.type = 'image'; renderCourseEditor(); }; reader.readAsDataURL(file); }
+function updateTheoryVideo(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].videoUrl = value; block.theoryBlocks[tbi].type = 'video'; }
+function updateTheoryCaption(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].caption = value; }
+function addPracticeSituation() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.practice) block.practice = []; block.practice.push({ id: 'p_' + Date.now(), title: 'Новая ситуация', description: '', question: '', answers: [] }); renderCourseEditor(); }
+function removePracticeSituation(pi) { if (!confirm('Удалить ситуацию?')) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; block.practice.splice(pi, 1); renderCourseEditor(); }
+function updatePracticeTitle(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].title = value; }
+function updatePracticeDesc(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].description = value; }
+function updatePracticeQuestion(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].question = value; }
+function addQuizQuestion() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.quiz) block.quiz = []; block.quiz.push({ q: '', options: ['', ''], correct: 0 }); renderCourseEditor(); }
+function removeQuizQuestion(i) { editorState.course.blocks[editorState.activeBlockIdx].quiz.splice(i, 1); renderCourseEditor(); }
+function updateQuizQ(qi, value) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].q = value; }
+function updateQuizOption(qi, oi, value) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].options[oi] = value; }
+function addQuizOption(qi) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].options.push(''); renderCourseEditor(); }
+function removeQuizOption(qi, oi) { var q = editorState.course.blocks[editorState.activeBlockIdx].quiz[qi]; if (q.options.length <= 2) return alert('Минимум 2 варианта'); q.options.splice(oi, 1); if (q.correct >= q.options.length) q.correct = 0; renderCourseEditor(); }
+function setQuizCorrect(qi, oi) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].correct = oi; }
+function execCmd(cmd) { document.execCommand(cmd, false, null); }
+function saveCourse() { var c = editorState.course; if (!c.title.trim()) return alert('Введите название курса'); if (c.blocks.length === 0) return alert('Добавьте хотя бы один блок'); var courses = DB.courses; var idx = courses.findIndex(function(x) { return x.id === c.id; }); if (idx >= 0) courses[idx] = c; else courses.push(c); DB.courses = courses; closeModal(); renderAll(); alert('✅ Курс сохранён!'); }
+function deleteCourse(id) { if (!confirm('Удалить курс?')) return; DB.courses = DB.courses.filter(function(c) { return c.id !== id; }); DB.links = DB.links.filter(function(l) { return l.courseId !== id; }); renderAll(); }
+function previewCourse(courseId) { var course = DB.courses.find(function(c) { return c.id === courseId; }); if (!course) return; var previewEmpId = 'preview_emp_' + Date.now(); var previewToken = 'preview_' + Date.now(); var tempEmp = { id: previewEmpId, name: 'Предпросмотр', position: 'Администратор', email: 'preview@academy.ru', storeId: '' }; var tempLink = { token: previewToken, employeeId: previewEmpId, courseId: courseId, preview: true, createdAt: Date.now() }; window._previewBackup = { employees: JSON.parse(JSON.stringify(DB.employees)), links: JSON.parse(JSON.stringify(DB.links)), courses: JSON.parse(JSON.stringify(DB.courses)), progress: JSON.parse(JSON.stringify(DB.progress)) }; DB.employees = DB.employees.concat([tempEmp]); DB.links = DB.links.concat([tempLink]); startCourseMode(previewToken); }
+function exitPreview() { if (window._previewBackup) { DB.employees = window._previewBackup.employees; DB.links = window._previewBackup.links; DB.courses = window._previewBackup.courses; DB.progress = window._previewBackup.progress; window._previewBackup = null; } document.getElementById('courseMode').classList.add('hidden'); document.getElementById('adminMode').classList.remove('hidden'); renderAll(); }
+
+function startCourseMode(token) {
+  var link = DB.links.find(function(l) { return l.token === token; });
+  if (!link) { document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="text-6xl mb-4">🔒</div><h1 class="text-2xl font-bold text-gray-800">Код недействителен</h1><button type="button" onclick="location.reload()" class="btn-primary mt-4">← Вернуться</button></div></div>'; return; }
+  currentToken = token; currentEmployee = DB.employees.find(function(e) { return e.id === link.employeeId; }); currentCourse = DB.courses.find(function(c) { return c.id === link.courseId; });
+  if (!currentEmployee || !currentCourse) { document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="text-6xl mb-4">⚠️</div><h1 class="text-2xl font-bold text-gray-800">Данные не найдены</h1><button type="button" onclick="location.reload()" class="btn-primary mt-4">← Вернуться</button></div></div>'; return; }
+  var store = DB.stores.find(function(s) { return s.id === currentEmployee.storeId; });
+  document.getElementById('adminMode').classList.add('hidden'); document.getElementById('courseMode').classList.remove('hidden');
+  document.getElementById('studentName').textContent = currentEmployee.name; document.getElementById('studentStore').textContent = (store?.name || '') + (currentEmployee.position ? ' · ' + currentEmployee.position : '');
+  document.getElementById('courseTitleBox').innerHTML = '<span class="font-semibold">' + (currentCourse.icon || '') + ' ' + esc(currentCourse.title) + '</span>';
+  var header = document.getElementById('courseHeader');
+  if (link.preview) {
+    header.className = 'gradient-header text-white rounded-2xl p-6 mb-6 shadow-xl';
+    header.innerHTML = '<div class="flex items-center justify-between flex-wrap gap-4 mb-3"><div class="bg-white/20 px-3 py-1 rounded-full text-sm font-semibold">👁️ РЕЖИМ ПРЕДПРОСМОТРА</div><button type="button" onclick="exitPreview()" class="btn-ghost text-white">← Вернуться</button></div><div class="flex items-center justify-between flex-wrap gap-4"><div><div class="text-sm opacity-90 mb-1">Добро пожаловать,</div><div id="studentName" class="text-2xl font-bold">' + esc(currentEmployee.name) + '</div></div><div class="text-right"><div class="text-sm opacity-90">Прогресс</div><div id="totalProgress" class="text-3xl font-bold">0%</div></div></div><div class="mt-4 bg-white/30 rounded-full h-2 overflow-hidden"><div id="totalProgressBar" class="bg-white h-full progress-bar" style="width:0%"></div></div><div class="mt-3 text-base font-semibold">' + (currentCourse.icon || '📚') + ' ' + esc(currentCourse.title) + '</div>';
+  } else {
+    header.className = 'gradient-header text-white rounded-2xl p-6 mb-6 shadow-xl';
+  }
+  renderCourseBlocks(); updateCourseProgress();
+}
+
+function renderCourseBlocks() {
+  var progress = DB.progress[currentEmployee.id]?.[currentCourse.id] || {};
+  var container = document.getElementById('blocksContainer');
+  container.innerHTML = currentCourse.blocks.map(function(b, i) {
+    var bp = progress[b.id]; var done = bp?.completed;
+    var theoryCount = (b.theoryBlocks || []).length; var practiceCount = (b.practice || []).length;
+    var scoreInfo = '';
+    if (done && bp.score !== undefined && bp.score !== null && bp.total > 0) {
+      var pct = Math.round((bp.score / bp.total) * 100);
+      var scoreColor = pct >= 70 ? 'text-green-700 bg-green-100' : pct >= 40 ? 'text-yellow-700 bg-yellow-100' : 'text-red-700 bg-red-100';
+      scoreInfo = '<div class="text-xs mt-1"><span class="chip ' + scoreColor + '">📝 Тест: ' + bp.score + '/' + bp.total + ' (' + pct + '%)</span></div>';
+    }
+    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="p-5 flex items-center gap-4"><div class="text-3xl">' + b.icon + '</div><div class="flex-1"><div class="font-bold text-gray-800">' + esc(b.title) + '</div><div class="text-xs text-gray-500 mt-1">📚 ' + theoryCount + ' ·  ' + practiceCount + ' · 📝 ' + (b.quiz?.length || 0) + '</div>' + scoreInfo + '</div>' + (done ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">✓ Пройдено</span>' : '<button type="button" class="btn-primary text-sm" onclick="openBlock(' + i + ')">Начать</button>') + '</div></div>';
+  }).join('');
+}
+
+function updateCourseProgress() { var p = getEmployeeProgress(currentEmployee.id, currentCourse.id); document.getElementById('totalProgress').textContent = p + '%'; document.getElementById('totalProgressBar').style.width = p + '%'; }
+
+function renderTheoryContentInCourse(tb) {
+  if (tb.type === 'text') return '<div class="prose prose-sm max-w-none mb-3">' + (tb.content || '') + '</div>';
+  if (tb.type === 'pdf') return '<div class="mb-3"><div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"><span class="text-2xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName || 'Документ') + '</div></div></div></div>';
+  if (tb.type === 'image') return '<div class="mb-3"><img src="' + tb.dataUrl + '" class="w-full rounded-lg"></div>';
+  if (tb.type === 'video') return '<div class="mb-3"><div class="video-container"><video controls preload="metadata" src="' + tb.videoUrl + '"></video></div></div>';
+  return '';
+}
+
+function openBlock(idx) {
+  var block = currentCourse.blocks[idx];
+  var videoSrc = block.videoUrl || '';
+  var videoHtml = videoSrc ? '<div class="mb-4"><div class="video-container"><video controls preload="metadata" src="' + videoSrc + '"></video></div></div>' : '';
+  var theoryHtml = (block.theoryBlocks || []).map(function(tb) { return renderTheoryContentInCourse(tb); }).join('');
+  if (!theoryHtml) theoryHtml = '<div class="text-gray-400 text-sm text-center py-4">Теория не добавлена</div>';
+  var practiceHtml = (block.practice || []).map(function(p, pi) {
+    return '<div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 mb-4 border-l-4 border-green-500"><div class="flex items-start gap-3 mb-3"><div class="text-3xl">🎯</div><div class="flex-1"><div class="font-bold text-gray-800 text-lg mb-1">' + esc(p.title || 'Ситуация ' + (pi + 1)) + '</div>' + (p.description ? '<div class="text-sm text-gray-600 mb-3">' + esc(p.description) + '</div>' : '') + '</div></div><div class="bg-white rounded-lg p-4 mb-3 shadow-sm"><div class="flex items-start gap-2"><span class="text-xl">❓</span><div class="flex-1"><div class="text-xs font-semibold text-vitacci uppercase tracking-wide mb-1">Вопрос</div><div class="text-sm text-gray-800 font-medium">' + esc(p.question || '') + '</div></div></div></div><div class="bg-white rounded-lg p-4 shadow-sm"><div class="flex items-start gap-2"><span class="text-xl">💡</span><div class="flex-1"><div class="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">Ответ / Материалы</div></div></div><div class="bg-gray-50 rounded-lg p-4 text-center text-sm text-gray-500">Ответы на этот вопрос ещё не добавлены</div></div></div>';
+  }).join('');
+  if (!practiceHtml) practiceHtml = '<div class="text-gray-400 text-sm text-center py-4">Практические задания не добавлены</div>';
+  var quizBtn = block.quiz && block.quiz.length > 0 ? '<button type="button" class="btn-primary flex-1" onclick="startQuiz(' + idx + ')">Перейти к тесту →</button>' : '<button type="button" class="btn-primary flex-1" onclick="completeBlockWithoutQuiz(' + idx + ')">Завершить блок →</button>';
+  openModal('<div class="p-6"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="text-3xl">' + block.icon + '</div><div><div class="text-xs text-gray-500">Блок ' + (idx + 1) + ' из ' + currentCourse.blocks.length + '</div><h3 class="text-lg font-bold text-gray-800">' + esc(block.title) + '</h3></div></div><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div>' + videoHtml + '<div class="mb-6"><div class="section-header"><div class="flex items-center gap-2"><span class="text-xl">📚</span><span class="font-bold text-gray-800">Теория</span></div></div>' + theoryHtml + '</div><div class="mb-6"><div class="section-header" style="border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><span class="font-bold text-gray-800">Практика</span></div></div>' + practiceHtml + '</div><div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">' + quizBtn + '<button type="button" class="btn-secondary" onclick="closeModal()">Закрыть</button></div></div>', 'max-w-4xl');
+}
+
+function completeBlockWithoutQuiz(idx) {
+  var block = currentCourse.blocks[idx];
+  var progress = DB.progress;
+  if (!progress[currentEmployee.id]) progress[currentEmployee.id] = {};
+  if (!progress[currentEmployee.id][currentCourse.id]) progress[currentEmployee.id][currentCourse.id] = {};
+  progress[currentEmployee.id][currentCourse.id][block.id] = { completed: true, score: null, total: 0, at: Date.now() };
+  DB.progress = progress;
+  closeModal();
+  renderCourseBlocks();
+  updateCourseProgress();
+}
+
+function startQuiz(idx) {
+  var block = currentCourse.blocks[idx]; var answers = {};
+  function renderQ() { openModal('<div class="p-6"><div class="flex items-center justify-between mb-4"><div class="text-sm text-gray-500">Вопрос <span id="qNum">1</span> из ' + block.quiz.length + '</div></div><div id="quizBody"></div></div>'); renderQuestion(0); }
+  function renderQuestion(qIdx) {
+    if (qIdx >= block.quiz.length) {
+      var correct = 0; block.quiz.forEach(function(q, i) { if (answers[i] === q.correct) correct++; });
+      var total = block.quiz.length; var pct = Math.round((correct / total) * 100);
+      var progress = DB.progress;
+      if (!progress[currentEmployee.id]) progress[currentEmployee.id] = {};
+      if (!progress[currentEmployee.id][currentCourse.id]) progress[currentEmployee.id][currentCourse.id] = {};
+      progress[currentEmployee.id][currentCourse.id][block.id] = { completed: true, score: correct, total: total, percentage: pct, at: Date.now() };
+      DB.progress = progress;
+      var resultEmoji = pct >= 70 ? '🎉' : pct >= 40 ? '👍' : '📚';
+      var resultTitle = pct >= 70 ? 'Отличный результат!' : pct >= 40 ? 'Хорошо! Можно улучшить' : 'Пройдено. Рекомендуем повторить материал';
+      var resultColor = pct >= 70 ? 'text-green-700' : pct >= 40 ? 'text-yellow-700' : 'text-orange-700';
+      openModal('<div class="p-6 text-center"><div class="text-6xl mb-3">' + resultEmoji + '</div><h3 class="text-xl font-bold text-gray-800 mb-2">' + resultTitle + '</h3><div class="my-4"><div class="text-5xl font-bold ' + resultColor + '">' + correct + ' из ' + total + '</div><div class="text-sm text-gray-500 mt-1">Правильных ответов (' + pct + '%)</div></div><div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-gray-700">✅ Блок завершён.</div><div class="flex gap-2 justify-center"><button type="button" class="btn-primary" onclick="closeModal(); renderCourseBlocks(); updateCourseProgress();">Продолжить →</button></div></div>');
+      return;
+    }
+    var q = block.quiz[qIdx]; document.getElementById('qNum').textContent = qIdx + 1;
+    document.getElementById('quizBody').innerHTML = '<div class="mb-4"><div class="font-medium text-gray-800 mb-3">' + esc(q.q) + '</div><div class="space-y-2">' + q.options.map(function(opt, i) { return '<label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"><input type="radio" name="q' + qIdx + '" value="' + i + '" class="w-4 h-4"><span class="text-sm text-gray-700">' + esc(opt) + '</span></label>'; }).join('') + '</div></div><div class="flex gap-2"><button type="button" id="btnNextQ" class="btn-primary flex-1">' + (qIdx === block.quiz.length - 1 ? 'Завершить' : 'Далее →') + '</button></div>';
+    document.getElementById('btnNextQ').onclick = function() { var sel = document.querySelector('input[name="q' + qIdx + '"]:checked'); if (!sel) return alert('Выберите ответ'); answers[qIdx] = parseInt(sel.value); renderQuestion(qIdx + 1); };
+  }
+  renderQ();
+}
+
+function createFullCourse() {
+  return {
+    id: 'course_vm_full', title: 'Визуальный мерчендайзинг: от основ к мастерству',
+    description: 'Полный курс по оформлению торгового пространства на основе мерчбуков Basconi и Vitacci',
+    duration: '45 мин', icon: '👠', createdAt: Date.now(),
+    blocks: [
+      {
+        id: 'b1', title: 'Блок 1: Основы визуального мерчендайзинга', icon: '🎯', videoUrl: '',
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">Что такое визуальный мерчендайзинг?</h4><p class="text-sm text-gray-700 mb-3">Визуальный мерчендайзинг — это наука оформления торгового пространства, основанная на знаниях психологии человека, рекламы и маркетинга, направленная на создание привлекательной и эффективной среды для стимулирования продаж и улучшения восприятия бренда.</p>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎯 4 ключевые функции ВМ:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li><b>Демонстрировать продукцию самым выгодным образом</b></li><li><b>Обеспечить покупателям наилучший выбор</b></li><li><b>Фокусировать внимание на конкретных продуктах</b> — "золотая полка" (1,2м-1,7м)</li><li><b>Использовать площадь максимально эффективно</b></li></ul>' },
+          { id: 'tb3', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🗺️ Зоны магазина:</h4><div class="grid grid-cols-3 gap-2 text-xs mb-3"><div class="bg-red-50 p-2 rounded border-l-4 border-red-500"><b class="text-red-700">Горячая зона</b><br>Входная часть, хиты продаж</div><div class="bg-yellow-50 p-2 rounded border-l-4 border-yellow-500"><b class="text-yellow-700">Теплая зона</b><br>Центр ТЗ, зона кассы</div><div class="bg-blue-50 p-2 rounded border-l-4 border-blue-500"><b class="text-blue-700">Холодная зона</b><br>Дальняя часть, распродажа</div></div>' },
+          { id: 'tb4', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">👟 Базовые правила выкладки:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li><b>Правые полупарки:</b> женский 37, мужской 41</li><li><b>Предпродажная подготовка:</b> снять бумагу, убрать набивку</li><li><b>Шахматная выкладка:</b> параллельно-перпендикулярная</li></ul>' }
+        ],
+        practice: [
+          { id: 'p1', title: 'Ситуация 1', description: 'На полке выставлена обувь в ряд без шахматного расположения', question: 'Какое правило визуального мерчендайзинга нарушено?', answers: [] },
+          { id: 'p2', title: 'Ситуация 2', description: 'Сапоги размещены на верхней полке вместо нижней', question: 'Какие правила размещения обуви на полках нарушены?', answers: [] },
+          { id: 'p3', title: 'Ситуация 3', description: 'В витрине представлена только одна пара обуви на модель', question: 'Какие стандарты оформления витрин нарушены?', answers: [] }
+        ],
+        quiz: [
+          { q: 'Какие размеры правых полупарок выставляются по умолчанию?', options: ['Женский 36, мужской 40', 'Женский 37, мужской 41', 'Женский 38, мужской 42', 'Женский 39, мужской 43'], correct: 1 },
+          { q: 'Что необходимо сделать с обувью перед выкладкой?', options: ['Снять упаковочную бумагу и набивку', 'Натереть воском', 'Проверить размеры', 'Все вышеперечисленное'], correct: 0 },
+          { q: 'Какое расположение моделей на полке правильное?', options: ['В ряд', 'В шахматном порядке', 'По высоте каблука', 'По цвету'], correct: 1 },
+          { q: 'Что такое "золотая полка"?', options: ['Полка у кассы', 'Полка с дорогими товарами', 'Полка на уровне глаз (1,2м-1,7м)', 'Полка с акциями'], correct: 2 }
+        ]
+      },
+      {
+        id: 'b2', title: 'Блок 2: Сезонные стратегии и зонирование', icon: '🗓️', videoUrl: '',
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">👥 Гендерное зонирование:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Магазин делится на женскую (70% площади) и мужскую зоны</li><li>При 2+ витринах — делить по гендерному признаку</li><li>При одной витрине — предпочтение женскому ассортименту</li></ul>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2"> Стилевые группы:</h4><div class="grid grid-cols-3 gap-2 text-xs mb-3"><div class="bg-purple-50 p-2 rounded"><b class="text-purple-700">Classic</b><br>Туфли, лоферы, ботинки на тонкой подошве</div><div class="bg-green-50 p-2 rounded"><b class="text-green-700">Casual</b><br>Ботинки, казаки, сапоги кэжуал</div><div class="bg-blue-50 p-2 rounded"><b class="text-blue-700">Sport/Active</b><br>Кеды и кроссовки</div></div>' },
+          { id: 'tb3', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2"> Капсульная выкладка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Максимум 3 оттенка в капсуле</li><li>От светлого к темному слева направо и снизу вверх</li><li>Товары одного цвета — по диагонали на двух соседних полках</li></ul>' }
+        ],
+        practice: [{ id: 'p1', title: 'Ситуация 1', description: 'Перед вами схема магазина с указанием горячих, теплых и холодных зон', question: 'Распределите товары по зонам.', answers: [] }],
+        quiz: [
+          { q: 'Как распределить витрины при наличии двух?', options: ['Обе женские', 'Обе мужские', 'По гендерному признаку', 'Чередовать'], correct: 2 },
+          { q: 'Максимум цветов в капсульной выкладке?', options: ['1', '2', '3', '4'], correct: 2 },
+          { q: 'Как выставлять обувь по цвету?', options: ['От темного к светлому', 'От светлого к темному слева направо и снизу вверх', 'Случайно', 'Черное рядом с белым'], correct: 1 },
+          { q: 'Какой процент площади занимает женская зона?', options: ['50%', '60%', '70%', '80%'], correct: 2 }
+        ]
+      },
+      {
+        id: 'b3', title: 'Блок 3: Презентационные зоны и витрины', icon: '🪟', videoUrl: '',
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🪟 Витрины:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Чистая, аккуратная, привлекательная</li><li>Не более 3 оттенков на одной витрине</li><li>На верхние полки — классика, на нижние — кэжуал</li><li>Минимум 2 пары на модель в витрине</li><li>Обновление — не реже 1 раза в 2 недели</li></ul>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2"> Презентационный стол:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700 mb-3"><li>Это "внутренняя витрина" магазина</li><li>Выкладка — целостная гармоничная история</li><li>Обновление каждые 2 недели</li></ul><h4 class="font-bold text-gray-800 mb-2">⚡ Зона импульсного спроса:</h4><p class="text-sm text-gray-700">Прикассовая, кассовая и закассовая зона. Принцип: "Увидел — купил!"</p>' }
+        ],
+        practice: [{ id: 'p1', title: 'Ситуация 1', description: 'Фото витрины с единственной парой обуви на модель', question: 'Какое правило оформления витрины нарушено?', answers: [] }],
+        quiz: [
+          { q: 'Сколько пар обуви на модель в витрине?', options: ['Не менее 1', 'Не менее 2', 'Не менее 3', 'Не менее 4'], correct: 1 },
+          { q: 'Как часто обновлять витрину?', options: ['Каждые 3 дня', 'Каждую неделю', 'Каждые две недели', 'Каждый месяц'], correct: 2 },
+          { q: 'Что такое "зона импульсного спроса"?', options: ['Входная группа', 'Презентационный стол', 'Прикассовая, кассовая и закассовая зона', 'Дальние ниши'], correct: 2 }
+        ]
+      },
+      {
+        id: 'b4', title: 'Блок 4: Ротация и поддержание стандартов', icon: '', videoUrl: '',
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🔄 Типы ротации:</h4><div class="space-y-2 mb-3"><div class="bg-rose-50 p-3 rounded-lg border-l-4 border-vitacci"><b class="text-vitacci">Частичная ротация</b><p class="text-sm text-gray-700">Каждые 2 недели. Обновление витрин и презентационного стола.</p></div><div class="bg-amber-50 p-3 rounded-lg border-l-4 border-amber-500"><b class="text-amber-700">Межсезонная ротация</b><p class="text-sm text-gray-700">При смене сезонов ОЗ/ВЛ. Перегруппировка всего ассортимента.</p></div><div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500"><b class="text-blue-700">Глобальная ротация</b><p class="text-sm text-gray-700">1-2 раза в год. Полная перестановка оборудования.</p></div></div>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">✅ Ежедневная проверка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Освещение — все лампы рабочие</li><li>Выкладка — шахматная, по цвету</li><li>POS-материалы — на уровне глаз</li></ul>' }
+        ],
+        practice: [{ id: 'p1', title: 'Ситуация 1', description: 'Сегодня 15 ноября, начало зимнего сезона, поступила новая коллекция ОЗ', question: 'Какую ротацию необходимо провести?', answers: [] }],
+        quiz: [
+          { q: 'Какие виды ротации выделяются?', options: ['Частичная, межсезонная, глобальная', 'Ежедневная, еженедельная', 'По моделям, цветам', 'Плановая, внеплановая'], correct: 0 },
+          { q: 'Что такое "золотая полка"?', options: ['Полка у кассы', 'Полка с дорогими товарами', 'Полка на уровне глаз покупателя', 'Полка с акциями'], correct: 2 },
+          { q: 'Где размещать несезонную обувь?', options: ['У входа', 'В горячих зонах', 'В холодных зонах', 'На презентационном столе'], correct: 2 }
+        ]
+      },
+      {
+        id: 'b5', title: 'Блок 5: Интеграция знаний и практика', icon: '🏆', videoUrl: '',
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">📈 Связь ВМ с продажами:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Правильная выкладка увеличивает продажи на 20-30%</li><li>Витрина увеличивает трафик на 25-30%</li><li>Золотая полка — высота 1,2м до 1,7м</li></ul>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">⚠️ Типичные ошибки:</h4><div class="space-y-2 mb-3"><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700">❌ Ошибка 1: Неправильное зонирование</b><p class="text-sm text-gray-700">Мужская обувь у входа.<br><b class="text-green-700">✅ Решение:</b> женская зона 70% площади, ближе к входу</p></div><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700">❌ Ошибка 2: Нарушение шахматной выкладки</b><p class="text-sm text-gray-700">Обувь в ряд.<br><b class="text-green-700">✅ Решение:</b> шахматный порядок</p></div></div>' }
+        ],
+        practice: [{ id: 'p1', title: 'Финальная ситуация', description: 'Перед вами фото торгового зала', question: 'Проведите полный аудит выкладки', answers: [] }],
+        quiz: [
+          { q: 'Какая зона называется "зоной импульсного спроса"?', options: ['Входная группа', 'Презентационный стол', 'Прикассовая, кассовая и закассовая зона', 'Дальние ниши'], correct: 2 },
+          { q: 'Что такое капсульная выкладка?', options: ['По размерам', 'Взаимозаменяемые предметы, сочетающиеся по цвету, фактуре и стилю', 'Только продаваемые модели', 'От дешевого к дорогому'], correct: 1 },
+          { q: 'Какие три стиля группировки обуви?', options: ['Formal, Business, Sport', 'Classic, Casual, Sport', 'Elegant, Simple, Active', 'Luxury, Basic, Trendy'], correct: 1 },
+          { q: 'Что НЕ относится к функциям ВМ?', options: ['Демонстрировать продукцию', 'Обеспечить выбор', 'Фокусировать внимание', 'Увеличивать цены'], correct: 3 }
+        ]
+      }
+    ]
+  };
+}
+
+async function initDemo() {
+  if (DB.stores.length === 0) {
+    DB.stores = [
+      { id: 's1', name: 'VITACCI ТЦ "Европа"', address: 'Москва, ул. Тверская 15', brand: 'vitacci', createdAt: Date.now() },
+      { id: 's2', name: 'VITACCI ТРЦ "Мега"', address: 'Москва, МКАД 24 км', brand: 'vitacci', createdAt: Date.now() },
+      { id: 's3', name: 'BASCONI ТРЦ "Авиапарк"', address: 'Москва, Ходынский бульвар 4', brand: 'basconi', createdAt: Date.now() },
+      { id: 's4', name: 'BASCONI ТЦ "Афимолл"', address: 'Москва, Пресненская наб. 2', brand: 'basconi', createdAt: Date.now() }
+    ];
+    DB.employees = [
+      { id: 'e1', storeId: 's1', name: 'Иванова Мария', position: 'Старший продавец', email: 'ivanova@vitacci.ru', isAdmin: false },
+      { id: 'e2', storeId: 's1', name: 'Петров Алексей', position: 'Продавец', email: 'petrov@vitacci.ru', isAdmin: false },
+      { id: 'e3', storeId: 's2', name: 'Смирнова Ольга', position: 'Директор магазина', email: 'smirnova@vitacci.ru', isAdmin: true },
+      { id: 'e4', storeId: 's3', name: 'Сидорова Анна', position: 'Директор магазина', email: 'sidorova@basconi.ru', isAdmin: false },
+      { id: 'e5', storeId: 's3', name: 'Козлов Дмитрий', position: 'Продавец', email: 'kozlov@basconi.ru', isAdmin: false },
+      { id: 'e6', storeId: 's4', name: 'Новикова Екатерина', position: 'Старший продавец', email: 'novikova@basconi.ru', isAdmin: false }
+    ];
+  }
+  if (DB.courses.length === 0) DB.courses = [createFullCourse()];
+  if (DB.admins.length === 0) { DB.admins = ['admin@academy.ru', 'smirnova@vitacci.ru']; }
+  const passwords = DB.passwords;
+  if (!passwords['admin@academy.ru']) { passwords['admin@academy.ru'] = 'admin123'; DB.passwords = passwords; }
+}
+
+async function init() {
+  console.log('🚀 Инициализация приложения...');
+  let connected = false;
+  try {
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Таймаут')), 8000));
+    connected = await Promise.race([initSupabase(), timeoutPromise]);
+  } catch (e) {
+    console.warn('⚠️ Supabase недоступен:', e.message);
+    connected = false;
+  }
+  if (connected) {
+    console.log('✅ Supabase подключен, загружаем данные...');
+    try {
+      const { data: stores, error: storeError } = await supabaseClient.from('stores').select('*');
+      if (!storeError && stores && stores.length > 0) {
+        DB.stores = stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand, createdAt: s.created_at }));
+        console.log('✅ Магазинов:', stores.length);
+      }
+      const { data: employees, error: empError } = await supabaseClient.from('employees').select('*');
+      if (!empError && employees && employees.length > 0) {
+        DB.employees = employees.map(e => ({ id: e.id, name: e.name, email: e.email, storeId: e.store_id, position: e.position, role: e.role, isAdmin: e.is_admin }));
+        console.log('✅ Сотрудников:', employees.length);
+      }
+    } catch (e) {
+      console.error('Ошибка загрузки из Supabase:', e);
+      await initDemo();
+    }
+  } else {
+    console.log('💾 Используем локальные данные');
+    await initDemo();
+  }
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  if (loadingOverlay) loadingOverlay.classList.add('hidden');
+  if (isAdminModeActive()) {
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('adminMode').classList.remove('hidden');
+    document.getElementById('courseMode').classList.add('hidden');
+    switchTab('dashboard');
+    return;
+  }
+  const params = new URLSearchParams(location.search);
+  const hashParams = new URLSearchParams(location.hash.substring(1));
+  const token = params.get('token') || hashParams.get('token');
+  if (token) {
+    const link = DB.links.find(l => l.token === token);
+    if (link) { startCourseMode(token); return; }
+  }
+  document.getElementById('loginPage').classList.remove('hidden');
+  document.getElementById('adminMode').classList.add('hidden');
+  document.getElementById('courseMode').classList.add('hidden');
+  const tokenInput = document.getElementById('tokenInput');
+  if (tokenInput) {
+    tokenInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') loginByToken(); });
+    tokenInput.focus();
+  }
+  console.log('✅ Приложение готово');
+  console.log('📧 Email: admin@academy.ru');
+  console.log(' Пароль: admin123');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
