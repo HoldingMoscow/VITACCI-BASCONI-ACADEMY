@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VITACCI | BASCONI ACADEMY</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/montserrat@5.0.0/index.css">
 <script>
   tailwind.config = {
@@ -20,107 +21,78 @@
   }
 </script>
 <style>
-  body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
-  .gradient-header { background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); }
-  .gradient-btn { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); }
-  .gradient-btn:hover { opacity: 0.9; }
-  .card-hover { transition: all 0.3s ease; }
-  .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(139, 30, 63, 0.15); }
-  .fade-in { animation: fadeIn 0.4s ease-in; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .progress-bar { transition: width 0.5s ease; }
-  .modal-backdrop { backdrop-filter: blur(4px); }
-  .tab-active { border-bottom: 3px solid #8B1E3F; color: #fff; font-weight: 600; }
-  .scrollbar::-webkit-scrollbar { width: 6px; }
-  .scrollbar::-webkit-scrollbar-thumb { background: #D4A5A0; border-radius: 3px; }
-  .drop-zone { border: 2px dashed #D4A5A0; border-radius: 0.75rem; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; background: #fdf2f4; }
-  .drop-zone:hover, .drop-zone.dragover { border-color: #8B1E3F; background: #fce7ef; }
-  .video-container { position: relative; background: #000; border-radius: 0.75rem; overflow: hidden; }
-  .video-container video { width: 100%; display: block; }
-  .chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; }
-  .editor-block { border-left: 3px solid transparent; transition: all 0.2s; }
-  .editor-block.active { border-left-color: #8B1E3F; background: #fdf2f4; }
-  .rich-editor { min-height: 120px; font-family: 'Montserrat', sans-serif; }
-  .rich-editor:focus { outline: none; }
-  .toolbar-btn { padding: 0.375rem 0.5rem; border-radius: 0.375rem; color: #475569; cursor: pointer; }
-  .toolbar-btn:hover { background: #f1e5e7; }
-  .btn-primary { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; transition: opacity 0.2s; cursor: pointer; border: none; font-size: 0.875rem; }
-  .btn-primary:hover { opacity: 0.9; }
-  .btn-secondary { background: #f3f4f6; color: #1A1A1A; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
-  .btn-secondary:hover { background: #e5e7eb; }
-  .btn-danger { background: #fee2e2; color: #dc2626; padding: 0.375rem 0.625rem; border-radius: 0.375rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.75rem; }
-  .btn-danger:hover { background: #fecaca; }
-  .btn-ghost { background: transparent; color: #6b7280; padding: 0.375rem; border-radius: 0.375rem; cursor: pointer; border: none; }
-  .btn-ghost:hover { background: #f3f4f6; }
-  .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
-  .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
-  .btn-info:hover { opacity: 0.9; }
-  .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
-  .btn-success:hover { opacity: 0.9; }
-  .brand-divider { height: 1px; background: linear-gradient(90deg, transparent, #D4A5A0, transparent); }
-  .webinar-live { animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-  .logo-upload-area { border: 2px dashed #D4A5A0; border-radius: 0.75rem; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
-  .logo-upload-area:hover { border-color: #8B1E3F; background: #fdf2f4; }
-  .content-block { border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; background: white; position: relative; }
-  .practice-card { border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; background: #fafafa; }
-  .answer-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; margin-bottom: 0.5rem; }
-  .section-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: linear-gradient(135deg, #fdf2f4 0%, #fef3c7 100%); border-radius: 0.75rem; margin-bottom: 1rem; border-left: 4px solid #8B1E3F; }
-  .brand-card-vitacci { border-left: 4px solid #8B1E3F; }
-  .brand-card-basconi { border-left: 4px solid #1A1A1A; }
-  .preview-banner { background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%); color: white; position: relative; overflow: hidden; }
-  .preview-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%); pointer-events: none; }
-  .preview-banner .preview-badge { background: rgba(255,255,255,0.95); color: #dc2626; font-weight: 700; padding: 0.5rem 1rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 0.875rem; }
-  .preview-banner .btn-back { background: rgba(255,255,255,0.95); color: #dc2626; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-  .preview-banner .btn-back:hover { background: white; transform: translateY(-1px); }
-  .admin-badge { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.625rem; font-weight: 700; }
-  .admin-card { border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
-  .theory-type-btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 0.875rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; cursor: pointer; border: 1px solid #e5e7eb; background: white; transition: all 0.2s; }
-  .theory-type-btn:hover { background: #fdf2f4; border-color: #8B1E3F; color: #8B1E3F; }
-  @media print { .no-print { display: none !important; } body { background: white; } }
-  .login-page { min-height: 100vh; background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; }
-  .login-card { background: white; border-radius: 1.5rem; padding: 2.5rem; max-width: 480px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
-  .token-display { font-family: 'Courier New', monospace; background: linear-gradient(135deg, #fdf2f4 0%, #fef3c7 100%); border: 2px dashed #8B1E3F; border-radius: 0.75rem; padding: 1rem; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; color: #8B1E3F; text-align: center; word-break: break-all; }
-  .token-input { font-family: 'Courier New', monospace; letter-spacing: 0.1em; font-weight: 600; text-transform: uppercase; }
-  .admin-login-btn { background: linear-gradient(135deg, #1A1A1A 0%, #4B5563 100%); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; width: 100%; justify-content: center; }
-  .admin-login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
-  .detail-row { transition: all 0.2s; }
-  .detail-row:hover { background: #f9fafb; }
-  .score-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
-  .score-excellent { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-  .score-good { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
-  .score-average { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
-  .score-low { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
-  .test-result-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
-  .test-stat-box { background: white; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-  .test-stat-value { font-size: 2rem; font-weight: 700; color: #8B1E3F; }
-  .test-stat-label { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
-  .top-score-bar { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
-  .password-status { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
-  .password-set { background: #dcfce7; color: #166534; }
-  .password-not-set { background: #fee2e2; color: #991b1b; }
-  .edit-email-btn { background: #f3f4f6; color: #6b7280; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; border: none; transition: all 0.2s; }
-  .edit-email-btn:hover { background: #e5e7eb; color: #1f2937; }
-  .library-card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: all 0.3s ease; border: 1px solid #e5e7eb; }
-  .library-card:hover { box-shadow: 0 8px 24px rgba(139, 30, 63, 0.15); transform: translateY(-2px); }
-  .file-icon { width: 48px; height: 48px; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-  .file-icon-pdf { background: #fee2e2; color: #dc2626; }
-  .file-icon-excel { background: #dcfce7; color: #16a34a; }
-  .file-icon-word { background: #dbeafe; color: #2563eb; }
-  .file-icon-video { background: #f3e8ff; color: #9333ea; }
-  .file-icon-other { background: #f3f4f6; color: #6b7280; }
-  .category-filter { padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: 1px solid #e5e7eb; background: white; transition: all 0.2s; }
-  .category-filter:hover { background: #fdf2f4; border-color: #8B1E3F; }
-  .category-filter.active { background: #8B1E3F; color: white; border-color: #8B1E3F; }
-  .student-answer-item { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 0.75rem; margin-bottom: 0.5rem; }
-  .practice-answer-editor { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 2px solid #10b981; border-radius: 1rem; padding: 1.25rem; margin-top: 1rem; }
-  .answer-type-btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; cursor: pointer; border: 2px solid #e5e7eb; background: white; transition: all 0.2s; }
-  .answer-type-btn:hover { background: #fdf2f4; border-color: #8B1E3F; }
-  .save-indicator { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition: all 0.3s; }
-  .save-indicator.saved { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-  .save-indicator.unsaved { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
-  @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-  .save-notification { animation: slideIn 0.3s ease-out; }
+body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
+.gradient-header { background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); }
+.gradient-btn { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); }
+.gradient-btn:hover { opacity: 0.9; }
+.card-hover { transition: all 0.3s ease; }
+.card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(139, 30, 63, 0.15); }
+.fade-in { animation: fadeIn 0.4s ease-in; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.progress-bar { transition: width 0.5s ease; }
+.modal-backdrop { backdrop-filter: blur(4px); }
+.tab-active { border-bottom: 3px solid #8B1E3F; color: #fff !important; font-weight: 600; }
+.scrollbar::-webkit-scrollbar { width: 6px; }
+.scrollbar::-webkit-scrollbar-thumb { background: #D4A5A0; border-radius: 3px; }
+.btn-primary { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary { background: #f3f4f6; color: #1A1A1A; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+.btn-secondary:hover { background: #e5e7eb; }
+.btn-danger { background: #fee2e2; color: #dc2626; padding: 0.375rem 0.625rem; border-radius: 0.375rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.75rem; }
+.btn-ghost { background: transparent; color: #6b7280; padding: 0.375rem; border-radius: 0.375rem; cursor: pointer; border: none; }
+.btn-ghost:hover { background: #f3f4f6; }
+.btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+.btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
+.admin-badge { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.625rem; font-weight: 700; }
+.admin-card { border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
+.chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; }
+.score-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+.score-excellent { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+.score-good { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
+.score-average { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+.score-low { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+.top-score-bar { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+.password-status { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+.password-set { background: #dcfce7; color: #166534; }
+.password-not-set { background: #fee2e2; color: #991b1b; }
+.edit-email-btn { background: #f3f4f6; color: #6b7280; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; cursor: pointer; border: none; }
+.brand-card-vitacci { border-left: 4px solid #8B1E3F; }
+.brand-card-basconi { border-left: 4px solid #1A1A1A; }
+.test-result-card { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+.test-stat-box { background: white; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.test-stat-value { font-size: 2rem; font-weight: 700; color: #8B1E3F; }
+.test-stat-label { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+.detail-row { transition: all 0.2s; }
+.detail-row:hover { background: #f9fafb; }
+.sync-indicator { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+.sync-online { background: #dcfce7; color: #166534; }
+.sync-offline { background: #fee2e2; color: #991b1b; }
+.sync-syncing { background: #fef3c7; color: #92400e; }
+.sync-error { background: #fee2e2; color: #991b1b; }
+.loading-overlay { position: fixed; inset: 0; background: rgba(139, 30, 63, 0.95); z-index: 100; display: flex; align-items: center; justify-content: center; flex-direction: column; color: white; }
+.loading-spinner { width: 48px; height: 48px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.login-page { min-height: 100vh; background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.login-card { background: white; border-radius: 1.5rem; padding: 2.5rem; max-width: 480px; width: 100%; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+.token-input { font-family: 'Courier New', monospace; letter-spacing: 0.1em; font-weight: 600; text-transform: uppercase; }
+.token-display { font-family: 'Courier New', monospace; background: linear-gradient(135deg, #fdf2f4 0%, #fef3c7 100%); border: 2px dashed #8B1E3F; border-radius: 0.75rem; padding: 1rem; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; color: #8B1E3F; text-align: center; word-break: break-all; }
+.admin-login-btn { background: linear-gradient(135deg, #1A1A1A 0%, #4B5563 100%); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; width: 100%; justify-content: center; }
+.admin-login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+.preview-banner { background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%); color: white; position: relative; overflow: hidden; }
+.preview-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%); pointer-events: none; }
+.preview-banner .preview-badge { background: rgba(255,255,255,0.95); color: #dc2626; font-weight: 700; padding: 0.5rem 1rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 0.875rem; }
+.preview-banner .btn-back { background: rgba(255,255,255,0.95); color: #dc2626; font-weight: 600; padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; cursor: pointer; }
+.preview-banner .btn-back:hover { background: white; }
+.practice-answer-editor { background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 2px solid #10b981; border-radius: 1rem; padding: 1.25rem; margin-top: 1rem; }
+.answer-type-btn { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 500; cursor: pointer; border: 2px solid #e5e7eb; background: white; transition: all 0.2s; }
+.answer-type-btn:hover { background: #fdf2f4; border-color: #8B1E3F; }
+.save-indicator { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; }
+.save-indicator.saved { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.save-indicator.unsaved { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.save-notification { animation: slideIn 0.3s ease-out; }
+@media print { .no-print { display: none !important; } body { background: white; } }
 </style>
 </head>
 <body class="min-h-screen">
@@ -131,7 +103,7 @@
   <div class="text-sm opacity-80" id="loadingStatus">Подключение к облаку...</div>
 </div>
 
-<div id="loginPage" class="login-page">
+<div id="loginPage" class="login-page hidden">
   <div class="login-card">
     <div class="text-center mb-6">
       <div class="flex items-center justify-center gap-3 mb-4">
@@ -141,35 +113,55 @@
       </div>
       <h1 class="text-2xl font-bold text-gray-800">VITACCI | BASCONI ACADEMY</h1>
       <p class="text-sm text-gray-500 mt-1">Обучающий портал холдинга</p>
+      <div id="syncStatus" class="mt-2"></div>
     </div>
-    <div id="loginFormContainer">
-      <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-6">
-        <div class="flex items-start gap-3">
-          <div class="text-2xl">🎓</div>
-          <div>
-            <div class="font-bold text-gray-800 text-sm">Вход по коду доступа</div>
-            <div class="text-xs text-gray-600 mt-1">Введите код, который вам отправил администратор</div>
-          </div>
-        </div>
-      </div>
-      <div class="space-y-4">
+    <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-6">
+      <div class="flex items-start gap-3">
+        <div class="text-2xl"></div>
         <div>
-          <label class="text-sm text-gray-600 font-medium">Код доступа</label>
-          <input id="tokenInput" type="text" placeholder="Например: tk_abc123..." class="token-input w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-3 text-lg focus:border-vitacci focus:outline-none transition">
-          <div class="text-xs text-gray-500 mt-1">💡 Код начинается с <b>tk_</b></div>
+          <div class="font-bold text-gray-800 text-sm">Вход по коду доступа</div>
+          <div class="text-xs text-gray-600 mt-1">Введите код, который вам отправил администратор</div>
         </div>
-        <div id="loginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
-        <button onclick="loginByToken()" class="btn-primary w-full py-3 text-base font-semibold">🚀 Начать обучение</button>
       </div>
-      <div class="mt-6 pt-6 border-t border-gray-200">
-        <div class="text-center mb-3"><div class="text-xs text-gray-400">— или —</div></div>
-        <button type="button" onclick="showAdminLoginModal()" class="admin-login-btn">
-          <span class="text-lg"></span>
-          <span>Войти как администратор</span>
-        </button>
-        <div class="text-center mt-3"><div class="text-xs text-gray-400">Для владельцев и администраторов портала</div></div>
+    </div>
+    <div class="space-y-4">
+      <div>
+        <label class="text-sm text-gray-600 font-medium">Код доступа</label>
+        <input id="tokenInput" type="text" placeholder="Например: tk_abc123..." class="token-input w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-3 text-lg focus:border-vitacci focus:outline-none">
+        <div class="text-xs text-gray-500 mt-1">💡 Код начинается с <b>tk_</b></div>
       </div>
-      <div class="mt-4 pt-4 border-t border-gray-100 text-center"><div class="text-xs text-gray-400">Нет кода доступа? Обратитесь к администратору</div></div>
+      <div id="loginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
+      <button type="button" onclick="loginByToken()" class="btn-primary w-full py-3 text-base font-semibold">🚀 Начать обучение</button>
+    </div>
+    <div class="mt-6 pt-6 border-t border-gray-200">
+      <div class="text-center mb-3"><div class="text-xs text-gray-400">— или —</div></div>
+      <button type="button" onclick="showAdminLoginModal()" class="admin-login-btn">
+        <span class="text-lg">🔐</span>
+        <span>Войти как администратор</span>
+      </button>
+      <div class="text-center mt-3"><div class="text-xs text-gray-400">Для владельцев и администраторов портала</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="adminLoginModal" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold text-gray-800">🔐 Вход администратора</h3>
+      <button type="button" onclick="closeAdminLoginModal()" class="btn-ghost text-xl">✕</button>
+    </div>
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+      <div class="text-xs text-amber-900"><b>Введите email и пароль</b> администратора</div>
+    </div>
+    <div class="space-y-3">
+      <div><label class="text-sm text-gray-600 font-medium">Email</label><input id="adminLoginEmail" type="email" placeholder="admin@academy.ru" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
+      <div><label class="text-sm text-gray-600 font-medium">Пароль</label><input id="adminLoginPassword" type="password" placeholder="Введите пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
+      <div id="adminLoginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
+      <button type="button" onclick="performAdminLogin()" class="btn-primary w-full py-3">Войти</button>
+      <button type="button" onclick="closeAdminLoginModal()" class="btn-secondary w-full">Отмена</button>
+      <div class="text-center">
+        <button type="button" onclick="showMasterLoginModal()" class="text-xs text-amber-700 hover:underline font-semibold"> Экстренный вход (master2024)</button>
+      </div>
     </div>
   </div>
 </div>
@@ -178,47 +170,16 @@
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-xl font-bold text-gray-800">🔑 Экстренный вход</h3>
-      <button onclick="closeMasterLoginModal()" class="btn-ghost text-xl">✕</button>
+      <button type="button" onclick="closeMasterLoginModal()" class="btn-ghost text-xl">✕</button>
     </div>
     <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-      <div class="text-xs text-amber-900"><b>Экстренный вход</b> используется, если пароль администратора утерян.</div>
+      <div class="text-xs text-amber-900">Используется, если пароль утерян</div>
     </div>
     <div class="space-y-3">
-      <div><label class="text-sm text-gray-600 font-medium">Ключ экстренного доступа</label><input id="masterKeyInput" type="password" placeholder="Введите ключ" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
+      <div><label class="text-sm text-gray-600 font-medium">Ключ</label><input id="masterKeyInput" type="password" placeholder="Введите ключ" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>
       <div id="masterLoginError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>
-      <button onclick="performMasterLogin()" class="btn-primary w-full py-3 text-base font-semibold" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">🔑 Войти</button>
+      <button type="button" onclick="performMasterLogin()" class="btn-primary w-full py-3" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">🔑 Войти</button>
     </div>
-  </div>
-</div>
-
-<div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black/40 modal-backdrop z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-xl font-bold text-gray-800">🔑 Сброс пароля</h3>
-      <button onclick="closeForgotPasswordModal()" class="btn-ghost text-xl">✕</button>
-    </div>
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-      <div class="text-xs text-blue-900"><b>Внимание!</b> Для сброса пароля используйте экстренный вход.</div>
-    </div>
-    <div class="text-center space-y-2">
-      <button onclick="closeForgotPasswordModal(); showMasterLoginModal();" class="btn-primary w-full">🔑 Использовать экстренный вход</button>
-      <button onclick="closeForgotPasswordModal()" class="btn-secondary w-full">Отмена</button>
-    </div>
-  </div>
-</div>
-
-<div id="courseMode" class="hidden min-h-screen bg-gradient-to-br from-rose-50 to-stone-50">
-  <div class="max-w-4xl mx-auto p-6">
-    <div id="courseHeader" class="gradient-header text-white rounded-2xl p-6 mb-6 shadow-xl">
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div><div class="text-sm opacity-80">Добро пожаловать,</div><div id="studentName" class="text-2xl font-bold"></div><div id="studentStore" class="text-sm opacity-80"></div></div>
-        <div class="text-right"><div class="text-sm opacity-80">Общий прогресс</div><div id="totalProgress" class="text-3xl font-bold">0%</div></div>
-      </div>
-      <div class="mt-4 bg-white/20 rounded-full h-2 overflow-hidden"><div id="totalProgressBar" class="bg-white h-full progress-bar" style="width:0%"></div></div>
-      <div id="courseTitleBox" class="mt-4 text-sm opacity-90"></div>
-    </div>
-    <div id="blocksContainer" class="space-y-4"></div>
-    <div class="mt-8 text-center text-gray-500 text-sm" id="courseFooter">© VITACCI | BASCONI ACADEMY</div>
   </div>
 </div>
 
@@ -229,37 +190,36 @@
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-2">
             <div class="flex items-center gap-2">
-              <div id="logoVPlaceholder" class="w-8 h-8 bg-vitacci rounded flex items-center justify-center text-white font-bold text-xs">V</div>
+              <div class="w-8 h-8 bg-vitacci rounded flex items-center justify-center text-white font-bold text-xs">V</div>
               <span id="brandNameV" class="text-lg font-bold tracking-wider">VITACCI</span>
             </div>
             <div class="w-px h-8 bg-white/30"></div>
             <div class="flex items-center gap-2">
-              <div id="logoBPlaceholder" class="w-8 h-8 bg-basconi-black rounded flex items-center justify-center text-white font-bold text-xs">B</div>
+              <div class="w-8 h-8 bg-basconi-black rounded flex items-center justify-center text-white font-bold text-xs">B</div>
               <span id="brandNameB" class="text-lg font-bold tracking-wider">BASCONI</span>
             </div>
           </div>
           <div><div id="siteTitle" class="text-xl font-bold">VITACCI | BASCONI ACADEMY</div><div id="siteSubtitle" class="text-xs opacity-80">Обучающий портал холдинга</div></div>
         </div>
         <div class="flex items-center gap-2">
-          <span id="currentUserBadge" class="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👑 Администратор</span>
-          <button onclick="exitAdminMode()" class="btn-ghost text-white/80 hover:text-white text-sm">🚪 Выйти</button>
+          <button type="button" id="cloudStatusBadge" onclick="syncToSupabase()" class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold cursor-pointer hover:bg-green-600 transition" title="Нажмите для синхронизации с облаком">☁️ Облако</button>
+          <span class="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👑 Администратор</span>
+          <button type="button" onclick="exitAdminMode()" class="btn-ghost text-white/80 hover:text-white text-sm">🚪 Выйти</button>
         </div>
       </div>
       <nav class="flex gap-6 overflow-x-auto scrollbar">
-        <button onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📊 Обзор</button>
-        <button onclick="switchTab('stores')" data-tab="stores" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🏪 Магазины</button>
-        <button onclick="switchTab('employees')" data-tab="employees" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">👥 Сотрудники</button>
-        <button onclick="switchTab('courses')" data-tab="courses" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📚 Курсы</button>
-        <button onclick="switchTab('library')" data-tab="library" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📖 Библиотека</button>
-        <button onclick="switchTab('webinars')" data-tab="webinars" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🎥 Вебинары</button>
-        <button onclick="switchTab('links')" data-tab="links" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🔗 Ссылки</button>
-        <button onclick="switchTab('progress')" data-tab="progress" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📈 Успеваемость</button>
-        <button onclick="switchTab('settings')" data-tab="settings" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">⚙️ Настройки</button>
+        <button type="button" onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer"> Обзор</button>
+        <button type="button" onclick="switchTab('stores')" data-tab="stores" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer"> Магазины</button>
+        <button type="button" onclick="switchTab('employees')" data-tab="employees" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">👥 Сотрудники</button>
+        <button type="button" onclick="switchTab('courses')" data-tab="courses" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📚 Курсы</button>
+        <button type="button" onclick="switchTab('links')" data-tab="links" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🔗 Ссылки</button>
+        <button type="button" onclick="switchTab('progress')" data-tab="progress" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📈 Успеваемость</button>
+        <button type="button" onclick="switchTab('settings')" data-tab="settings" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">⚙️ Настройки</button>
       </nav>
     </div>
   </header>
 
-<main class="max-w-7xl mx-auto p-6">
+  <main class="max-w-7xl mx-auto p-6">
     <section id="tab-dashboard" class="tab-content fade-in">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">Обзор системы</h2>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -268,112 +228,52 @@
         <div class="bg-white rounded-2xl p-5 shadow-sm card-hover border-l-4 border-vitacci-light"><div class="text-gray-500 text-sm">Курсов</div><div id="statCourses" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
         <div class="bg-white rounded-2xl p-5 shadow-sm card-hover border-l-4 border-green-500"><div class="text-gray-500 text-sm">Средний прогресс</div><div id="statProgress" class="text-3xl font-bold text-gray-800 mt-1">0%</div></div>
       </div>
-      <h3 class="text-xl font-bold text-gray-800 mb-4"> Статистика по брендам</h3>
+      <h3 class="text-xl font-bold text-gray-800 mb-4">📊 Статистика по брендам</h3>
       <div id="brandStatsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm"><h3 class="font-bold text-gray-800 mb-4">🏆 Топ сотрудников по результатам тестирования</h3><div id="topEmployees" class="space-y-3"></div></div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm"><h3 class="font-bold text-gray-800 mb-4">🏆 Топ сотрудников</h3><div id="topEmployees" class="space-y-3"></div></div>
         <div class="bg-white rounded-2xl p-6 shadow-sm"><h3 class="font-bold text-gray-800 mb-4">🏪 Прогресс по магазинам</h3><div id="storeProgress" class="space-y-3"></div></div>
       </div>
     </section>
 
     <section id="tab-stores" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Магазины</h2><button onclick="openStoreModal()" class="btn-primary">+ Добавить магазин</button></div>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Магазины</h2><button type="button" onclick="openStoreModal()" class="btn-primary">+ Добавить магазин</button></div>
       <div id="storesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
     <section id="tab-employees" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Сотрудники</h2><button onclick="openEmployeeModal()" class="btn-primary">+ Добавить сотрудника</button></div>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Сотрудники</h2><button type="button" onclick="openEmployeeModal()" class="btn-primary">+ Добавить сотрудника</button></div>
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr class="text-left text-sm text-gray-600"><th class="p-4">Сотрудник</th><th class="p-4">Магазин</th><th class="p-4">Должность</th><th class="p-4">Роль</th><th class="p-4">Прогресс</th><th class="p-4">Действия</th></tr></thead><tbody id="employeesTable"></tbody></table></div></div>
     </section>
 
     <section id="tab-courses" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Конструктор курсов</h2><button onclick="openCourseEditor(null)" class="btn-primary">+ Создать курс</button></div>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Курсы</h2><button type="button" onclick="openCourseEditor(null)" class="btn-primary">+ Создать курс</button></div>
       <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
     </section>
 
-    <section id="tab-library" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800"> Библиотека материалов</h2><button onclick="openLibraryUploadModal()" class="btn-primary">+ Загрузить файл</button></div>
-      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
-        <div class="flex gap-2 flex-wrap mb-4">
-          <button onclick="filterLibrary('all')" class="category-filter active" data-category="all">Все файлы</button>
-          <button onclick="filterLibrary('pdf')" class="category-filter" data-category="pdf">📕 PDF</button>
-          <button onclick="filterLibrary('excel')" class="category-filter" data-category="excel">📊 Excel</button>
-          <button onclick="filterLibrary('word')" class="category-filter" data-category="word"> Word</button>
-          <button onclick="filterLibrary('video')" class="category-filter" data-category="video">🎬 Видео</button>
-        </div>
-        <div class="flex gap-3">
-          <input id="librarySearch" type="text" placeholder="🔍 Поиск по названию..." class="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm" oninput="renderLibrary()">
-          <select id="libraryCategoryFilter" onchange="renderLibrary()" class="border border-gray-200 rounded-lg px-4 py-2 text-sm">
-            <option value="">Все категории</option>
-            <option value="Мерчбуки">Мерчбуки</option>
-            <option value="Инструкции">Инструкции</option>
-            <option value="Видеоуроки">Видеоуроки</option>
-            <option value="Презентации">Презентации</option>
-            <option value="Другое">Другое</option>
-          </select>
-        </div>
-      </div>
-      <div id="libraryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </section>
-
-  <section id="tab-webinars" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Вебинары</h2><button onclick="openWebinarModal()" class="btn-primary">+ Создать вебинар</button></div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-red-500"><div class="text-gray-500 text-sm">Предстоящих</div><div id="statUpcoming" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
-        <div class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-green-500"><div class="text-gray-500 text-sm">Завершенных</div><div id="statCompleted" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
-        <div class="bg-white rounded-2xl p-5 shadow-sm border-l-4 border-vitacci"><div class="text-gray-500 text-sm">Всего участников</div><div id="statParticipants" class="text-3xl font-bold text-gray-800 mt-1">0</div></div>
-      </div>
-      <div id="webinarsList" class="space-y-4"></div>
-    </section>
-
     <section id="tab-links" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Коды доступа</h2><button onclick="openLinkModal()" class="btn-primary">+ Создать код</button></div>
-      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6"><div class="flex items-start gap-3"><div class="text-2xl">💡</div><div><div class="font-bold text-amber-900 text-sm">Как передать доступ сотруднику</div><div class="text-xs text-amber-800 mt-1">Скопируйте <b>код доступа</b> и отправьте его сотруднику.</div></div></div></div>
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Коды доступа</h2><button type="button" onclick="openLinkModal()" class="btn-primary">+ Создать код</button></div>
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr class="text-left text-sm text-gray-600"><th class="p-4">Сотрудник</th><th class="p-4">Курс</th><th class="p-4">Код доступа</th><th class="p-4">Статус</th><th class="p-4">Действия</th></tr></thead><tbody id="linksTable"></tbody></table></div></div>
     </section>
 
     <section id="tab-progress" class="tab-content hidden fade-in">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">Успеваемость</h2>
-      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
-        <div class="flex gap-3 flex-wrap items-end">
-          <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-500 mb-1 block">🏷️ Бренд</label><select id="filterBrand" onchange="onBrandFilterChange()" class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm"><option value="">Все бренды</option></select></div>
-          <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-500 mb-1 block">🏪 Магазин</label><select id="filterStore" onchange="onStoreFilterChange()" class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm"><option value="">Все магазины</option></select></div>
-          <div class="flex-1 min-w-[180px]"><label class="text-xs text-gray-500 mb-1 block">📚 Курс</label><select id="filterCourse" onchange="renderProgress()" class="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm"><option value="">Все курсы</option></select></div>
-          <div class="flex gap-2"><button onclick="exportReport('csv')" class="btn-primary">📥 CSV</button><button onclick="exportReport('print')" class="btn-secondary">🖨️ Печать</button><button onclick="resetFilters()" class="btn-ghost">🔄 Сбросить</button></div>
-        </div>
-        <div id="filterSummary" class="mt-4 text-sm text-gray-600"></div>
-      </div>
       <div id="progressList" class="space-y-4"></div>
     </section>
 
     <section id="tab-settings" class="tab-content hidden fade-in">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6">⚙️ Настройки портала</h2>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 class="font-bold text-gray-800 mb-4">️ Название и описание</h3>
-          <div class="space-y-3">
-            <div><label class="text-sm text-gray-600">Название сайта</label><input id="settingSiteTitle" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
-            <div><label class="text-sm text-gray-600">Подзаголовок</label><input id="settingSiteSubtitle" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
-            <div><label class="text-sm text-gray-600">Название бренда 1</label><input id="settingBrandV" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
-            <div><label class="text-sm text-gray-600">Название бренда 2</label><input id="settingBrandB" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
-            <button onclick="saveSettings()" class="btn-primary w-full mt-4">💾 Сохранить настройки</button>
-          </div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm">
-          <h3 class="font-bold text-gray-800 mb-4">️ Логотипы брендов</h3>
-          <div class="space-y-4">
-            <div><label class="text-sm text-gray-600 mb-2 block">Логотип бренда 1</label><div class="logo-upload-area" onclick="document.getElementById('logoVInput').click()"><input type="file" id="logoVInput" accept="image/*" class="hidden" onchange="uploadLogo('v', event)"><div id="logoVPreview" class="mb-2"></div><div class="text-gray-500 text-sm">📷 Нажмите для загрузки</div></div><button onclick="removeLogo('v')" class="text-xs text-red-500 hover:underline mt-2">Удалить</button></div>
-            <div><label class="text-sm text-gray-600 mb-2 block">Логотип бренда 2</label><div class="logo-upload-area" onclick="document.getElementById('logoBInput').click()"><input type="file" id="logoBInput" accept="image/*" class="hidden" onchange="uploadLogo('b', event)"><div id="logoBPreview" class="mb-2"></div><div class="text-gray-500 text-sm">📷 Нажмите для загрузки</div></div><button onclick="removeLogo('b')" class="text-xs text-red-500 hover:underline mt-2">Удалить</button></div>
-          </div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">⚙️ Настройки</h2>
+      <div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+        <h3 class="font-bold text-gray-800 mb-4">🏷️ Название портала</h3>
+        <div class="space-y-3">
+          <div><label class="text-sm text-gray-600">Название</label><input id="settingSiteTitle" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
+          <div><label class="text-sm text-gray-600">Подзаголовок</label><input id="settingSiteSubtitle" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
+          <button type="button" onclick="saveSettings()" class="btn-primary">💾 Сохранить</button>
         </div>
       </div>
-     <div class="mt-6 admin-card rounded-2xl p-6 shadow-sm">
-        <div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center text-white text-2xl">👑</div><div><h3 class="font-bold text-gray-800 text-lg">Администраторы системы</h3><div class="text-xs text-gray-600">Пользователи с полными правами доступа</div></div></div>
-        <div class="bg-white/70 rounded-xl p-4 mb-4">
-          <div class="text-sm text-gray-700 mb-2"><b>Полные права администратора:</b></div>
-          <ul class="text-sm text-gray-600 space-y-1 ml-4 list-disc"><li>Создание и редактирование курсов</li><li>Управление магазинами и сотрудниками</li><li>Создание кодов доступа для сотрудников</li><li>Управление вебинарами</li><li>Просмотр успеваемости и выгрузка отчетов</li><li>Настройка портала и логотипов</li></ul>
-        </div>
-        <div class="flex gap-2 mb-4"><input id="newAdminEmail" type="email" placeholder="Email нового администратора" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"><button onclick="addAdmin()" class="btn-primary">+ Добавить</button></div>
+      <div class="admin-card rounded-2xl p-6 shadow-sm">
+        <h3 class="font-bold text-gray-800 mb-4"> Администраторы</h3>
+        <div class="flex gap-2 mb-4"><input id="newAdminEmail" type="email" placeholder="Email нового администратора" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"><button type="button" onclick="addAdmin()" class="btn-primary">+ Добавить</button></div>
         <div id="adminsList" class="space-y-2"></div>
       </div>
     </section>
@@ -401,13 +301,10 @@
 
 <div id="saveNotification" class="hidden fixed top-4 right-4 z-[60] bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 save-notification">
   <span class="text-xl">✅</span>
-  <span id="saveNotificationText">Ответ сохранён!</span>
+  <span id="saveNotificationText">Сохранено!</span>
 </div>
 
-
-// =========================================================================
-// SUPABASE КОНФИГУРАЦИЯ
-// =========================================================================
+<script>
 const SUPABASE_URL = 'https://qomemfrwkkqdrsfmiicv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvbWVtZnJ3a2txZHJzZm1paWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NzYzOTcsImV4cCI6MjEwNjI1MjM5N30.SyJ-FE4tlZzX1H4hqg96IjB2XWQivU0oJNcUecBBIKo';
 
@@ -420,7 +317,7 @@ function updateSyncStatus(status, message) {
   const loadingStatus = document.getElementById('loadingStatus');
   if (syncEl) {
     if (status === 'online') syncEl.innerHTML = '<span class="sync-indicator sync-online">☁️ Подключено к облаку</span>';
-    else if (status === 'offline') syncEl.innerHTML = '<span class="sync-indicator sync-offline"> Локальный режим</span>';
+    else if (status === 'offline') syncEl.innerHTML = '<span class="sync-indicator sync-offline">💾 Локальный режим</span>';
     else if (status === 'error') syncEl.innerHTML = '<span class="sync-indicator sync-error">⚠️ Ошибка: ' + (message || '') + '</span>';
     else syncEl.innerHTML = '<span class="sync-indicator sync-syncing">🔄 ' + (message || 'Синхронизация...') + '</span>';
   }
@@ -457,57 +354,26 @@ async function initSupabase() {
   }
   return false;
 }
+
 async function syncToSupabase() {
   if (!isSupabaseConnected || !supabaseClient) {
-    alert('❌ Supabase не подключен');
+    alert('❌ Supabase не подключен. Проверьте ключ и URL.');
     return;
   }
-  
   try {
     updateSyncStatus('syncing', 'Синхронизация...');
-    
-    // Синхронизация магазинов
     if (DB.stores.length > 0) {
-      const { error: storeError } = await supabaseClient
-        .from('stores')
-        .upsert(DB.stores.map(s => ({
-          id: s.id,
-          name: s.name,
-          address: s.address,
-          brand: s.brand
-        })));
-      if (storeError) console.error('Ошибка синхронизации магазинов:', storeError);
+      await supabaseClient.from('stores').upsert(DB.stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand })));
     }
-    
-    // Синхронизация сотрудников
     if (DB.employees.length > 0) {
-      const { error: empError } = await supabaseClient
-        .from('employees')
-        .upsert(DB.employees.map(e => ({
-          id: e.id,
-          name: e.name,
-          email: e.email,
-          store_id: e.storeId,
-          position: e.position,
-          is_admin: e.isAdmin || false
-        })));
-      if (empError) console.error('Ошибка синхронизации сотрудников:', empError);
+      await supabaseClient.from('employees').upsert(DB.employees.map(e => ({ id: e.id, name: e.name, email: e.email, store_id: e.storeId, position: e.position, is_admin: e.isAdmin || false })));
     }
-    
-    // Синхронизация кодов доступа
     if (DB.links.length > 0) {
-      const { error: linkError } = await supabaseClient
-        .from('access_codes')
-        .upsert(DB.links.map(l => ({
-          id: 'code_' + l.token,
-          code: l.token,
-          employee_id: l.employeeId,
-          course_id: l.courseId,
-          status: 'Активен'
-        })));
-      if (linkError) console.error('Ошибка синхронизации кодов:', linkError);
+      await supabaseClient.from('access_codes').upsert(DB.links.map(l => ({ id: 'code_' + l.token, code: l.token, employee_id: l.employeeId, course_id: l.courseId, status: 'Активен' })));
     }
-    
+    if (DB.courses.length > 0) {
+      await supabaseClient.from('courses').upsert(DB.courses.map(c => ({ id: c.id, title: c.title, description: c.description, duration: c.duration, icon: c.icon, blocks: c.blocks })));
+    }
     updateSyncStatus('online');
     alert('✅ Данные синхронизированы с облаком!');
     console.log('✅ Синхронизация завершена');
@@ -517,12 +383,84 @@ async function syncToSupabase() {
     alert('❌ Ошибка синхронизации: ' + e.message);
   }
 }
-// =========================================================================
-// LOCALSTORAGE БАЗА ДАННЫХ
-// =========================================================================
+
+async function loadFromSupabase() {
+  if (!isSupabaseConnected || !supabaseClient) return false;
+  try {
+    updateSyncStatus('syncing', 'Загрузка данных...');
+    const { data: stores, error: storeError } = await supabaseClient.from('stores').select('*');
+    if (!storeError && stores && stores.length > 0) {
+      DB.stores = stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand, createdAt: s.created_at }));
+      console.log('✅ Магазинов:', stores.length);
+    }
+    const { data: employees, error: empError } = await supabaseClient.from('employees').select('*');
+    if (!empError && employees && employees.length > 0) {
+      DB.employees = employees.map(e => ({ id: e.id, name: e.name, email: e.email, storeId: e.store_id, position: e.position, role: e.role, isAdmin: e.is_admin }));
+      console.log('✅ Сотрудников:', employees.length);
+    }
+    const { data: courses, error: courseError } = await supabaseClient.from('courses').select('*');
+    if (!courseError && courses && courses.length > 0) {
+      DB.courses = courses.map(c => ({ id: c.id, title: c.title, description: c.description, duration: c.duration, icon: c.icon, blocks: c.blocks || [], createdAt: c.created_at }));
+      console.log('✅ Курсов:', courses.length);
+    }
+    const { data: codes, error: codeError } = await supabaseClient.from('access_codes').select('*');
+    if (!codeError && codes && codes.length > 0) {
+      DB.links = codes.map(c => ({ token: c.code, employeeId: c.employee_id, courseId: c.course_id, createdAt: c.created_at }));
+      console.log('✅ Кодов:', codes.length);
+    }
+    updateSyncStatus('online');
+    return true;
+  } catch (e) {
+    console.error('❌ Ошибка загрузки:', e);
+    updateSyncStatus('offline');
+    return false;
+  }
+}
+
+// Функция загрузки из облака
+async function loadFromCloud() {
+  if (!isSupabaseConnected || !supabaseClient) {
+    alert('❌ Supabase не подключен');
+    return;
+  }
+  
+  try {
+    updateSyncStatus('syncing', 'Загрузка из облака...');
+    
+    const { data: employees, error } = await supabaseClient
+      .from('employees')
+      .select('*');
+    
+    if (error) {
+      console.error('Ошибка загрузки:', error);
+      updateSyncStatus('error', error.message);
+      return;
+    }
+    
+    if (employees && employees.length > 0) {
+      DB.employees = employees.map(e => ({
+        id: e.id,
+        name: e.name,
+        email: e.email,
+        storeId: e.store_id,
+        position: e.position,
+        role: e.role,
+        isAdmin: e.is_admin
+      }));
+      renderAll();
+      updateSyncStatus('online');
+      alert('✅ Загружено ' + employees.length + ' сотрудников из облака');
+    }
+  } catch (e) {
+    console.error('Ошибка:', e);
+    updateSyncStatus('error', e.message);
+  }
+}
+
 const MASTER_KEY = 'master2024';
 let editorState = null;
 let currentToken = null, currentEmployee = null, currentCourse = null;
+let unsavedChanges = {};
 
 const DB = {
   get stores() { return JSON.parse(localStorage.getItem('vba_stores') || '[]'); },
@@ -535,10 +473,6 @@ const DB = {
   set progress(v) { localStorage.setItem('vba_progress', JSON.stringify(v)); },
   get courses() { return JSON.parse(localStorage.getItem('vba_courses') || '[]'); },
   set courses(v) { localStorage.setItem('vba_courses', JSON.stringify(v)); },
-  get webinars() { return JSON.parse(localStorage.getItem('vba_webinars') || '[]'); },
-  set webinars(v) { localStorage.setItem('vba_webinars', JSON.stringify(v)); },
-  get library() { return JSON.parse(localStorage.getItem('vba_library') || '[]'); },
-  set library(v) { localStorage.setItem('vba_library', JSON.stringify(v)); },
   get admins() { try { return JSON.parse(localStorage.getItem('vba_admins') || '["admin@academy.ru"]'); } catch(e) { return ['admin@academy.ru']; } },
   set admins(v) { localStorage.setItem('vba_admins', JSON.stringify(v)); },
   get passwords() { try { return JSON.parse(localStorage.getItem('vba_passwords') || '{}'); } catch(e) { return {}; } },
@@ -550,9 +484,18 @@ const DB = {
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-// =========================================================================
-// МОДАЛЬНЫЕ ОКНА
-// =========================================================================
+function showSaveNotification(message, type) {
+  const notification = document.getElementById('saveNotification');
+  const notificationText = document.getElementById('saveNotificationText');
+  notificationText.textContent = message;
+  notification.className = 'fixed top-4 right-4 z-[60] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 save-notification';
+  if (type === 'success') { notification.classList.add('bg-green-500', 'text-white'); notification.innerHTML = '<span class="text-xl">✅</span><span id="saveNotificationText">' + message + '</span>'; }
+  else if (type === 'saving') { notification.classList.add('bg-blue-500', 'text-white'); notification.innerHTML = '<span class="text-xl">💾</span><span id="saveNotificationText">' + message + '</span>'; }
+  else { notification.classList.add('bg-red-500', 'text-white'); notification.innerHTML = '<span class="text-xl">❌</span><span id="saveNotificationText">' + message + '</span>'; }
+  notification.classList.remove('hidden');
+  setTimeout(() => { notification.classList.add('hidden'); }, 3000);
+}
+
 function openModal(html, sizeClass) {
   sizeClass = sizeClass || 'max-w-6xl';
   const mc = document.getElementById('modalContent');
@@ -563,9 +506,6 @@ function openModal(html, sizeClass) {
 function closeModal() { document.getElementById('modalContainer').classList.add('hidden'); }
 document.getElementById('modalContainer').addEventListener('click', e => { if (e.target.id === 'modalContainer') closeModal(); });
 
-// =========================================================================
-// ВХОД АДМИНИСТРАТОРА
-// =========================================================================
 function showAdminLoginModal() {
   document.getElementById('adminLoginModal').classList.remove('hidden');
   document.getElementById('adminLoginEmail').value = '';
@@ -622,7 +562,7 @@ function enterAsAdmin(email, needsPasswordSetup) {
   document.getElementById('courseMode').classList.add('hidden');
   switchTab('dashboard');
   if (needsPasswordSetup) {
-    setTimeout(() => { alert(' Вы вошли через экстренный доступ.\n\nРекомендуем установить пароль в разделе "️ Настройки" → "Администраторы".'); }, 500);
+    setTimeout(() => { alert('🔐 Вы вошли через экстренный доступ.\n\nРекомендуем установить пароль в разделе "⚙️ Настройки" → "Администраторы".'); }, 500);
   }
 }
 
@@ -645,7 +585,7 @@ function removePassword(email) { const passwords = DB.passwords; delete password
 function showSetPasswordModal(email) {
   const currentPassword = DB.passwords[email.toLowerCase()] || '';
   openModal(
-    '<div class="p-6 max-w-lg mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">🔐 Управление паролем</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"><div class="text-xs text-blue-900"><b>Email:</b> ' + esc(email) + '</div></div><div class="space-y-3"><div><label class="text-sm text-gray-600 font-medium">Новый пароль</label><input id="newPasswordInput" type="password" placeholder="Введите новый пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><div class="text-xs text-gray-500 mt-1">Минимум 6 символов</div></div><div><label class="text-sm text-gray-600 font-medium">Подтверждение пароля</label><input id="confirmPasswordInput" type="password" placeholder="Повторите пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div id="passwordError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSavePassword" class="btn-primary flex-1">💾 Сохранить пароль</button>' + (currentPassword ? '<button type="button" id="btnRemovePassword" class="btn-danger flex-1">️ Удалить пароль</button>' : '') + '</div></div>',
+    '<div class="p-6 max-w-lg mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800"> Управление паролем</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"><div class="text-xs text-blue-900"><b>Email:</b> ' + esc(email) + '</div></div><div class="space-y-3"><div><label class="text-sm text-gray-600 font-medium">Новый пароль</label><input id="newPasswordInput" type="password" placeholder="Введите новый пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><div class="text-xs text-gray-500 mt-1">Минимум 6 символов</div></div><div><label class="text-sm text-gray-600 font-medium">Подтверждение пароля</label><input id="confirmPasswordInput" type="password" placeholder="Повторите пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div id="passwordError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSavePassword" class="btn-primary flex-1">💾 Сохранить пароль</button>' + (currentPassword ? '<button type="button" id="btnRemovePassword" class="btn-danger flex-1">🗑️ Удалить пароль</button>' : '') + '</div></div>',
     'max-w-lg'
   );
   document.getElementById('btnSavePassword').onclick = function() {
@@ -701,7 +641,7 @@ function renderAdminsList() {
     const empStore = emp ? (DB.stores.find(s => s.id === emp.storeId)?.name || '') : '—';
     const isMainAdmin = email.toLowerCase() === 'admin@academy.ru';
     const hasPass = hasPassword(email);
-    return '<div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-amber-200"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold text-sm">' + empName.charAt(0) + '</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><div class="font-medium text-gray-800 text-sm truncate">' + esc(empName) + '</div>' + (isMainAdmin ? '<span class="admin-badge">ГЛАВНЫЙ АДМИН</span>' : '<span class="admin-badge">АДМИН</span>') + '</div><div class="text-xs text-gray-500">' + esc(empPosition) + (empStore ? ' · ' + esc(empStore) : '') + '</div><div class="flex items-center gap-1 mt-1"><div class="text-xs text-gray-400 truncate font-mono">' + esc(email) + '</div><button type="button" class="edit-email-btn" onclick="showEditEmailModal(\'' + esc(email) + '\', ' + idx + ')" title="Изменить email">️</button></div></div><div class="flex flex-col gap-1"><button type="button" class="btn-primary btn-sm" onclick="showSetPasswordModal(\'' + esc(email) + '\')">' + (hasPass ? '🔑 Изменить пароль' : '🔐 Установить пароль') + '</button><div class="text-center">' + (hasPass ? '<span class="password-status password-set">✓ Пароль установлен</span>' : '<span class="password-status password-not-set">⚠ Пароль не установлен</span>') + '</div>' + (isMainAdmin ? '' : '<button type="button" class="btn-danger btn-sm" onclick="removeAdmin(' + idx + ')">✕ Удалить</button>') + '</div></div>';
+    return '<div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-amber-200"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold text-sm">' + empName.charAt(0) + '</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><div class="font-medium text-gray-800 text-sm truncate">' + esc(empName) + '</div>' + (isMainAdmin ? '<span class="admin-badge">ГЛАВНЫЙ АДМИН</span>' : '<span class="admin-badge">АДМИН</span>') + '</div><div class="text-xs text-gray-500">' + esc(empPosition) + (empStore ? ' · ' + esc(empStore) : '') + '</div><div class="flex items-center gap-1 mt-1"><div class="text-xs text-gray-400 truncate font-mono">' + esc(email) + '</div><button type="button" class="edit-email-btn" onclick="showEditEmailModal(\'' + esc(email) + '\', ' + idx + ')" title="Изменить email">✏️</button></div></div><div class="flex flex-col gap-1"><button type="button" class="btn-primary btn-sm" onclick="showSetPasswordModal(\'' + esc(email) + '\')">' + (hasPass ? ' Изменить пароль' : '🔐 Установить пароль') + '</button><div class="text-center">' + (hasPass ? '<span class="password-status password-set">✓ Пароль установлен</span>' : '<span class="password-status password-not-set"> Пароль не установлен</span>') + '</div>' + (isMainAdmin ? '' : '<button type="button" class="btn-danger btn-sm" onclick="removeAdmin(' + idx + ')">✕ Удалить</button>') + '</div></div>';
   }).join('');
 }
 
@@ -727,9 +667,6 @@ function removeAdmin(idx) {
   renderAdminsList(); renderEmployees();
 }
 
-// =========================================================================
-// ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
-// =========================================================================
 let currentTab = 'dashboard';
 function switchTab(tab) {
   currentTab = tab;
@@ -740,7 +677,7 @@ function switchTab(tab) {
   renderAll();
 }
 
-function renderAll() { renderSettings(); renderDashboard(); renderStores(); renderEmployees(); renderCourses(); renderLibrary(); renderWebinars(); renderLinks(); renderProgress(); renderAdminsList(); }
+function renderAll() { renderSettings(); renderDashboard(); renderStores(); renderEmployees(); renderCourses(); renderLinks(); renderProgress(); renderAdminsList(); }
 
 function renderSettings() {
   const s = DB.settings;
@@ -811,7 +748,7 @@ function renderDashboard() {
 function renderStores() {
   const stores = DB.stores, employees = DB.employees; const el = document.getElementById('storesList');
   if (stores.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">Нет магазинов</div>'; return; }
-  el.innerHTML = stores.map(s => { const count = employees.filter(e => e.storeId === s.id).length; const avg = count ? Math.round(employees.filter(e => e.storeId === s.id).reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / count) : 0; const brandColor = s.brand === 'vitacci' ? 'bg-vitacci' : s.brand === 'basconi' ? 'bg-basconi-black' : 'bg-gradient-to-r from-vitacci to-basconi-black'; const s2 = DB.settings; const brandLabel = s.brand === 'vitacci' ? s2.brandV : s.brand === 'basconi' ? s2.brandB : s2.brandV + ' | ' + s2.brandB; return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex justify-between items-start mb-3"><div class="w-12 h-12 ' + brandColor + ' rounded-xl flex items-center justify-center text-white text-xs font-bold">' + esc(brandLabel.substring(0, 3)) + '</div><div class="flex gap-1"><button type="button" class="btn-ghost" onclick="openStoreModal(\'' + s.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteStore(\'' + s.id + '\')">🗑️</button></div></div><h3 class="font-bold text-gray-800">' + esc(s.name) + '</h3><p class="text-sm text-gray-500 mt-1">📍 ' + esc(s.address) + '</p><div class="flex gap-3 mt-4 pt-4 border-t border-gray-100"><div class="flex-1"><div class="text-xs text-gray-500">Сотрудников</div><div class="font-bold text-gray-800">' + count + '</div></div><div class="flex-1"><div class="text-xs text-gray-500">Прогресс</div><div class="font-bold text-vitacci">' + avg + '%</div></div></div></div>'; }).join('');
+  el.innerHTML = stores.map(s => { const count = employees.filter(e => e.storeId === s.id).length; const avg = count ? Math.round(employees.filter(e => e.storeId === s.id).reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / count) : 0; const brandColor = s.brand === 'vitacci' ? 'bg-vitacci' : s.brand === 'basconi' ? 'bg-basconi-black' : 'bg-gradient-to-r from-vitacci to-basconi-black'; const s2 = DB.settings; const brandLabel = s.brand === 'vitacci' ? s2.brandV : s.brand === 'basconi' ? s2.brandB : s2.brandV + ' | ' + s2.brandB; return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex justify-between items-start mb-3"><div class="w-12 h-12 ' + brandColor + ' rounded-xl flex items-center justify-center text-white text-xs font-bold">' + esc(brandLabel.substring(0, 3)) + '</div><div class="flex gap-1"><button type="button" class="btn-ghost" onclick="openStoreModal(\'' + s.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteStore(\'' + s.id + '\')">🗑️</button></div></div><h3 class="font-bold text-gray-800">' + esc(s.name) + '</h3><p class="text-sm text-gray-500 mt-1"> ' + esc(s.address) + '</p><div class="flex gap-3 mt-4 pt-4 border-t border-gray-100"><div class="flex-1"><div class="text-xs text-gray-500">Сотрудников</div><div class="font-bold text-gray-800">' + count + '</div></div><div class="flex-1"><div class="text-xs text-gray-500">Прогресс</div><div class="font-bold text-vitacci">' + avg + '%</div></div></div></div>'; }).join('');
 }
 
 function renderEmployees() {
@@ -827,220 +764,36 @@ function renderCourses() {
     const totalQuiz = c.blocks.reduce((s, b) => s + (b.quiz?.length || 0), 0);
     const totalTheory = c.blocks.reduce((s, b) => s + (b.theoryBlocks?.length || 0), 0);
     const totalPractice = c.blocks.reduce((s, b) => s + (b.practice?.length || 0), 0);
-    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="gradient-header p-5 text-white"><div class="text-5xl mb-2">' + (c.icon || '📚') + '</div><h3 class="font-bold text-lg">' + esc(c.title) + '</h3><p class="text-sm opacity-90 mt-1">' + esc(c.description || '') + '</p></div><div class="p-5"><div class="flex gap-2 flex-wrap mb-4 text-xs"><span class="chip bg-rose-50 text-vitacci">⏱️ ' + (c.duration || '—') + '</span><span class="chip bg-stone-100 text-basconi-black">📖 ' + c.blocks.length + ' блоков</span><span class="chip bg-blue-50 text-blue-700">📝 ' + totalQuiz + ' вопросов</span><span class="chip bg-purple-50 text-purple-700">📚 ' + totalTheory + ' блоков теории</span><span class="chip bg-green-50 text-green-700">🎯 ' + totalPractice + ' ситуаций</span></div><div class="flex gap-2"><button type="button" class="btn-primary text-sm flex-1" onclick="openCourseEditor(\'' + c.id + '\')">✏️ Редактировать</button><button type="button" class="btn-secondary text-sm" onclick="previewCourse(\'' + c.id + '\')">👁️ Предпросмотр</button><button type="button" class="btn-danger text-sm" onclick="deleteCourse(\'' + c.id + '\')">🗑️</button></div></div></div>';
+    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="gradient-header p-5 text-white"><div class="text-5xl mb-2">' + (c.icon || '📚') + '</div><h3 class="font-bold text-lg">' + esc(c.title) + '</h3><p class="text-sm opacity-90 mt-1">' + esc(c.description || '') + '</p></div><div class="p-5"><div class="flex gap-2 flex-wrap mb-4 text-xs"><span class="chip bg-rose-50 text-vitacci">️ ' + (c.duration || '—') + '</span><span class="chip bg-stone-100 text-basconi-black">📖 ' + c.blocks.length + ' блоков</span><span class="chip bg-blue-50 text-blue-700">📝 ' + totalQuiz + ' вопросов</span><span class="chip bg-purple-50 text-purple-700">📚 ' + totalTheory + ' блоков теории</span><span class="chip bg-green-50 text-green-700">🎯 ' + totalPractice + ' ситуаций</span></div><div class="flex gap-2"><button type="button" class="btn-primary text-sm flex-1" onclick="openCourseEditor(\'' + c.id + '\')">✏️ Редактировать</button><button type="button" class="btn-secondary text-sm" onclick="previewCourse(\'' + c.id + '\')">👁️ Предпросмотр</button><button type="button" class="btn-danger text-sm" onclick="deleteCourse(\'' + c.id + '\')">🗑️</button></div></div></div>';
   }).join('');
 }
 
-function renderLibrary() {
-  const library = DB.library; const el = document.getElementById('libraryList');
-  if (library.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">📚</div><div class="text-lg font-medium">Библиотека пуста</div></div>'; return; }
-  el.innerHTML = library.map(item => {
-    return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex items-start gap-3 mb-3"><div class="text-3xl">📄</div><div class="flex-1 min-w-0"><div class="font-bold text-gray-800 text-sm truncate">' + esc(item.name) + '</div><div class="text-xs text-gray-500 mt-1">' + esc(item.category || 'Без категории') + '</div></div></div><div class="text-xs text-gray-500 mb-3">📅 ' + new Date(item.createdAt).toLocaleDateString('ru-RU') + '</div><div class="flex gap-2"><button type="button" class="btn-primary btn-sm flex-1">⬇️ Скачать</button><button type="button" class="btn-danger btn-sm" onclick="deleteLibraryFile(\'' + item.id + '\')">🗑️</button></div></div>';
+function renderLinks() {
+  const links = DB.links, employees = DB.employees, stores = DB.stores, courses = DB.courses;
+  const el = document.getElementById('linksTable');
+  if (links.length === 0) { el.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-gray-400">Нет кодов доступа</td></tr>'; return; }
+  el.innerHTML = links.map(l => {
+    const emp = employees.find(e => e.id === l.employeeId); const store = stores.find(s => s.id === emp?.storeId); const course = courses.find(c => c.id === l.courseId);
+    const p = getEmployeeProgress(l.employeeId, l.courseId);
+    const statusColor = p === 100 ? 'bg-green-100 text-green-700' : p > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600';
+    const statusText = p === 100 ? 'Завершен' : p > 0 ? 'В процессе' : 'Не начат';
+    return '<tr class="border-t border-gray-100 hover:bg-gray-50"><td class="p-4"><div class="font-medium text-gray-800">' + esc(emp?.name || '—') + '</div><div class="text-xs text-gray-500">' + esc(store?.name || '') + '</div></td><td class="p-4 text-sm text-gray-700">' + esc(course ? course.title.substring(0, 35) : '—') + '</td><td class="p-4"><div class="flex items-center gap-2"><div class="token-display text-base px-3 py-2 flex-1">' + esc(l.token) + '</div><button type="button" class="btn-primary btn-sm" onclick="copyToken(\'' + l.token + '\')">📋 Скопировать</button></div></td><td class="p-4"><span class="text-xs px-2 py-1 rounded-full ' + statusColor + '">' + statusText + ' · ' + p + '%</span></td><td class="p-4"><button type="button" class="btn-ghost" onclick="deleteLink(\'' + l.token + '\')">️</button></td></tr>';
   }).join('');
 }
-
-function deleteLibraryFile(id) {
-  if (!confirm('Удалить файл?')) return;
-  const library = DB.library;
-  DB.library = library.filter(i => i.id !== id);
-  renderLibrary();
-}
-
-function openLibraryUploadModal() {
-  openModal(
-    '<div class="p-6 max-w-2xl mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">📤 Загрузка файла</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="space-y-4"><div><label class="text-sm text-gray-600 font-medium">Название файла</label><input id="libraryFileName" type="text" placeholder="Например: Мерчбук VITACCI ОЗ 2024" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div><label class="text-sm text-gray-600 font-medium">Категория</label><select id="libraryFileCategory" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><option value="Мерчбуки">Мерчбуки</option><option value="Инструкции">Инструкции</option><option value="Видеоуроки">Видеоуроки</option><option value="Презентации">Презентации</option><option value="Другое">Другое</option></select></div><div class="flex gap-2 mt-6"><button type="button" onclick="saveLibraryFile()" class="btn-primary flex-1">📤 Загрузить</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Отмена</button></div></div></div>',
-    'max-w-2xl'
-  );
-}
-
-function saveLibraryFile() {
-  const fileName = document.getElementById('libraryFileName').value.trim();
-  const category = document.getElementById('libraryFileCategory').value;
-  if (!fileName) return alert('Введите название файла');
-  const library = DB.library;
-  library.push({ id: 'lib_' + Date.now(), name: fileName, category: category, createdAt: Date.now(), uploadedBy: getCurrentAdminEmail() });
-  DB.library = library;
-  closeModal();
-  renderLibrary();
-  alert('✅ Файл добавлен в библиотеку!');
-}
-
-function filterLibrary(category) {
-  renderLibrary();
-}
-
-function renderWebinars() {
-  const webinars = DB.webinars; const el = document.getElementById('webinarsList');
-  if (webinars.length === 0) { el.innerHTML = '<div class="text-center py-12 text-gray-400">Нет вебинаров</div>'; return; }
-  el.innerHTML = webinars.map(w => {
-    const date = new Date(w.date); const dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }); const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-    const isUpcoming = w.status === 'upcoming';
-    return '<div class="bg-white rounded-2xl shadow-sm p-6 card-hover ' + (isUpcoming ? 'border-l-4 border-vitacci' : 'border-l-4 border-gray-300') + '"><div class="flex items-start justify-between mb-4 flex-wrap gap-3"><div><div class="flex items-center gap-2"><h3 class="font-bold text-gray-800 text-lg">' + esc(w.title) + '</h3>' + (isUpcoming ? '<span class="chip bg-red-100 text-red-700">● LIVE</span>' : '<span class="chip bg-green-100 text-green-700">✓ Завершен</span>') + '</div><div class="text-sm text-gray-500 mt-1">📅 ' + dateStr + ' в ' + timeStr + ' · ⏱️ ' + w.duration + '</div></div><div class="flex gap-2"><button type="button" class="btn-ghost" onclick="openWebinarModal(\'' + w.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteWebinar(\'' + w.id + '\')">🗑️</button></div></div><p class="text-sm text-gray-600 mb-4">' + esc(w.description || '') + '</p><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Ведущий</div><div class="font-medium text-gray-800 text-sm">' + esc(w.host || '—') + '</div></div><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Участники</div><div class="font-medium text-gray-800 text-sm">' + (w.participants?.length || 0) + ' / ' + (w.maxParticipants || '∞') + '</div></div><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Ссылка</div><div class="text-sm text-vitacci font-medium truncate">' + esc(w.link || '—') + '</div></div></div></div>';
-  }).join('');
-}
-
-function openWebinarModal(webinarId) {
-  const webinar = webinarId ? DB.webinars.find(w => w.id === webinarId) : null; const dateStr = webinar ? new Date(webinar.date).toISOString().slice(0, 16) : ''; const s = DB.settings;
-  openModal('<div class="p-6 max-w-2xl mx-auto"><h3 class="text-xl font-bold text-gray-800 mb-4">' + (webinar ? 'Редактировать' : 'Новый') + ' вебинар</h3><div class="space-y-3"><div><label class="text-sm text-gray-600">Название</label><input id="webinarTitle" value="' + escAttr(webinar?.title || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Описание</label><textarea id="webinarDesc" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2" rows="3">' + esc(webinar?.description || '') + '</textarea></div><div class="grid grid-cols-2 gap-3"><div><label class="text-sm text-gray-600">Дата и время</label><input type="datetime-local" id="webinarDate" value="' + dateStr + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Длительность</label><input id="webinarDuration" value="' + escAttr(webinar?.duration || '60 мин') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div></div><div class="grid grid-cols-2 gap-3"><div><label class="text-sm text-gray-600">Ведущий</label><input id="webinarHost" value="' + escAttr(webinar?.host || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Должность</label><input id="webinarHostPos" value="' + escAttr(webinar?.hostPosition || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div></div><div><label class="text-sm text-gray-600">Ссылка (Zoom, Teams)</label><input id="webinarLink" value="' + escAttr(webinar?.link || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div class="grid grid-cols-2 gap-3"><div><label class="text-sm text-gray-600">Бренд</label><select id="webinarBrand" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"><option value="vitacci"' + (webinar?.brand === 'vitacci' ? ' selected' : '') + '>' + s.brandV + '</option><option value="basconi"' + (webinar?.brand === 'basconi' ? ' selected' : '') + '>' + s.brandB + '</option><option value="both"' + (webinar?.brand === 'both' || !webinar ? ' selected' : '') + '>' + s.brandV + ' | ' + s.brandB + '</option></select></div><div><label class="text-sm text-gray-600">Макс. участников</label><input type="number" id="webinarMax" value="' + (webinar?.maxParticipants || 50) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div></div><div><label class="text-sm text-gray-600">Статус</label><select id="webinarStatus" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"><option value="upcoming"' + (webinar?.status === 'upcoming' ? ' selected' : '') + '>Предстоящий</option><option value="completed"' + (webinar?.status === 'completed' ? ' selected' : '') + '>Завершен</option><option value="cancelled"' + (webinar?.status === 'cancelled' ? ' selected' : '') + '>Отменен</option></select></div></div><div class="flex gap-2 mt-6"><button id="btnSaveWebinar" class="btn-primary flex-1">Сохранить</button><button id="btnCancelWebinar" class="btn-secondary flex-1">Отмена</button></div></div>', 'max-w-2xl');
-  document.getElementById('btnSaveWebinar').onclick = function() { saveWebinar(webinarId || ''); }; document.getElementById('btnCancelWebinar').onclick = closeModal;
-}
-function saveWebinar(id) { const title = document.getElementById('webinarTitle').value.trim(); const description = document.getElementById('webinarDesc').value.trim(); const date = document.getElementById('webinarDate').value; const duration = document.getElementById('webinarDuration').value.trim(); const host = document.getElementById('webinarHost').value.trim(); const hostPosition = document.getElementById('webinarHostPos').value.trim(); const link = document.getElementById('webinarLink').value.trim(); const brand = document.getElementById('webinarBrand').value; const maxParticipants = parseInt(document.getElementById('webinarMax').value) || 50; const status = document.getElementById('webinarStatus').value; if (!title) return alert('Введите название'); if (!date) return alert('Выберите дату'); const webinars = DB.webinars; if (id) { const idx = webinars.findIndex(w => w.id === id); webinars[idx] = Object.assign({}, webinars[idx], { title, description, date: new Date(date).toISOString(), duration, host, hostPosition, link, brand, maxParticipants, status }); } else { webinars.push({ id: 'w' + Date.now(), title, description, date: new Date(date).toISOString(), duration, host, hostPosition, link, brand, maxParticipants, status, participants: [], createdAt: Date.now() }); } DB.webinars = webinars; closeModal(); renderAll(); }
-function deleteWebinar(id) { if (!confirm('Удалить вебинар?')) return; DB.webinars = DB.webinars.filter(w => w.id !== id); renderAll(); }
-
-function openWebinarParticipants(webinarId) {
-  const webinar = DB.webinars.find(w => w.id === webinarId); if (!webinar) return; const employees = DB.employees; const participants = webinar.participants || [];
-  const participantsHtml = participants.map(pid => { const emp = employees.find(e => e.id === pid); if (!emp) return ''; const store = DB.stores.find(s => s.id === emp.storeId); return '<div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full gradient-btn text-white flex items-center justify-center text-sm font-bold">' + emp.name.charAt(0) + '</div><div><div class="text-sm font-medium">' + esc(emp.name) + (emp.isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(emp.position) + ' · ' + esc(store?.name || '') + '</div></div></div><button class="btn-ghost text-red-500" onclick="removeParticipant(\'' + webinarId + '\', \'' + pid + '\')">✕</button></div>'; }).join('');
-  const availableEmployees = employees.filter(e => !participants.includes(e.id));
-  const availableHtml = availableEmployees.map(e => { const store = DB.stores.find(s => s.id === e.storeId); return '<div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center text-sm font-bold">' + e.name.charAt(0) + '</div><div><div class="text-sm font-medium">' + esc(e.name) + (e.isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.position) + ' · ' + esc(store?.name || '') + '</div></div></div><button class="btn-primary btn-sm" onclick="addParticipant(\'' + webinarId + '\', \'' + e.id + '\')">+ Добавить</button></div>'; }).join('');
-  openModal('<div class="p-6 max-w-2xl mx-auto"><h3 class="text-xl font-bold text-gray-800 mb-2">Участники вебинара</h3><p class="text-sm text-gray-500 mb-4">' + esc(webinar.title) + '</p><div class="space-y-4"><div><h4 class="font-medium text-gray-700 mb-2">Текущие участники (' + participants.length + ')</h4><div class="space-y-2 max-h-64 overflow-y-auto">' + (participantsHtml || '<div class="text-gray-400 text-sm text-center py-4">Нет участников</div>') + '</div></div><div class="brand-divider"></div><div><h4 class="font-medium text-gray-700 mb-2">Доступные сотрудники</h4><div class="space-y-2 max-h-64 overflow-y-auto">' + (availableHtml || '<div class="text-gray-400 text-sm text-center py-4">Все добавлены</div>') + '</div></div></div><div class="flex gap-2 mt-6"><button class="btn-secondary flex-1" onclick="closeModal()">Закрыть</button></div></div>', 'max-w-2xl');
-}
-function addParticipant(webinarId, empId) { const webinars = DB.webinars; const idx = webinars.findIndex(w => w.id === webinarId); if (idx >= 0) { if (!webinars[idx].participants) webinars[idx].participants = []; if (!webinars[idx].participants.includes(empId)) webinars[idx].participants.push(empId); DB.webinars = webinars; openWebinarParticipants(webinarId); renderAll(); } }
-function removeParticipant(webinarId, empId) { const webinars = DB.webinars; const idx = webinars.findIndex(w => w.id === webinarId); if (idx >= 0) { webinars[idx].participants = (webinars[idx].participants || []).filter(id => id !== empId); DB.webinars = webinars; openWebinarParticipants(webinarId); renderAll(); } }
-function startWebinar(webinarId) { const webinar = DB.webinars.find(w => w.id === webinarId); if (!webinar) return; if (webinar.link) window.open(webinar.link, '_blank'); alert('Вебинар "' + webinar.title + '" начинается!\n\nСсылка: ' + (webinar.link || 'Не указана') + '\nУчастников: ' + (webinar.participants?.length || 0)); }
-function viewWebinarRecording(webinarId) { alert('Запись вебинара будет доступна после интеграции с видеоплатформой.'); }
-function copyWebinarLink(webinarId) { const webinar = DB.webinars.find(w => w.id === webinarId); if (!webinar || !webinar.link) return; navigator.clipboard.writeText(webinar.link).then(function() { alert('Ссылка скопирована!'); }); }
 
 function copyToken(token) { navigator.clipboard.writeText(token).then(function() { alert('✅ Код скопирован: ' + token); }).catch(function() { alert('Код: ' + token); }); }
 
-function showEmployeeDetails(empId, courseId) {
-  const employee = DB.employees.find(e => e.id === empId); const course = DB.courses.find(c => c.id === courseId);
-  if (!employee || !course) return;
-  const store = DB.stores.find(s => s.id === employee.storeId);
-  const empProgress = DB.progress[empId]?.[courseId] || {};
-  let totalCorrect = 0; let totalQuestions = 0; let completedTests = 0;
-  let testResults = [];
-  course.blocks.forEach((b, i) => {
-    const bp = empProgress[b.id] || {}; const score = bp.score || 0; const total = bp.total || 0; const completed = bp.completed || false;
-    totalCorrect += score; totalQuestions += total; if (completed && total > 0) completedTests++;
-    testResults.push({ blockIndex: i, blockTitle: b.title, blockIcon: b.icon, score: score, total: total, completed: completed, percentage: total > 0 ? Math.round((score / total) * 100) : 0 });
-  });
-  const avgTestScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
-  const testStatus = avgTestScore >= 80 ? 'Отлично' : avgTestScore >= 60 ? 'Хорошо' : avgTestScore >= 40 ? 'Удовлетворительно' : 'Требует повторения';
-  const testStatusColor = avgTestScore >= 80 ? 'score-excellent' : avgTestScore >= 60 ? 'score-good' : avgTestScore >= 40 ? 'score-average' : 'score-low';
-  let blocksHtml = testResults.map((tr, i) => {
-    const theoryCount = (course.blocks[i].theoryBlocks || []).length; const practiceCount = (course.blocks[i].practice || []).length; const quizCount = (course.blocks[i].quiz || []).length;
-    const blockProgress = empProgress[course.blocks[i].id] || {};
-    const practiceAnswers = blockProgress.practiceAnswers || {};
-    const answeredPractices = Object.keys(practiceAnswers).filter(k => practiceAnswers[k] && practiceAnswers[k].length > 0).length;
-    let scoreBadge = '<span class="chip bg-gray-100 text-gray-600">Не пройден</span>';
-    if (tr.completed && tr.total > 0) { const badgeClass = tr.percentage >= 80 ? 'score-excellent' : tr.percentage >= 60 ? 'score-good' : tr.percentage >= 40 ? 'score-average' : 'score-low'; scoreBadge = '<span class="score-badge ' + badgeClass + '">' + tr.score + '/' + tr.total + ' (' + tr.percentage + '%)</span>'; }
-    let practiceBadge = '<span class="chip bg-gray-100 text-gray-600">Не отвечено</span>';
-    if (answeredPractices > 0) practiceBadge = '<span class="chip bg-green-100 text-green-700">✓ Отвечено: ' + answeredPractices + '/' + practiceCount + '</span>';
-    let theoryBadge = '<span class="chip bg-gray-100 text-gray-600">Не изучено</span>';
-    if (tr.completed && theoryCount > 0) theoryBadge = '<span class="chip bg-blue-100 text-blue-700">📚 ' + theoryCount + ' блоков теории</span>';
-    return '<div class="detail-row border border-gray-200 rounded-xl p-4 mb-3 ' + (tr.completed ? 'bg-green-50/30' : 'bg-white') + '"><div class="flex items-start justify-between mb-3 flex-wrap gap-2"><div class="flex items-center gap-3"><div class="text-2xl">' + tr.blockIcon + '</div><div><div class="font-bold text-gray-800">Блок ' + (tr.blockIndex + 1) + ': ' + esc(tr.blockTitle) + '</div><div class="text-xs text-gray-500 mt-1">📚 ' + theoryCount + ' теории · 🎯 ' + practiceCount + ' практики · 📝 ' + quizCount + ' вопросов</div></div></div>' + (tr.completed ? '<span class="chip bg-green-100 text-green-700 font-semibold">✓ Завершён</span>' : '<span class="chip bg-gray-100 text-gray-600">Не начат</span>') + '</div><div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3"><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1">📚 Теория</div>' + theoryBadge + '</div><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1">🎯 Практика</div>' + practiceBadge + '</div><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1">📝 Тестирование</div>' + scoreBadge + '</div></div></div>';
-  }).join('');
-  const totalBlocks = course.blocks.length; const completedBlocks = testResults.filter(tr => tr.completed).length;
-  const totalPractice = course.blocks.reduce((sum, b) => sum + (b.practice?.length || 0), 0);
-  openModal(
-    '<div class="p-6"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-14 h-14 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-2xl">' + employee.name.charAt(0) + '</div><div><h3 class="text-xl font-bold text-gray-800">' + esc(employee.name) + '</h3><div class="text-sm text-gray-500">' + esc(employee.position) + ' · ' + esc(store?.name || '—') + '</div></div></div><button class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="bg-gradient-to-br from-rose-50 to-stone-50 rounded-2xl p-5 mb-5"><div class="flex items-center gap-3 mb-3"><span class="text-3xl">' + (course.icon || '📚') + '</span><div><div class="font-bold text-gray-800 text-lg">' + esc(course.title) + '</div><div class="text-xs text-gray-500">Детальная успеваемость по курсу</div></div></div><div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Прогресс курса</div><div class="text-2xl font-bold text-vitacci">' + getEmployeeProgress(empId, courseId) + '%</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Блоков пройдено</div><div class="text-2xl font-bold text-gray-800">' + completedBlocks + '/' + totalBlocks + '</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Практических ситуаций</div><div class="text-2xl font-bold text-gray-800">' + totalPractice + '</div><div class="text-xs text-gray-500">всего в курсе</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Пройдено тестов</div><div class="text-2xl font-bold text-gray-800">' + completedTests + '/' + totalBlocks + '</div></div></div></div><div class="test-result-card"><h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="text-2xl"></span> Общие итоги тестирования</h4><div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4"><div class="test-stat-box"><div class="test-stat-value">' + totalCorrect + '/' + totalQuestions + '</div><div class="test-stat-label">Правильных ответов</div></div><div class="test-stat-box"><div class="test-stat-value">' + avgTestScore + '%</div><div class="test-stat-label">Средний балл</div></div><div class="test-stat-box"><div class="test-stat-value">' + completedTests + '</div><div class="test-stat-label">Пройдено тестов</div></div><div class="test-stat-box"><div class="test-stat-value"><span class="score-badge ' + testStatusColor + '">' + testStatus + '</span></div><div class="test-stat-label">Общий результат</div></div></div><div class="bg-white rounded-lg p-4"><div class="text-sm font-medium text-gray-700 mb-2">Прогресс тестирования:</div><div class="w-full bg-gray-200 rounded-full h-3 mb-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + avgTestScore + '%"></div></div><div class="text-xs text-gray-500">Из ' + totalQuestions + ' вопросов правильно отвечено на ' + totalCorrect + ' (' + avgTestScore + '%)</div></div></div><h4 class="font-bold text-gray-800 mb-3 mt-6"> Детализация по блокам</h4><div class="max-h-[40vh] overflow-y-auto scrollbar pr-2">' + blocksHtml + '</div><div class="flex gap-2 mt-5 pt-4 border-t border-gray-200"><button class="btn-secondary flex-1" onclick="closeModal()">Закрыть</button></div></div>',
-    'max-w-5xl'
-  );
-}
-
 function renderProgress() {
-  const employees = getFilteredEmployees(); const stores = DB.stores, courses = DB.courses, links = DB.links;
-  const filterCourse = document.getElementById('filterCourse')?.value || ''; const filterBrand = document.getElementById('filterBrand')?.value || ''; const filterStore = document.getElementById('filterStore')?.value || '';
-  const el = document.getElementById('progressList'); const summaryEl = document.getElementById('filterSummary');
-  const s = DB.settings; const brandLabel = filterBrand === 'vitacci' ? s.brandV : filterBrand === 'basconi' ? s.brandB : 'Все бренды';
-  const storeLabel = filterStore ? (stores.find(st => st.id === filterStore)?.name || '—') : 'Все магазины';
-  const courseLabel = filterCourse ? (courses.find(c => c.id === filterCourse)?.title || '—') : 'Все курсы';
-  const totalEmps = employees.length; const avgP = totalEmps ? Math.round(employees.reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / totalEmps) : 0;
-  const completed = employees.filter(e => getEmployeeProgress(e.id) === 100).length;
-  const inProgress = employees.filter(e => { const p = getEmployeeProgress(e.id); return p > 0 && p < 100; }).length;
-  const notStarted = employees.filter(e => getEmployeeProgress(e.id) === 0).length;
-  if (summaryEl) { summaryEl.innerHTML = '<div class="flex flex-wrap gap-4 items-center"><div><span class="text-gray-500">Бренд:</span> <b>' + esc(brandLabel) + '</b></div><div><span class="text-gray-500">Магазин:</span> <b>' + esc(storeLabel) + '</b></div><div><span class="text-gray-500">Курс:</span> <b>' + esc(courseLabel) + '</b></div><div class="ml-auto flex gap-3"><span class="chip bg-vitacci text-white">👥 ' + totalEmps + ' сотр.</span><span class="chip bg-green-100 text-green-700">✓ ' + completed + ' завершили</span><span class="chip bg-yellow-100 text-yellow-700">🔄 ' + inProgress + ' в процессе</span><span class="chip bg-gray-100 text-gray-600">○ ' + notStarted + ' не начали</span><span class="chip bg-blue-100 text-blue-700">📊 Средний: ' + avgP + '%</span></div></div>'; }
-  if (employees.length === 0) { el.innerHTML = '<div class="text-center py-12 text-gray-400">Нет данных по выбранным фильтрам</div>'; return; }
+  const employees = DB.employees;
+  const el = document.getElementById('progressList');
+  if (employees.length === 0) { el.innerHTML = '<div class="text-center py-12 text-gray-400">Нет данных</div>'; return; }
   el.innerHTML = employees.map(e => {
-    const store = stores.find(s => s.id === e.storeId); const empLinks = links.filter(l => l.employeeId === e.id);
-    if (filterCourse && empLinks.filter(l => l.courseId === filterCourse).length === 0) return '';
-    const totalP = getEmployeeProgress(e.id); const storeBrand = store?.brand;
-    const brandColor = storeBrand === 'vitacci' ? 'text-vitacci' : storeBrand === 'basconi' ? 'text-basconi-black' : 'text-gray-700';
-    const brandLabel2 = storeBrand === 'vitacci' ? s.brandV : storeBrand === 'basconi' ? s.brandB : '';
+    const p = getEmployeeProgress(e.id);
+    const store = DB.stores.find(s => s.id === e.storeId);
     const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase());
-    return '<div class="bg-white rounded-2xl p-5 shadow-sm"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-lg">' + e.name.charAt(0) + '</div><div><div class="font-bold text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.position) + ' · <span class="' + brandColor + ' font-medium">' + esc(brandLabel2) + '</span> · ' + esc(store?.name || '—') + '</div></div></div><div class="text-right"><div class="text-2xl font-bold text-vitacci">' + totalP + '%</div><div class="text-xs text-gray-500">общий прогресс</div></div></div>' + (empLinks.length === 0 ? '<div class="text-sm text-gray-400 text-center py-3">Нет назначенных курсов</div>' : empLinks.map(l => {
-      const course = courses.find(c => c.id === l.courseId); if (!course) return ''; if (filterCourse && l.courseId !== filterCourse) return '';
-      const p = getEmployeeProgress(e.id, course.id);
-      const empProg = DB.progress[e.id]?.[course.id] || {};
-      const completedBlocks = Object.values(empProg).filter(b => b.completed).length;
-      let totalCorrect = 0; let totalQuestions = 0; let completedTests = 0;
-      course.blocks.forEach(b => { const bp = empProg[b.id] || {}; if (bp.completed && bp.total > 0) { totalCorrect += (bp.score || 0); totalQuestions += bp.total; completedTests++; } });
-      const avgTestScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
-      const totalPractice = course.blocks.reduce((sum, b) => sum + (b.practice?.length || 0), 0);
-      let testBadge = '<span class="chip bg-gray-100 text-gray-600">Тесты не пройдены</span>';
-      if (completedTests > 0) { const badgeClass = avgTestScore >= 80 ? 'score-excellent' : avgTestScore >= 60 ? 'score-good' : avgTestScore >= 40 ? 'score-average' : 'score-low'; testBadge = '<span class="score-badge ' + badgeClass + '">📝 ' + totalCorrect + '/' + totalQuestions + ' (' + avgTestScore + '%)</span>'; }
-      return '<div class="mb-3 p-4 bg-gray-50 rounded-lg border border-gray-100"><div class="flex items-center justify-between mb-3 flex-wrap gap-2"><div class="flex items-center gap-2"><span class="text-xl">' + (course.icon || '') + '</span><span class="font-medium text-gray-800 text-sm">' + esc(course.title) + '</span><span class="text-sm font-bold text-vitacci ml-2">' + p + '%</span></div><button class="btn-info btn-sm" onclick="showEmployeeDetails(\'' + e.id + '\', \'' + course.id + '\')">📊 Подробнее</button></div><div class="bg-gray-200 rounded-full h-1.5 mb-3"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div><div class="grid grid-cols-4 gap-2 text-xs"><div class="bg-white rounded-lg p-2 text-center"><div class="text-gray-500">📚 Теория</div><div class="font-bold text-gray-800 mt-1">' + completedBlocks + '/' + course.blocks.length + ' блоков</div></div><div class="bg-white rounded-lg p-2 text-center"><div class="text-gray-500">🎯 Практика</div><div class="font-bold text-gray-800 mt-1">' + totalPractice + ' ситуаций</div></div><div class="bg-white rounded-lg p-2 text-center"><div class="text-gray-500">📝 Тест</div><div class="font-bold text-gray-800 mt-1">' + testBadge + '</div></div><div class="bg-white rounded-lg p-2 text-center"><div class="text-gray-500">✅ Прогресс</div><div class="font-bold text-vitacci mt-1">' + p + '%</div></div></div></div>';
-    }).join('')) + '</div>';
+    return '<div class="bg-white rounded-2xl p-5 shadow-sm"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-lg">' + e.name.charAt(0) + '</div><div><div class="font-bold text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.position) + ' · ' + esc(store?.name || '—') + '</div></div></div><div class="text-right"><div class="text-2xl font-bold text-vitacci">' + p + '%</div><div class="text-xs text-gray-500">прогресс</div></div></div><div class="bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div></div>';
   }).join('');
 }
-
-function renderBrandFilters() {
-  const fb = document.getElementById('filterBrand'); if (!fb) return;
-  const s = DB.settings; const brandV = s.brandV || 'VITACCI'; const brandB = s.brandB || 'BASCONI';
-  const curBrand = fb.value;
-  fb.innerHTML = '<option value="">Все бренды</option><option value="vitacci"' + (curBrand === 'vitacci' ? ' selected' : '') + '>' + brandV + '</option><option value="basconi"' + (curBrand === 'basconi' ? ' selected' : '') + '>' + brandB + '</option>';
-}
-function onBrandFilterChange() {
-  const brand = document.getElementById('filterBrand').value; const fs = document.getElementById('filterStore');
-  const stores = DB.stores; const filteredStores = brand ? stores.filter(s => s.brand === brand) : stores;
-  const curStore = fs.value; fs.innerHTML = '<option value="">Все магазины</option>' + filteredStores.map(s => '<option value="' + s.id + '"' + (curStore === s.id ? ' selected' : '') + '>' + esc(s.name) + '</option>').join('');
-  if (curStore && !filteredStores.some(s => s.id === curStore)) fs.value = '';
-  renderProgress();
-}
-function onStoreFilterChange() { renderProgress(); }
-function resetFilters() { document.getElementById('filterBrand').value = ''; document.getElementById('filterStore').value = ''; document.getElementById('filterCourse').value = ''; onBrandFilterChange(); }
-
-function getFilteredEmployees() {
-  const brand = document.getElementById('filterBrand')?.value || ''; const storeId = document.getElementById('filterStore')?.value || '';
-  let employees = DB.employees;
-  if (brand) { const brandStores = DB.stores.filter(s => s.brand === brand).map(s => s.id); employees = employees.filter(e => brandStores.includes(e.storeId)); }
-  if (storeId) employees = employees.filter(e => e.storeId === storeId);
-  return employees;
-}
-function renderFilters() {
-  const courses = DB.courses; const fc = document.getElementById('filterCourse');
-  if (fc) { const cur = fc.value; fc.innerHTML = '<option value="">Все курсы</option>' + courses.map(c => '<option value="' + c.id + '">' + esc(c.title) + '</option>').join(''); fc.value = cur; }
-}
-
-function exportReport(format) {
-  const employees = getFilteredEmployees(); const stores = DB.stores, courses = DB.courses, links = DB.links;
-  const filterCourse = document.getElementById('filterCourse')?.value || ''; const filterBrand = document.getElementById('filterBrand')?.value || ''; const filterStore = document.getElementById('filterStore')?.value || ''; const s = DB.settings;
-  if (employees.length === 0) { alert('Нет данных для выгрузки'); return; }
-  if (format === 'csv') {
-    let csv = '\uFEFF'; csv += 'Отчет по успеваемости\n'; csv += 'Дата формирования: ' + new Date().toLocaleString('ru-RU') + '\n';
-    csv += 'Бренд: ' + (filterBrand === 'vitacci' ? s.brandV : filterBrand === 'basconi' ? s.brandB : 'Все') + '\n';
-    csv += 'Магазин: ' + (filterStore ? stores.find(st => st.id === filterStore)?.name || '—' : 'Все') + '\n';
-    csv += 'Курс: ' + (filterCourse ? courses.find(c => c.id === filterCourse)?.title || '—' : 'Все') + '\n\n';
-    csv += 'Сотрудник;Должность;Роль;Магазин;Бренд;Email;Прогресс;Результат тестов;Статус;Назначенные курсы\n';
-    employees.forEach(e => {
-      const store = stores.find(st => st.id === e.storeId); const brandLabel = store?.brand === 'vitacci' ? s.brandV : store?.brand === 'basconi' ? s.brandB : '—';
-      const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase());
-      const p = getEmployeeProgress(e.id); const status = p === 100 ? 'Завершен' : p > 0 ? 'В процессе' : 'Не начат';
-      const empLinks = links.filter(l => l.employeeId === e.id); const courseNames = empLinks.map(l => { const c = courses.find(co => co.id === l.courseId); return c ? c.title : ''; }).filter(n => n).join(', ');
-      let testResult = '—';
-      if (filterCourse) { const course = courses.find(c => c.id === filterCourse); if (course) { const empProg = DB.progress[e.id]?.[filterCourse] || {}; let totalCorrect = 0, totalQuestions = 0; course.blocks.forEach(b => { const bp = empProg[b.id] || {}; if (bp.completed && bp.total > 0) { totalCorrect += (bp.score || 0); totalQuestions += bp.total; } }); if (totalQuestions > 0) testResult = Math.round((totalCorrect / totalQuestions) * 100) + '% (' + totalCorrect + '/' + totalQuestions + ')'; } } else { const scoreData = getEmployeeTestScore(e.id); if (scoreData.totalQuestions > 0) testResult = scoreData.avgScore + '% (' + scoreData.totalCorrect + '/' + scoreData.totalQuestions + ')'; }
-      csv += '"' + e.name + '";"' + e.position + '";"' + (isAdmin ? 'Администратор' : 'Сотрудник') + '";"' + (store?.name || '') + '";"' + brandLabel + '";"' + (e.email || '') + '";' + p + '%;"' + testResult + '";"' + status + '";"' + courseNames + '"\n';
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'otchet_uspevaemost_' + new Date().toISOString().slice(0, 10) + '.csv'; a.click(); URL.revokeObjectURL(url);
-    alert('Отчет выгружен в формате CSV');
-  } else if (format === 'print') {
-    const brandLabel = filterBrand === 'vitacci' ? s.brandV : filterBrand === 'basconi' ? s.brandB : 'Все бренды';
-    const storeLabel = filterStore ? (stores.find(st => st.id === filterStore)?.name || '—') : 'Все магазины';
-    const courseLabel = filterCourse ? (courses.find(c => c.id === filterCourse)?.title || '—') : 'Все курсы';
-    const totalEmps = employees.length; const avgP = totalEmps ? Math.round(employees.reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / totalEmps) : 0;
-    const completed = employees.filter(e => getEmployeeProgress(e.id) === 100).length;
-    let html = '<div style="font-family: Montserrat, sans-serif; padding: 20px;"><h1 style="color: #8B1E3F; border-bottom: 2px solid #8B1E3F; padding-bottom: 10px;">' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + '</h1><h2 style="color: #333;">Отчет по успеваемости</h2><p><b>Дата формирования:</b> ' + new Date().toLocaleString('ru-RU') + '</p><p><b>Бренд:</b> ' + esc(brandLabel) + ' | <b>Магазин:</b> ' + esc(storeLabel) + ' | <b>Курс:</b> ' + esc(courseLabel) + '</p><p><b>Всего сотрудников:</b> ' + totalEmps + ' | <b>Средний прогресс:</b> ' + avgP + '% | <b>Завершили:</b> ' + completed + '</p><table style="width: 100%; border-collapse: collapse; margin-top: 20px;"><thead><tr style="background: #8B1E3F; color: white;"><th style="padding: 8px; border: 1px solid #ddd;">Сотрудник</th><th style="padding: 8px; border: 1px solid #ddd;">Должность</th><th style="padding: 8px; border: 1px solid #ddd;">Роль</th><th style="padding: 8px; border: 1px solid #ddd;">Магазин</th><th style="padding: 8px; border: 1px solid #ddd;">Бренд</th><th style="padding: 8px; border: 1px solid #ddd;">Прогресс</th><th style="padding: 8px; border: 1px solid #ddd;">Результат тестов</th><th style="padding: 8px; border: 1px solid #ddd;">Статус</th></tr></thead><tbody>';
-    employees.forEach(e => {
-      const store = stores.find(st => st.id === e.storeId); const brandLbl = store?.brand === 'vitacci' ? s.brandV : store?.brand === 'basconi' ? s.brandB : '—';
-      const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase());
-      const p = getEmployeeProgress(e.id); const status = p === 100 ? 'Завершен' : p > 0 ? 'В процессе' : 'Не начат';
-      let testResult = '—';
-      if (filterCourse) { const course = courses.find(c => c.id === filterCourse); if (course) { const empProg = DB.progress[e.id]?.[filterCourse] || {}; let totalCorrect = 0, totalQuestions = 0; course.blocks.forEach(b => { const bp = empProg[b.id] || {}; if (bp.completed && bp.total > 0) { totalCorrect += (bp.score || 0); totalQuestions += bp.total; } }); if (totalQuestions > 0) testResult = Math.round((totalCorrect / totalQuestions) * 100) + '%'; } } else { const scoreData = getEmployeeTestScore(e.id); if (scoreData.totalQuestions > 0) testResult = scoreData.avgScore + '%'; }
-      html += '<tr><td style="padding: 8px; border: 1px solid #ddd;">' + esc(e.name) + '</td><td style="padding: 8px; border: 1px solid #ddd;">' + esc(e.position) + '</td><td style="padding: 8px; border: 1px solid #ddd;">' + (isAdmin ? 'Администратор' : 'Сотрудник') + '</td><td style="padding: 8px; border: 1px solid #ddd;">' + esc(store?.name || '') + '</td><td style="padding: 8px; border: 1px solid #ddd;">' + esc(brandLbl) + '</td><td style="padding: 8px; border: 1px solid #ddd;">' + p + '%</td><td style="padding: 8px; border: 1px solid #ddd;">' + testResult + '</td><td style="padding: 8px; border: 1px solid #ddd;">' + status + '</td></tr>';
-    });
-    html += '</tbody></table><p style="margin-top: 30px; color: #666; font-size: 12px;">© ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + ' · ' + new Date().getFullYear() + '</p></div>';
-    const printWindow = window.open('', '_blank'); printWindow.document.write('<html><head><title>Отчет по успеваемости</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/montserrat@5.0.0/index.css"></head><body>' + html + '</body></html>'); printWindow.document.close(); setTimeout(() => { printWindow.print(); }, 500);
-  }
 
 function getEmployeeProgress(empId, courseId) {
   const courses = DB.courses;
@@ -1064,21 +817,14 @@ function openEmployeeModal(empId) {
   document.getElementById('btnCancelEmp').onclick = closeModal;
 }
 function saveEmployee(id) {
-  const name = document.getElementById('empName').value.trim(); const email = document.getElementById('empEmail').value.trim(); const storeId = document.getElementById('empStore').value; const position = document.getElementById('empPosition').value; const isAdmin = document.getElementById('empIsAdmin').checked;
+  const name = document.getElementById('empName').value.trim();
+  const email = document.getElementById('empEmail').value.trim();
+  const storeId = document.getElementById('empStore').value;
+  const position = document.getElementById('empPosition').value;
+  const isAdmin = document.getElementById('empIsAdmin').checked;
+  
   if (!name) return alert('Введите ФИО');
-  const employees = DB.employees;
-  if (id) { const idx = employees.findIndex(e => e.id === id); employees[idx] = Object.assign({}, employees[idx], { name: name, email: email, storeId: storeId, position: position, isAdmin: isAdmin }); }
-  else { employees.push({ id: 'e' + Date.now(), name: name, email: email, storeId: storeId, position: position, isAdmin: isAdmin }); }
-  DB.employees = employees;
-  const admins = DB.admins;
-  if (isAdmin && email && !admins.some(a => a.toLowerCase() === email.toLowerCase())) admins.push(email);
-  else if (!isAdmin && email) { const idx2 = admins.findIndex(a => a.toLowerCase() === email.toLowerCase()); if (idx2 >= 0 && email.toLowerCase() !== 'admin@academy.ru') admins.splice(idx2, 1); }
-  DB.admins = admins;
-  closeModal(); renderAll();
-}
-  if (!name) return alert('Введите ФИО');
-
-  function deleteEmployee(id) { if (!confirm('Удалить сотрудника?')) return; DB.employees = DB.employees.filter(e => e.id !== id); DB.links = DB.links.filter(l => l.employeeId !== id); const p = DB.progress; delete p[id]; DB.progress = p; renderAll(); }
+  
   const employees = DB.employees;
   if (id) {
     const idx = employees.findIndex(e => e.id === id);
@@ -1141,44 +887,7 @@ async function deleteEmployee(id) {
   
   renderAll();
 }
-async function loadFromCloud() {
-  if (!isSupabaseConnected || !supabaseClient) {
-    alert('❌ Supabase не подключен');
-    return;
-  }
-  
-  try {
-    updateSyncStatus('syncing', 'Загрузка из облака...');
-    
-    const { data: employees, error } = await supabaseClient
-      .from('employees')
-      .select('*');
-    
-    if (error) {
-      console.error('Ошибка загрузки:', error);
-      updateSyncStatus('error', error.message);
-      return;
-    }
-    
-    if (employees && employees.length > 0) {
-      DB.employees = employees.map(e => ({
-        id: e.id,
-        name: e.name,
-        email: e.email,
-        storeId: e.store_id,
-        position: e.position,
-        role: e.role,
-        isAdmin: e.is_admin
-      }));
-      renderAll();
-      updateSyncStatus('online');
-      alert('✅ Загружено ' + employees.length + ' сотрудников из облака');
-    }
-  } catch (e) {
-    console.error('Ошибка:', e);
-    updateSyncStatus('error', e.message);
-  }
-}
+
 function openLinkModal() {
   const employees = DB.employees, courses = DB.courses;
   if (employees.length === 0) return alert('Сначала добавьте сотрудника');
@@ -1198,7 +907,7 @@ function saveLink() {
   closeModal(); renderAll();
   const emp = DB.employees.find(e => e.id === employeeId);
   const course = DB.courses.find(c => c.id === courseId);
-  openModal('<div class="p-6 max-w-lg mx-auto text-center"><div class="text-6xl mb-4">🎉</div><h3 class="text-xl font-bold text-gray-800 mb-2">Код доступа создан!</h3><p class="text-sm text-gray-600 mb-4">Отправьте код сотруднику <b>' + esc(emp?.name || '') + '</b> для курса <b>' + esc(course?.title || '') + '</b></p><div class="token-display mb-4">' + token + '</div><div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-left"><div class="text-xs text-amber-900"><b>📋 Инструкция:</b><br>1. Откройте файл портала<br>2. Введите код доступа<br>3. Нажмите "Начать обучение"</div></div><div class="flex gap-2"><button type="button" onclick="copyToken(\'' + token + '\'); closeModal();" class="btn-primary flex-1"> Скопировать</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Закрыть</button></div></div>', 'max-w-lg');
+  openModal('<div class="p-6 max-w-lg mx-auto text-center"><div class="text-6xl mb-4">🎉</div><h3 class="text-xl font-bold text-gray-800 mb-2">Код доступа создан!</h3><p class="text-sm text-gray-600 mb-4">Отправьте код сотруднику <b>' + esc(emp?.name || '') + '</b> для курса <b>' + esc(course?.title || '') + '</b></p><div class="token-display mb-4">' + token + '</div><div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 text-left"><div class="text-xs text-amber-900"><b>📋 Инструкция:</b><br>1. Откройте файл портала<br>2. Введите код доступа<br>3. Нажмите "Начать обучение"</div></div><div class="flex gap-2"><button type="button" onclick="copyToken(\'' + token + '\'); closeModal();" class="btn-primary flex-1">📋 Скопировать</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Закрыть</button></div></div>', 'max-w-lg');
 }
 
 function deleteLink(token) { if (!confirm('Удалить код?')) return; DB.links = DB.links.filter(l => l.token !== token); renderAll(); }
@@ -1214,124 +923,11 @@ async function loginByToken() {
   startCourseMode(token);
 }
 
-function openCourseEditor(courseId) {
-  try {
-    let course, isNew = false;
-    if (courseId) { const found = DB.courses.find(c => c.id === courseId); if (!found) { alert('Курс не найден'); return; } course = JSON.parse(JSON.stringify(found)); }
-    else { isNew = true; course = { id: 'course_' + Date.now(), title: '', description: '', duration: '15 мин', icon: '📚', coverKey: null, attachments: [], createdAt: Date.now(), blocks: [] }; }
-    course.blocks.forEach(b => { if (b.theory && !b.theoryBlocks) b.theoryBlocks = [{ id: 'tb_' + Date.now(), type: 'text', content: b.theory }]; if (!b.theoryBlocks) b.theoryBlocks = []; if (!b.practice) b.practice = []; });
-    editorState = { course: course, isNew: isNew, activeBlockIdx: course.blocks.length > 0 ? 0 : -1, coverUrl: '', blockVideoUrls: {} };
-    renderCourseEditor();
-  } catch (err) { alert('Ошибка: ' + err.message); }
-}
-
-function renderCourseEditor() {
-  if (!editorState) return;
-  var c = editorState.course, isNew = editorState.isNew;
-  var blocksListHtml = c.blocks.map(function(b, i) {
-    var isActive = editorState.activeBlockIdx === i;
-    var theoryCount = (b.theoryBlocks || []).length; var practiceCount = (b.practice || []).length;
-    return '<div onclick="selectBlock(' + i + ')" class="editor-block ' + (isActive ? 'active' : '') + ' p-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-3"><span class="text-2xl">' + (b.icon || '📖') + '</span><div class="flex-1 min-w-0"><div class="font-medium text-sm text-gray-800 truncate">' + esc(b.title || 'Без названия') + '</div><div class="text-xs text-gray-500">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' · 📝 ' + (b.quiz?.length || 0) + '</div></div><div class="flex gap-1"><button onclick="event.stopPropagation(); moveBlock(' + i + ', -1)" class="btn-ghost text-xs" ' + (i === 0 ? 'disabled' : '') + '>↑</button><button onclick="event.stopPropagation(); moveBlock(' + i + ', 1)" class="btn-ghost text-xs" ' + (i === c.blocks.length - 1 ? 'disabled' : '') + '>↓</button><button onclick="event.stopPropagation(); deleteBlock(' + i + ')" class="btn-ghost text-xs" style="color:#dc2626">✕</button></div></div>';
-  }).join('');
-  var activeBlock = editorState.activeBlockIdx >= 0 ? c.blocks[editorState.activeBlockIdx] : null;
-  var blockEditorHtml = '';
-  if (activeBlock) {
-    var videoSrc = activeBlock.videoUrl || '';
-    var theoryBlocksHtml = (activeBlock.theoryBlocks || []).map(function(tb, tbi) { return renderTheoryBlock(tb, tbi); }).join('');
-    var practiceHtml = (activeBlock.practice || []).map(function(p, pi) { return renderPracticeSituation(p, pi); }).join('');
-    var quizHtml = (activeBlock.quiz || []).map(function(q, qi) {
-      return '<div class="border border-gray-200 rounded-xl p-3"><div class="flex items-center justify-between mb-2"><span class="text-xs font-medium text-gray-500">Вопрос ' + (qi + 1) + '</span><button class="text-red-500 text-xs hover:underline" onclick="removeQuizQuestion(' + qi + ')">Удалить</button></div><input value="' + escAttr(q.q) + '" oninput="updateQuizQ(' + qi + ', this.value)" placeholder="Текст вопроса" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2"><div class="space-y-1.5">' + q.options.map(function(opt, oi) {
-        return '<div class="flex items-center gap-2"><input type="radio" name="quiz' + qi + '" ' + (q.correct === oi ? 'checked' : '') + ' onchange="setQuizCorrect(' + qi + ', ' + oi + ')" class="w-4 h-4"><input value="' + escAttr(opt) + '" oninput="updateQuizOption(' + qi + ', ' + oi + ', this.value)" placeholder="Вариант ' + (oi + 1) + '" class="flex-1 border border-gray-200 rounded px-2 py-1 text-sm"><button class="text-red-400 text-xs" onclick="removeQuizOption(' + qi + ', ' + oi + ')">✕</button></div>';
-      }).join('') + '</div><button class="text-xs text-vitacci hover:underline mt-2" onclick="addQuizOption(' + qi + ')">+ Вариант ответа</button></div>';
-    }).join('');
-    blockEditorHtml = '<div class="space-y-4"><div class="grid grid-cols-2 gap-3"><div><label class="text-sm text-gray-600">Название блока</label><input id="blockTitle" value="' + escAttr(activeBlock.title) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Иконка</label><input id="blockIcon" value="' + escAttr(activeBlock.icon || '') + '" maxlength="2" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div></div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-rose-50 to-white"><div class="section-header"><div class="flex items-center gap-2"><span class="text-xl">📚</span><div><div class="font-bold text-gray-800">Теория</div><div class="text-xs text-gray-500">' + (activeBlock.theoryBlocks?.length || 0) + ' блоков контента</div></div></div></div><div class="flex flex-wrap gap-2 mb-3"><button class="theory-type-btn" onclick="addTheoryBlock(\'text\')"> Текстовый блок</button><button class="theory-type-btn" onclick="addTheoryBlock(\'pdf\')">📕 PDF документ</button><button class="theory-type-btn" onclick="addTheoryBlock(\'image\')">🖼️ Изображение</button><button class="theory-type-btn" onclick="addTheoryBlock(\'video\')">🎬 Видео</button></div><div id="theoryBlocksContainer">' + theoryBlocksHtml + '</div>' + (activeBlock.theoryBlocks?.length === 0 ? '<div class="text-center py-6 text-gray-400 text-sm">Добавьте блоки теории</div>' : '') + '</div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-green-50 to-white"><div class="section-header" style="border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><div><div class="font-bold text-gray-800">Практика</div><div class="text-xs text-gray-500">' + (activeBlock.practice?.length || 0) + ' ситуаций</div></div></div></div><button class="btn-primary mb-3" onclick="addPracticeSituation()">+ Добавить ситуацию</button><div id="practiceContainer">' + practiceHtml + '</div>' + (activeBlock.practice?.length === 0 ? '<div class="text-center py-6 text-gray-400 text-sm">Добавьте практические ситуации</div>' : '') + '</div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-blue-50 to-white"><div class="section-header" style="border-left-color: #3b82f6;"><div class="flex items-center gap-2"><span class="text-xl">📝</span><div><div class="font-bold text-gray-800">Тест</div><div class="text-xs text-gray-500">' + (activeBlock.quiz?.length || 0) + ' вопросов</div></div></div></div><button class="btn-primary mb-3" onclick="addQuizQuestion()">+ Добавить вопрос</button><div class="space-y-3">' + quizHtml + '</div></div></div>';
-  } else { blockEditorHtml = '<div class="text-center py-16 text-gray-400"><div class="text-5xl mb-3">📚</div><div>Выберите блок слева или создайте новый</div></div>'; }
-  var html = '<div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-wrap gap-3 z-10"><div class="flex items-center gap-3"><button class="btn-ghost text-xl" onclick="closeModal()">←</button><h3 class="text-xl font-bold text-gray-800">' + (isNew ? 'Новый курс' : 'Редактирование курса') + '</h3></div><div class="flex gap-2"><button class="btn-primary" onclick="saveCourse()">💾 Сохранить</button></div></div><div class="p-6"><div class="bg-gradient-to-br from-rose-50 to-stone-50 rounded-2xl p-5 mb-6"><h4 class="font-bold text-gray-800 mb-3">📋 Основная информация</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div class="md:col-span-2"><label class="text-sm text-gray-600">Название курса</label><input id="courseTitle" value="' + escAttr(c.title) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div><div class="md:col-span-2"><label class="text-sm text-gray-600">Описание</label><textarea id="courseDesc" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white" rows="2">' + esc(c.description || '') + '</textarea></div><div><label class="text-sm text-gray-600">Длительность</label><input id="courseDur" value="' + escAttr(c.duration) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div><div><label class="text-sm text-gray-600">Иконка</label><input id="courseIcon" value="' + escAttr(c.icon || '📚') + '" maxlength="2" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div></div></div><div><div class="flex items-center justify-between mb-3"><h4 class="font-bold text-gray-800">📖 Блоки курса</h4><button class="btn-primary" onclick="addBlock()">+ Добавить блок</button></div><div class="grid grid-cols-1 lg:grid-cols-3 gap-4"><div class="lg:col-span-1 bg-white border border-gray-200 rounded-2xl p-3"><div class="space-y-2">' + (blocksListHtml || '<div class="text-center py-8 text-gray-400 text-sm">Нет блоков</div>') + '</div></div><div class="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-5">' + blockEditorHtml + '</div></div></div></div>';
-  openModal(html); bindEditorFieldEvents();
-}
-
-function renderTheoryBlock(tb, tbi) {
-  var icon = tb.type === 'text' ? '📝' : tb.type === 'pdf' ? '' : tb.type === 'image' ? '️' : '🎬';
-  var typeLabel = tb.type === 'text' ? 'Текст' : tb.type === 'pdf' ? 'PDF' : tb.type === 'image' ? 'Изображение' : 'Видео';
-  var contentHtml = '';
-  if (tb.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button><span class="w-px bg-gray-300 mx-1"></span><button class="toolbar-btn" onclick="execHeading(\'h4\')">H4</button><button class="toolbar-btn" onclick="execHeading(\'p\')">P</button></div><div id="theoryText_' + tbi + '" contenteditable="true" class="rich-editor p-3" style="min-height:100px">' + (tb.content || '') + '</div></div>'; }
-  else if (tb.type === 'pdf') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'theoryPdf_' + tbi + '\').click()"><input type="file" id="theoryPdf_' + tbi + '" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadTheoryFile(' + tbi + ', event)"><div class="text-gray-500 text-sm">📕 Нажмите для загрузки PDF/DOC</div></div>' + (tb.fileName ? '<div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded"><span class="text-xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName) + '</div></div></div>' : '') + '</div>'; }
-  else if (tb.type === 'image') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'theoryImg_' + tbi + '\').click()"><input type="file" id="theoryImg_' + tbi + '" accept="image/*" class="hidden" onchange="uploadTheoryImage(' + tbi + ', event)"><div class="text-gray-500 text-sm">🖼️ Нажмите для загрузки изображения</div></div>' + (tb.dataUrl ? '<div class="mt-2"><img src="' + tb.dataUrl + '" class="w-full h-40 object-cover rounded-lg"><input value="' + escAttr(tb.caption || '') + '" oninput="updateTheoryCaption(' + tbi + ', this.value)" placeholder="Подпись к изображению" class="w-full mt-2 border border-gray-200 rounded px-2 py-1 text-sm"></div>' : '') + '</div>'; }
-  else if (tb.type === 'video') { contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео</label><input value="' + escAttr(tb.videoUrl || '') + '" oninput="updateTheoryVideo(' + tbi + ', this.value)" placeholder="https://..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (tb.videoUrl ? '<div class="video-container mt-2"><video controls preload="metadata" src="' + tb.videoUrl + '"></video></div>' : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>'; }
-  return '<div class="content-block"><button class="remove-btn btn-danger" onclick="removeTheoryBlock(' + tbi + ')">✕</button><div class="flex items-center gap-2 mb-2"><span class="text-xl">' + icon + '</span><span class="text-sm font-medium text-gray-700">' + typeLabel + '</span></div>' + contentHtml + '</div>';
-}
-
-function renderPracticeSituation(p, pi) {
-  var answersHtml = (p.answers || []).map(function(a, ai) { return renderAnswerItem(a, pi, ai); }).join('');
-  return '<div class="practice-card"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><div><input value="' + escAttr(p.title || '') + '" oninput="updatePracticeTitle(' + pi + ', this.value)" placeholder="Название ситуации" class="font-bold text-gray-800 border-b border-transparent hover:border-gray-300 focus:border-vitacci bg-transparent px-1 py-0.5 text-sm"></div></div><button class="btn-danger" onclick="removePracticeSituation(' + pi + ')">✕ Удалить</button></div><div class="space-y-2 mb-3"><div><label class="text-xs text-gray-500">Описание ситуации</label><textarea oninput="updatePracticeDesc(' + pi + ', this.value)" placeholder="Описание ситуации..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm" rows="2">' + esc(p.description || '') + '</textarea></div><div><label class="text-xs text-gray-500">Вопрос к ситуации</label><textarea oninput="updatePracticeQuestion(' + pi + ', this.value)" placeholder="Вопрос..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm" rows="2">' + esc(p.question || '') + '</textarea></div></div><div class="border-t border-gray-200 pt-3"><div class="flex items-center justify-between mb-2"><label class="text-xs font-medium text-gray-700">Ответы/Материалы от администратора (опционально)</label><div class="flex flex-wrap gap-1"><button class="theory-type-btn btn-sm" onclick="addPracticeAnswer(' + pi + ', \'text\')">📝 Текст</button><button class="theory-type-btn btn-sm" onclick="addPracticeAnswer(' + pi + ', \'pdf\')">📕 PDF</button><button class="theory-type-btn btn-sm" onclick="addPracticeAnswer(' + pi + ', \'image\')">🖼️ Фото</button><button class="theory-type-btn btn-sm" onclick="addPracticeAnswer(' + pi + ', \'video\')">🎬 Видео</button></div></div><div id="answers_' + pi + '">' + answersHtml + '</div>' + (p.answers?.length === 0 ? '<div class="text-center py-3 text-gray-400 text-xs">Добавьте ответы-подсказки с помощью кнопок выше (опционально)</div>' : '') + '</div></div>';
-}
-
-function renderAnswerItem(a, pi, ai) {
-  var icon = a.type === 'text' ? '📝' : a.type === 'pdf' ? '📕' : a.type === 'image' ? '🖼️' : '🎬';
-  var typeLabel = a.type === 'text' ? 'Текст' : a.type === 'pdf' ? 'PDF' : a.type === 'image' ? 'Изображение' : 'Видео';
-  var contentHtml = '';
-  if (a.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button></div><div id="answerText_' + pi + '_' + ai + '" contenteditable="true" class="rich-editor p-3" style="min-height:80px">' + (a.content || '') + '</div></div>'; }
-  else if (a.type === 'pdf') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'answerPdf_' + pi + '_' + ai + '\').click()"><input type="file" id="answerPdf_' + pi + '_' + ai + '" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadAnswerFile(' + pi + ', ' + ai + ', event)"><div class="text-gray-500 text-sm">📕 Нажмите для загрузки PDF/DOC</div></div>' + (a.fileName ? '<div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded"><span class="text-xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(a.fileName) + '</div></div></div>' : '') + '</div>'; }
-  else if (a.type === 'image') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'answerImg_' + pi + '_' + ai + '\').click()"><input type="file" id="answerImg_' + pi + '_' + ai + '" accept="image/*" class="hidden" onchange="uploadAnswerImage(' + pi + ', ' + ai + ', event)"><div class="text-gray-500 text-sm">🖼️ Нажмите для загрузки изображения</div></div>' + (a.dataUrl ? '<div class="mt-2"><img src="' + a.dataUrl + '" class="w-full h-32 object-cover rounded-lg"><input value="' + escAttr(a.caption || '') + '" oninput="updateAnswerCaption(' + pi + ', ' + ai + ', this.value)" placeholder="Подпись" class="w-full mt-2 border border-gray-200 rounded px-2 py-1 text-sm"></div>' : '') + '</div>'; }
-  else if (a.type === 'video') { contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео</label><input value="' + escAttr(a.videoUrl || '') + '" oninput="updateAnswerVideo(' + pi + ', ' + ai + ', this.value)" placeholder="https://..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (a.videoUrl ? '<div class="video-container mt-2"><video controls preload="metadata" src="' + a.videoUrl + '"></video></div>' : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>'; }
-  return '<div class="answer-item"><span class="text-lg">' + icon + '</span><div class="flex-1 min-w-0"><div class="text-xs font-medium text-gray-700">' + typeLabel + '</div>' + contentHtml + '</div><button class="btn-danger" onclick="removePracticeAnswer(' + pi + ', ' + ai + ')">✕</button></div>';
-}
-
-function bindEditorFieldEvents() {
-  var mc = document.getElementById('modalContent');
-  var courseTitle = mc.querySelector('#courseTitle'); var courseDesc = mc.querySelector('#courseDesc'); var courseDur = mc.querySelector('#courseDur'); var courseIcon = mc.querySelector('#courseIcon');
-  if (courseTitle) courseTitle.oninput = function() { editorState.course.title = courseTitle.value; };
-  if (courseDesc) courseDesc.oninput = function() { editorState.course.description = courseDesc.value; };
-  if (courseDur) courseDur.oninput = function() { editorState.course.duration = courseDur.value; };
-  if (courseIcon) courseIcon.oninput = function() { editorState.course.icon = courseIcon.value; };
-  var blockTitle = mc.querySelector('#blockTitle'); var blockIcon = mc.querySelector('#blockIcon');
-  if (blockTitle) blockTitle.oninput = function() { if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].title = blockTitle.value; };
-  if (blockIcon) blockIcon.oninput = function() { if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].icon = blockIcon.value; };
-  document.querySelectorAll('[id^="theoryText_"]').forEach(function(el) { el.oninput = function() { var tbi = parseInt(el.id.replace('theoryText_', '')); if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].theoryBlocks[tbi].content = el.innerHTML; }; });
-  document.querySelectorAll('[id^="answerText_"]').forEach(function(el) { el.oninput = function() { var parts = el.id.replace('answerText_', '').split('_'); var pi = parseInt(parts[0]), ai = parseInt(parts[1]); if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].practice[pi].answers[ai].content = el.innerHTML; }; });
-}
-
-function selectBlock(i) { editorState.activeBlockIdx = i; renderCourseEditor(); }
-function addBlock() { var c = editorState.course; c.blocks.push({ id: 'b_' + Date.now(), title: 'Новый блок', icon: '📖', videoUrl: '', videoKey: null, theoryBlocks: [], practice: [], quiz: [] }); editorState.activeBlockIdx = c.blocks.length - 1; renderCourseEditor(); }
-function deleteBlock(i) { if (!confirm('Удалить блок?')) return; var c = editorState.course; c.blocks.splice(i, 1); if (editorState.activeBlockIdx >= c.blocks.length) editorState.activeBlockIdx = c.blocks.length - 1; renderCourseEditor(); }
-function moveBlock(i, dir) { var c = editorState.course; var j = i + dir; if (j < 0 || j >= c.blocks.length) return; var tmp = c.blocks[i]; c.blocks[i] = c.blocks[j]; c.blocks[j] = tmp; if (editorState.activeBlockIdx === i) editorState.activeBlockIdx = j; else if (editorState.activeBlockIdx === j) editorState.activeBlockIdx = i; renderCourseEditor(); }
-function clearBlockVideo() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (block.videoKey) { FileDB.delete(block.videoKey); block.videoKey = null; } block.videoUrl = ''; renderCourseEditor(); }
-function addTheoryBlock(type) { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.theoryBlocks) block.theoryBlocks = []; var newBlock = { id: 'tb_' + Date.now(), type: type, content: '', key: null, dataUrl: '', videoUrl: '', fileName: '', caption: '' }; block.theoryBlocks.push(newBlock); renderCourseEditor(); }
-function removeTheoryBlock(tbi) { var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; if (tb.key) FileDB.delete(tb.key); block.theoryBlocks.splice(tbi, 1); renderCourseEditor(); }
-function uploadTheoryFile(tbi, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; var key = 'theory_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8); FileDB.put(key, file).then(function() { tb.key = key; tb.fileName = file.name; tb.type = 'pdf'; renderCourseEditor(); }).catch(function(err) { alert('Ошибка загрузки: ' + err.message); }); }
-function uploadTheoryImage(tbi, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; var reader = new FileReader(); reader.onload = function(e) { tb.dataUrl = e.target.result; tb.type = 'image'; renderCourseEditor(); }; reader.readAsDataURL(file); }
-function updateTheoryVideo(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].videoUrl = value; block.theoryBlocks[tbi].type = 'video'; }
-function updateTheoryCaption(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].caption = value; }
-function addPracticeSituation() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.practice) block.practice = []; block.practice.push({ id: 'p_' + Date.now(), title: 'Новая ситуация', description: '', question: '', answers: [] }); renderCourseEditor(); }
-function removePracticeSituation(pi) { if (!confirm('Удалить ситуацию?')) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; block.practice.splice(pi, 1); renderCourseEditor(); }
-function updatePracticeTitle(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].title = value; }
-function updatePracticeDesc(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].description = value; }
-function updatePracticeQuestion(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].question = value; }
-function addPracticeAnswer(pi, type) { var block = editorState.course.blocks[editorState.activeBlockIdx]; var practice = block.practice[pi]; if (!practice.answers) practice.answers = []; practice.answers.push({ id: 'a_' + Date.now(), type: type, content: '', key: null, dataUrl: '', videoUrl: '', fileName: '', caption: '' }); renderCourseEditor(); }
-function removePracticeAnswer(pi, ai) { var block = editorState.course.blocks[editorState.activeBlockIdx]; var answer = block.practice[pi].answers[ai]; if (answer.key) FileDB.delete(answer.key); block.practice[pi].answers.splice(ai, 1); renderCourseEditor(); }
-function uploadAnswerFile(pi, ai, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var answer = block.practice[pi].answers[ai]; var key = 'answer_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8); FileDB.put(key, file).then(function() { answer.key = key; answer.fileName = file.name; answer.type = 'pdf'; renderCourseEditor(); }).catch(function(err) { alert('Ошибка загрузки: ' + err.message); }); }
-function uploadAnswerImage(pi, ai, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var answer = block.practice[pi].answers[ai]; var reader = new FileReader(); reader.onload = function(e) { answer.dataUrl = e.target.result; answer.type = 'image'; renderCourseEditor(); }; reader.readAsDataURL(file); }
-function updateAnswerVideo(pi, ai, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.practice[pi].answers[ai].videoUrl = value; block.practice[pi].answers[ai].type = 'video'; }
-function updateAnswerCaption(pi, ai, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.practice[pi].answers[ai].caption = value; }
-function addQuizQuestion() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.quiz) block.quiz = []; block.quiz.push({ q: '', options: ['', ''], correct: 0 }); renderCourseEditor(); }
-function removeQuizQuestion(i) { editorState.course.blocks[editorState.activeBlockIdx].quiz.splice(i, 1); renderCourseEditor(); }
-function updateQuizQ(qi, value) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].q = value; }
-function updateQuizOption(qi, oi, value) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].options[oi] = value; }
-function addQuizOption(qi) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].options.push(''); renderCourseEditor(); }
-function removeQuizOption(qi, oi) { var q = editorState.course.blocks[editorState.activeBlockIdx].quiz[qi]; if (q.options.length <= 2) return alert('Минимум 2 варианта'); q.options.splice(oi, 1); if (q.correct >= q.options.length) q.correct = 0; renderCourseEditor(); }
-function setQuizCorrect(qi, oi) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].correct = oi; }
-function execCmd(cmd) { document.execCommand(cmd, false, null); }
-function execHeading(tag) { document.execCommand('formatBlock', false, tag); }
-function saveCourse() { var c = editorState.course; if (!c.title.trim()) return alert('Введите название курса'); if (c.blocks.length === 0) return alert('Добавьте хотя бы один блок'); var courses = DB.courses; var idx = courses.findIndex(function(x) { return x.id === c.id; }); if (idx >= 0) courses[idx] = c; else courses.push(c); DB.courses = courses; closeModal(); renderAll(); alert('✅ Курс сохранён!'); }
-function deleteCourse(id) { if (!confirm('Удалить курс?')) return; DB.courses = DB.courses.filter(function(c) { return c.id !== id; }); DB.links = DB.links.filter(function(l) { return l.courseId !== id; }); renderAll(); }
-function previewCourse(courseId) { var course = DB.courses.find(function(c) { return c.id === courseId; }); if (!course) return; var previewEmpId = 'preview_emp_' + Date.now(); var previewToken = 'preview_' + Date.now(); var tempEmp = { id: previewEmpId, name: 'Предпросмотр (Администратор)', position: 'Администратор', email: 'preview@academy.ru', storeId: '' }; var tempLink = { token: previewToken, employeeId: previewEmpId, courseId: courseId, preview: true, createdAt: Date.now() }; window._previewBackup = { employees: JSON.parse(JSON.stringify(DB.employees)), links: JSON.parse(JSON.stringify(DB.links)), courses: JSON.parse(JSON.stringify(DB.courses)), progress: JSON.parse(JSON.stringify(DB.progress)) }; DB.employees = DB.employees.concat([tempEmp]); DB.links = DB.links.concat([tempLink]); startCourseMode(previewToken); }
-function exitPreview() { if (window._previewBackup) { DB.employees = window._previewBackup.employees; DB.links = window._previewBackup.links; DB.courses = window._previewBackup.courses; DB.progress = window._previewBackup.progress; window._previewBackup = null; } document.getElementById('courseMode').classList.add('hidden'); document.getElementById('adminMode').classList.remove('hidden'); renderAll(); }
-
 function startCourseMode(token) {
   var link = DB.links.find(function(l) { return l.token === token; });
-  if (!link) { document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="text-6xl mb-4">🔒</div><h1 class="text-2xl font-bold text-gray-800">Код недействителен</h1><p class="text-gray-500 mt-2">Проверьте правильность кода доступа</p><button onclick="location.reload()" class="btn-primary mt-4">← Вернуться на страницу входа</button></div></div>'; return; }
+  if (!link) { document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="text-6xl mb-4">🔒</div><h1 class="text-2xl font-bold text-gray-800">Код недействителен</h1><button type="button" onclick="location.reload()" class="btn-primary mt-4">← Вернуться</button></div></div>'; return; }
   currentToken = token; currentEmployee = DB.employees.find(function(e) { return e.id === link.employeeId; }); currentCourse = DB.courses.find(function(c) { return c.id === link.courseId; });
-  if (!currentEmployee || !currentCourse) { document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="text-6xl mb-4">⚠️</div><h1 class="text-2xl font-bold text-gray-800">Данные не найдены</h1><p class="text-gray-500 mt-2">Сотрудник или курс были удалены</p><button onclick="location.reload()" class="btn-primary mt-4">← Вернуться</button></div></div>'; return; }
+  if (!currentEmployee || !currentCourse) { document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="text-6xl mb-4">⚠️</div><h1 class="text-2xl font-bold text-gray-800">Данные не найдены</h1><button type="button" onclick="location.reload()" class="btn-primary mt-4">← Вернуться</button></div></div>'; return; }
   var store = DB.stores.find(function(s) { return s.id === currentEmployee.storeId; });
   document.getElementById('adminMode').classList.add('hidden'); document.getElementById('courseMode').classList.remove('hidden');
   document.getElementById('studentName').textContent = currentEmployee.name; document.getElementById('studentStore').textContent = (store?.name || '') + (currentEmployee.position ? ' · ' + currentEmployee.position : '');
@@ -1339,11 +935,37 @@ function startCourseMode(token) {
   var header = document.getElementById('courseHeader');
   if (link.preview) {
     header.className = 'preview-banner rounded-2xl p-6 mb-6 shadow-xl';
-    header.innerHTML = '<div class="relative z-10"><div class="flex items-center justify-between flex-wrap gap-4 mb-3"><div class="preview-badge">👁️ РЕЖИМ ПРЕДПРОСМОТРА</div><button onclick="exitPreview()" class="btn-back">← Вернуться в админ-панель</button></div><div class="flex items-center justify-between flex-wrap gap-4"><div><div class="text-sm opacity-90 mb-1">Добро пожаловать,</div><div id="studentName" class="text-2xl font-bold">' + esc(currentEmployee.name) + '</div><div class="text-sm opacity-90 mt-1">' + esc((store?.name || '') + (currentEmployee.position ? ' · ' + currentEmployee.position : '')) + '</div></div><div class="text-right"><div class="text-sm opacity-90">Общий прогресс</div><div id="totalProgress" class="text-3xl font-bold">0%</div></div></div><div class="mt-4 bg-white/30 rounded-full h-2 overflow-hidden"><div id="totalProgressBar" class="bg-white h-full progress-bar" style="width:0%"></div></div><div class="mt-3 text-base font-semibold">' + (currentCourse.icon || '📚') + ' ' + esc(currentCourse.title) + '</div></div>';
+    header.innerHTML = '<div class="relative z-10"><div class="flex items-center justify-between flex-wrap gap-4 mb-3"><div class="preview-badge">👁️ РЕЖИМ ПРЕДПРОСМОТРА</div><button type="button" onclick="exitPreview()" class="btn-back">← Вернуться в админ-панель</button></div><div class="flex items-center justify-between flex-wrap gap-4"><div><div class="text-sm opacity-90 mb-1">Добро пожаловать,</div><div id="studentName" class="text-2xl font-bold">' + esc(currentEmployee.name) + '</div></div><div class="text-right"><div class="text-sm opacity-90">Прогресс</div><div id="totalProgress" class="text-3xl font-bold">0%</div></div></div><div class="mt-4 bg-white/30 rounded-full h-2 overflow-hidden"><div id="totalProgressBar" class="bg-white h-full progress-bar" style="width:0%"></div></div><div class="mt-3 text-base font-semibold">' + (currentCourse.icon || '📚') + ' ' + esc(currentCourse.title) + '</div></div>';
   } else {
     header.className = 'gradient-header text-white rounded-2xl p-6 mb-6 shadow-xl';
   }
   renderCourseBlocks(); updateCourseProgress();
+}
+
+function exitPreview() {
+  if (window._previewBackup) {
+    DB.employees = window._previewBackup.employees;
+    DB.links = window._previewBackup.links;
+    DB.courses = window._previewBackup.courses;
+    DB.progress = window._previewBackup.progress;
+    window._previewBackup = null;
+  }
+  document.getElementById('courseMode').classList.add('hidden');
+  document.getElementById('adminMode').classList.remove('hidden');
+  renderAll();
+}
+
+function previewCourse(courseId) {
+  var course = DB.courses.find(function(c) { return c.id === courseId; });
+  if (!course) return;
+  var previewEmpId = 'preview_emp_' + Date.now();
+  var previewToken = 'preview_' + Date.now();
+  var tempEmp = { id: previewEmpId, name: 'Предпросмотр', position: 'Администратор', email: 'preview@academy.ru', storeId: '' };
+  var tempLink = { token: previewToken, employeeId: previewEmpId, courseId: courseId, preview: true, createdAt: Date.now() };
+  window._previewBackup = { employees: JSON.parse(JSON.stringify(DB.employees)), links: JSON.parse(JSON.stringify(DB.links)), courses: JSON.parse(JSON.stringify(DB.courses)), progress: JSON.parse(JSON.stringify(DB.progress)) };
+  DB.employees = DB.employees.concat([tempEmp]);
+  DB.links = DB.links.concat([tempLink]);
+  startCourseMode(previewToken);
 }
 
 function renderCourseBlocks() {
@@ -1358,10 +980,7 @@ function renderCourseBlocks() {
       var scoreColor = pct >= 70 ? 'text-green-700 bg-green-100' : pct >= 40 ? 'text-yellow-700 bg-yellow-100' : 'text-red-700 bg-red-100';
       scoreInfo = '<div class="text-xs mt-1"><span class="chip ' + scoreColor + '">📝 Тест: ' + bp.score + '/' + bp.total + ' (' + pct + '%)</span></div>';
     }
-    var practiceAnswers = bp?.practiceAnswers || {};
-    var answeredCount = Object.keys(practiceAnswers).filter(k => practiceAnswers[k] && practiceAnswers[k].length > 0).length;
-    var practiceInfo = answeredCount > 0 ? '<div class="text-xs mt-1"><span class="chip bg-green-100 text-green-700">🎯 Ответов на практику: ' + answeredCount + '/' + practiceCount + '</span></div>' : '';
-    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="p-5 flex items-center gap-4"><div class="text-3xl">' + b.icon + '</div><div class="flex-1"><div class="font-bold text-gray-800">' + esc(b.title) + '</div><div class="text-xs text-gray-500 mt-1">📚 ' + theoryCount + ' блоков теории · 🎯 ' + practiceCount + ' ситуаций · 📝 ' + (b.quiz?.length || 0) + ' вопросов</div>' + scoreInfo + practiceInfo + '</div>' + (done ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">✓ Пройдено</span>' : '<button class="btn-primary text-sm" onclick="openBlock(' + i + ')">Начать</button>') + '</div></div>';
+    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="p-5 flex items-center gap-4"><div class="text-3xl">' + b.icon + '</div><div class="flex-1"><div class="font-bold text-gray-800">' + esc(b.title) + '</div><div class="text-xs text-gray-500 mt-1">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' · 📝 ' + (b.quiz?.length || 0) + '</div>' + scoreInfo + '</div>' + (done ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">✓ Пройдено</span>' : '<button type="button" class="btn-primary text-sm" onclick="openBlock(' + i + ')">Начать</button>') + '</div></div>';
   }).join('');
 }
 
@@ -1369,21 +988,11 @@ function updateCourseProgress() { var p = getEmployeeProgress(currentEmployee.id
 
 function renderTheoryContentInCourse(tb) {
   if (tb.type === 'text') return '<div class="prose prose-sm max-w-none mb-3">' + (tb.content || '') + '</div>';
-  if (tb.type === 'pdf') return '<div class="mb-3"><div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"><span class="text-2xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName || 'Документ') + '</div></div><button class="btn-primary btn-sm" onclick="downloadFile(\'' + tb.key + '\', \'' + escAttr(tb.fileName || 'document') + '\')">⬇️ Скачать</button></div></div>';
-  if (tb.type === 'image') return '<div class="mb-3"><img src="' + tb.dataUrl + '" class="w-full rounded-lg">' + (tb.caption ? '<div class="text-xs text-gray-500 mt-1 text-center">' + esc(tb.caption) + '</div>' : '') + '</div>';
+  if (tb.type === 'pdf') return '<div class="mb-3"><div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"><span class="text-2xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName || 'Документ') + '</div></div></div></div>';
+  if (tb.type === 'image') return '<div class="mb-3"><img src="' + tb.dataUrl + '" class="w-full rounded-lg"></div>';
   if (tb.type === 'video') return '<div class="mb-3"><div class="video-container"><video controls preload="metadata" src="' + tb.videoUrl + '"></video></div></div>';
   return '';
 }
-
-function renderAnswerContentInCourse(a) {
-  if (a.type === 'text') return '<div class="prose prose-sm max-w-none mb-2">' + (a.content || '') + '</div>';
-  if (a.type === 'pdf') return '<div class="mb-2"><div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border border-gray-200"><span class="text-xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(a.fileName || 'Документ') + '</div></div><button class="btn-primary btn-sm" onclick="downloadFile(\'' + a.key + '\', \'' + escAttr(a.fileName || 'document') + '\')">⬇️</button></div></div>';
-  if (a.type === 'image') return '<div class="mb-2"><img src="' + a.dataUrl + '" class="w-full rounded-lg">' + (a.caption ? '<div class="text-xs text-gray-500 mt-1 text-center">' + esc(a.caption) + '</div>' : '') + '</div>';
-  if (a.type === 'video') return '<div class="mb-2"><div class="video-container"><video controls preload="metadata" src="' + a.videoUrl + '"></video></div></div>';
-  return '';
-}
-
-async function downloadFile(key, name) { var blob = await FileDB.get(key); if (!blob) return; var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url); }
 
 function openBlock(idx) {
   var block = currentCourse.blocks[idx];
@@ -1391,10 +1000,12 @@ function openBlock(idx) {
   var videoHtml = videoSrc ? '<div class="mb-4"><div class="video-container"><video controls preload="metadata" src="' + videoSrc + '"></video></div></div>' : '';
   var theoryHtml = (block.theoryBlocks || []).map(function(tb) { return renderTheoryContentInCourse(tb); }).join('');
   if (!theoryHtml) theoryHtml = '<div class="text-gray-400 text-sm text-center py-4">Теория не добавлена</div>';
-  var practiceHtml = (block.practice || []).map(function(p, pi) { return renderStudentPracticeForm(block.id, p, pi); }).join('');
+  var practiceHtml = (block.practice || []).map(function(p, pi) {
+    return renderStudentPracticeForm(block.id, p, pi);
+  }).join('');
   if (!practiceHtml) practiceHtml = '<div class="text-gray-400 text-sm text-center py-4">Практические задания не добавлены</div>';
-  var quizBtn = block.quiz && block.quiz.length > 0 ? '<button class="btn-primary flex-1" onclick="startQuiz(' + idx + ')">Перейти к тесту →</button>' : '<button class="btn-primary flex-1" onclick="completeBlockWithoutQuiz(' + idx + ')">Завершить блок →</button>';
-  openModal('<div class="p-6"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="text-3xl">' + block.icon + '</div><div><div class="text-xs text-gray-500">Блок ' + (idx + 1) + ' из ' + currentCourse.blocks.length + '</div><h3 class="text-lg font-bold text-gray-800">' + esc(block.title) + '</h3></div></div><button class="btn-ghost text-xl" onclick="closeModal()">✕</button></div>' + videoHtml + '<div class="mb-6"><div class="section-header"><div class="flex items-center gap-2"><span class="text-xl">📚</span><span class="font-bold text-gray-800">Теория</span></div></div>' + theoryHtml + '</div><div class="mb-6"><div class="section-header" style="border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><span class="font-bold text-gray-800">Практика — дайте свой ответ</span></div></div>' + practiceHtml + '</div><div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">' + quizBtn + '<button class="btn-secondary" onclick="closeModal()">Закрыть</button></div></div>', 'max-w-4xl');
+  var quizBtn = block.quiz && block.quiz.length > 0 ? '<button type="button" class="btn-primary flex-1" onclick="startQuiz(' + idx + ')">Перейти к тесту →</button>' : '<button type="button" class="btn-primary flex-1" onclick="completeBlockWithoutQuiz(' + idx + ')">Завершить блок →</button>';
+  openModal('<div class="p-6"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="text-3xl">' + block.icon + '</div><div><div class="text-xs text-gray-500">Блок ' + (idx + 1) + ' из ' + currentCourse.blocks.length + '</div><h3 class="text-lg font-bold text-gray-800">' + esc(block.title) + '</h3></div></div><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div>' + videoHtml + '<div class="mb-6"><div class="section-header"><div class="flex items-center gap-2"><span class="text-xl">📚</span><span class="font-bold text-gray-800">Теория</span></div></div>' + theoryHtml + '</div><div class="mb-6"><div class="section-header" style="border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl"></span><span class="font-bold text-gray-800">Практика — дайте свой ответ</span></div></div>' + practiceHtml + '</div><div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">' + quizBtn + '<button type="button" class="btn-secondary" onclick="closeModal()">Закрыть</button></div></div>', 'max-w-4xl');
 }
 
 function renderStudentPracticeForm(blockId, p, pi) {
@@ -1405,18 +1016,18 @@ function renderStudentPracticeForm(blockId, p, pi) {
   var hasUnsavedChanges = unsavedChanges[blockId + '_' + p.id] || false;
   var saveIndicatorClass = hasUnsavedChanges ? 'unsaved' : (practiceAnswers.length > 0 ? 'saved' : '');
   var saveIndicatorText = hasUnsavedChanges ? '⚠️ Есть несохранённые изменения' : (practiceAnswers.length > 0 ? '✅ Сохранено' : '');
-  return '<div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 mb-4 border-l-4 border-green-500"><div class="flex items-start gap-3 mb-3"><div class="text-3xl">🎯</div><div class="flex-1"><div class="font-bold text-gray-800 text-lg mb-1">' + esc(p.title || 'Ситуация ' + (pi + 1)) + '</div>' + (p.description ? '<div class="text-sm text-gray-600 mb-3">' + esc(p.description) + '</div>' : '') + '</div></div><div class="bg-white rounded-lg p-4 mb-3 shadow-sm"><div class="flex items-start gap-2 mb-2"><span class="text-xl">❓</span><div class="flex-1"><div class="text-xs font-semibold text-vitacci uppercase tracking-wide mb-1">Вопрос</div><div class="text-sm text-gray-800 font-medium">' + esc(p.question || '') + '</div></div></div></div><div class="practice-answer-editor"><div class="section-header" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl"></span><span class="font-bold text-gray-800">Ваш ответ</span></div><div class="flex items-center gap-2">' + (saveIndicatorText ? '<span class="save-indicator ' + saveIndicatorClass + '">' + saveIndicatorText + '</span>' : '') + '<div class="text-xs text-gray-600">' + practiceAnswers.length + ' материал(ов) добавлено</div></div></div><div class="mb-3"><div class="text-xs text-gray-600 mb-2 font-medium">Добавить ответ:</div><div class="flex flex-wrap gap-2"><button class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'text\')">📝 Текст</button><button class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'pdf\')">📕 PDF/DOC</button><button class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'image\')">🖼️ Фото</button><button class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'video\')">🎬 Видео</button></div></div><div id="studentAnswers_' + blockId + '_' + p.id + '">' + answersHtml + '</div>' + (practiceAnswers.length === 0 && !hasUnsavedChanges ? '<div class="text-center py-4 text-gray-400 text-sm">Добавьте свой ответ с помощью кнопок выше</div>' : '') + '<div class="flex gap-2 mt-4 pt-4 border-t border-gray-200"><button class="btn-success flex-1" onclick="savePracticeAnswers(\'' + blockId + '\', \'' + p.id + '\')">💾 Сохранить ответ</button><button class="btn-secondary" onclick="clearPracticeAnswers(\'' + blockId + '\', \'' + p.id + '\')">️ Очистить</button></div></div></div>';
+  return '<div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 mb-4 border-l-4 border-green-500"><div class="flex items-start gap-3 mb-3"><div class="text-3xl"></div><div class="flex-1"><div class="font-bold text-gray-800 text-lg mb-1">' + esc(p.title || 'Ситуация ' + (pi + 1)) + '</div>' + (p.description ? '<div class="text-sm text-gray-600 mb-3">' + esc(p.description) + '</div>' : '') + '</div></div><div class="bg-white rounded-lg p-4 mb-3 shadow-sm"><div class="flex items-start gap-2 mb-2"><span class="text-xl">❓</span><div class="flex-1"><div class="text-xs font-semibold text-vitacci uppercase tracking-wide mb-1">Вопрос</div><div class="text-sm text-gray-800 font-medium">' + esc(p.question || '') + '</div></div></div></div><div class="practice-answer-editor"><div class="section-header" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">💬</span><span class="font-bold text-gray-800">Ваш ответ</span></div><div class="flex items-center gap-2">' + (saveIndicatorText ? '<span class="save-indicator ' + saveIndicatorClass + '">' + saveIndicatorText + '</span>' : '') + '<div class="text-xs text-gray-600">' + practiceAnswers.length + ' материал(ов) добавлено</div></div></div><div class="mb-3"><div class="text-xs text-gray-600 mb-2 font-medium">Добавить ответ:</div><div class="flex flex-wrap gap-2"><button type="button" class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'text\')">📝 Текст</button><button type="button" class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'pdf\')">📕 PDF/DOC</button><button type="button" class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'image\')">🖼️ Фото</button><button type="button" class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'video\')">🎬 Видео</button></div></div><div id="studentAnswers_' + blockId + '_' + p.id + '">' + answersHtml + '</div>' + (practiceAnswers.length === 0 && !hasUnsavedChanges ? '<div class="text-center py-4 text-gray-400 text-sm">Добавьте свой ответ с помощью кнопок выше</div>' : '') + '<div class="flex gap-2 mt-4 pt-4 border-t border-gray-200"><button type="button" class="btn-success flex-1" onclick="savePracticeAnswers(\'' + blockId + '\', \'' + p.id + '\')">💾 Сохранить ответ</button><button type="button" class="btn-secondary" onclick="clearPracticeAnswers(\'' + blockId + '\', \'' + p.id + '\')">🗑️ Очистить</button></div></div></div>';
 }
 
 function renderStudentAnswerItem(blockId, practiceId, a, ai) {
-  var icon = a.type === 'text' ? '' : a.type === 'pdf' ? '📕' : a.type === 'image' ? '🖼️' : '🎬';
+  var icon = a.type === 'text' ? '📝' : a.type === 'pdf' ? '📕' : a.type === 'image' ? '🖼️' : '🎬';
   var typeLabel = a.type === 'text' ? 'Текст' : a.type === 'pdf' ? 'PDF/DOC' : a.type === 'image' ? 'Изображение' : 'Видео';
   var contentHtml = '';
-  if (a.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button></div><div id="studentAnswerText_' + blockId + '_' + practiceId + '_' + ai + '" contenteditable="true" class="rich-editor p-3" style="min-height:80px" oninput="markUnsavedChanges(\'' + blockId + '\', \'' + practiceId + '\')">' + (a.content || '') + '</div></div>'; }
+  if (a.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button type="button" class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button type="button" class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button type="button" class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button type="button" class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button type="button" class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button></div><div id="studentAnswerText_' + blockId + '_' + practiceId + '_' + ai + '" contenteditable="true" class="rich-editor p-3" style="min-height:80px" oninput="markUnsavedChanges(\'' + blockId + '\', \'' + practiceId + '\')">' + (a.content || '') + '</div></div>'; }
   else if (a.type === 'pdf') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'studentAnswerPdf_' + blockId + '_' + practiceId + '_' + ai + '\').click()"><input type="file" id="studentAnswerPdf_' + blockId + '_' + practiceId + '_' + ai + '" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadStudentAnswerFile(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ', event)"><div class="text-gray-500 text-sm">📕 Нажмите для загрузки PDF/DOC</div></div>' + (a.fileName ? '<div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded"><span class="text-xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(a.fileName) + '</div><div class="text-xs text-gray-500">' + formatFileSize(a.size || 0) + '</div></div></div>' : '') + '</div>'; }
   else if (a.type === 'image') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'studentAnswerImg_' + blockId + '_' + practiceId + '_' + ai + '\').click()"><input type="file" id="studentAnswerImg_' + blockId + '_' + practiceId + '_' + ai + '" accept="image/*" class="hidden" onchange="uploadStudentAnswerImage(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ', event)"><div class="text-gray-500 text-sm">🖼️ Нажмите для загрузки изображения</div></div>' + (a.dataUrl ? '<div class="mt-2"><img src="' + a.dataUrl + '" class="w-full h-32 object-cover rounded-lg"><input value="' + escAttr(a.caption || '') + '" oninput="updateStudentAnswerCaption(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ', this.value); markUnsavedChanges(\'' + blockId + '\', \'' + practiceId + '\')" placeholder="Подпись" class="w-full mt-2 border border-gray-200 rounded px-2 py-1 text-sm"></div>' : '') + '</div>'; }
   else if (a.type === 'video') { contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео</label><input value="' + escAttr(a.videoUrl || '') + '" oninput="updateStudentAnswerVideo(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ', this.value); markUnsavedChanges(\'' + blockId + '\', \'' + practiceId + '\')" placeholder="https://..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (a.videoUrl ? '<div class="video-container mt-2"><video controls preload="metadata" src="' + a.videoUrl + '"></video></div>' : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>'; }
-  return '<div class="student-answer-item"><span class="text-lg">' + icon + '</span><div class="flex-1 min-w-0"><div class="text-xs font-medium text-gray-700 mb-1">' + typeLabel + '</div>' + contentHtml + '</div><button class="student-answer-item-remove" onclick="removeStudentAnswer(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ')" title="Удалить ответ" style="color:#dc2626;cursor:pointer;font-size:1.25rem;background:none;border:none;">✕</button></div>';
+  return '<div class="student-answer-item"><span class="text-lg">' + icon + '</span><div class="flex-1 min-w-0"><div class="text-xs font-medium text-gray-700 mb-1">' + typeLabel + '</div>' + contentHtml + '</div><button type="button" class="student-answer-item-remove" onclick="removeStudentAnswer(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ')" title="Удалить ответ" style="color:#dc2626;cursor:pointer;font-size:1.25rem;background:none;border:none;">✕</button></div>';
 }
 
 function addStudentAnswer(blockId, practiceId, type) {
@@ -1557,7 +1168,7 @@ function clearPracticeAnswers(blockId, practiceId) {
   }
   unsavedChanges[blockId + '_' + practiceId] = false;
   refreshStudentPracticeForm(blockId, practiceId);
-  showSaveNotification('🗑️ Ответы очищены', 'success');
+  showSaveNotification('️ Ответы очищены', 'success');
 }
 
 function completeBlockWithoutQuiz(idx) {
@@ -1589,11 +1200,11 @@ function startQuiz(idx) {
       var resultEmoji = pct >= 70 ? '🎉' : pct >= 40 ? '👍' : '📚';
       var resultTitle = pct >= 70 ? 'Отличный результат!' : pct >= 40 ? 'Хорошо! Можно улучшить' : 'Пройдено. Рекомендуем повторить материал';
       var resultColor = pct >= 70 ? 'text-green-700' : pct >= 40 ? 'text-yellow-700' : 'text-orange-700';
-      openModal('<div class="p-6 text-center"><div class="text-6xl mb-3">' + resultEmoji + '</div><h3 class="text-xl font-bold text-gray-800 mb-2">' + resultTitle + '</h3><div class="my-4"><div class="text-5xl font-bold ' + resultColor + '">' + correct + ' из ' + total + '</div><div class="text-sm text-gray-500 mt-1">Правильных ответов (' + pct + '%)</div></div><div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-gray-700">✅ Блок завершён. Вы можете перейти к следующему блоку курса.</div><div class="flex gap-2 justify-center"><button class="btn-primary" onclick="closeModal(); renderCourseBlocks(); updateCourseProgress();">Продолжить →</button></div></div>');
+      openModal('<div class="p-6 text-center"><div class="text-6xl mb-3">' + resultEmoji + '</div><h3 class="text-xl font-bold text-gray-800 mb-2">' + resultTitle + '</h3><div class="my-4"><div class="text-5xl font-bold ' + resultColor + '">' + correct + ' из ' + total + '</div><div class="text-sm text-gray-500 mt-1">Правильных ответов (' + pct + '%)</div></div><div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-gray-700">✅ Блок завершён. Вы можете перейти к следующему блоку курса.</div><div class="flex gap-2 justify-center"><button type="button" class="btn-primary" onclick="closeModal(); renderCourseBlocks(); updateCourseProgress();">Продолжить →</button></div></div>');
       return;
     }
     var q = block.quiz[qIdx]; document.getElementById('qNum').textContent = qIdx + 1;
-    document.getElementById('quizBody').innerHTML = '<div class="mb-4"><div class="font-medium text-gray-800 mb-3">' + esc(q.q) + '</div><div class="space-y-2">' + q.options.map(function(opt, i) { return '<label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"><input type="radio" name="q' + qIdx + '" value="' + i + '" class="w-4 h-4"><span class="text-sm text-gray-700">' + esc(opt) + '</span></label>'; }).join('') + '</div></div><div class="flex gap-2"><button id="btnNextQ" class="btn-primary flex-1">' + (qIdx === block.quiz.length - 1 ? 'Завершить' : 'Далее →') + '</button></div>';
+    document.getElementById('quizBody').innerHTML = '<div class="mb-4"><div class="font-medium text-gray-800 mb-3">' + esc(q.q) + '</div><div class="space-y-2">' + q.options.map(function(opt, i) { return '<label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"><input type="radio" name="q' + qIdx + '" value="' + i + '" class="w-4 h-4"><span class="text-sm text-gray-700">' + esc(opt) + '</span></label>'; }).join('') + '</div></div><div class="flex gap-2"><button type="button" id="btnNextQ" class="btn-primary flex-1">' + (qIdx === block.quiz.length - 1 ? 'Завершить' : 'Далее →') + '</button></div>';
     document.getElementById('btnNextQ').onclick = function() { var sel = document.querySelector('input[name="q' + qIdx + '"]:checked'); if (!sel) return alert('Выберите ответ'); answers[qIdx] = parseInt(sel.value); renderQuestion(qIdx + 1); };
   }
   renderQ();
@@ -1606,7 +1217,8 @@ function createFullCourse() {
     duration: '45 мин', icon: '👠', createdAt: Date.now(),
     blocks: [
       {
-        id: 'b1', title: 'Блок 1: Основы визуального мерчендайзинга', icon: '🎯', videoUrl: '',
+        id: 'b1', title: 'Блок 1: Основы визуального мерчендайзинга', icon: '',
+        videoUrl: '',
         theoryBlocks: [
           { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">Что такое визуальный мерчендайзинг?</h4><p class="text-sm text-gray-700 mb-3">Визуальный мерчендайзинг — это наука оформления торгового пространства, основанная на знаниях психологии человека, рекламы и маркетинга, направленная на создание привлекательной и эффективной среды для стимулирования продаж и улучшения восприятия бренда.</p>' },
           { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎯 4 ключевые функции ВМ:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li><b>Демонстрировать продукцию самым выгодным образом</b></li><li><b>Обеспечить покупателям наилучший выбор</b></li><li><b>Фокусировать внимание на конкретных продуктах</b> — "золотая полка" (1,2м-1,7м)</li><li><b>Использовать площадь максимально эффективно</b></li></ul>' },
@@ -1614,9 +1226,9 @@ function createFullCourse() {
           { id: 'tb4', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">👟 Базовые правила выкладки:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li><b>Правые полупарки:</b> женский 37, мужской 41</li><li><b>Предпродажная подготовка:</b> снять бумагу, убрать набивку</li><li><b>Шахматная выкладка:</b> параллельно-перпендикулярная</li></ul>' }
         ],
         practice: [
-          { id: 'p1', title: 'Ситуация 1', description: 'На полке выставлена обувь в ряд без шахматного расположения', question: 'Какое правило визуального мерчендайзинга нарушено?', answers: [] },
-          { id: 'p2', title: 'Ситуация 2', description: 'Сапоги размещены на верхней полке вместо нижней', question: 'Какие правила размещения обуви на полках нарушены?', answers: [] },
-          { id: 'p3', title: 'Ситуация 3', description: 'В витрине представлена только одна пара обуви на модель', question: 'Какие стандарты оформления витрин нарушены?', answers: [] }
+          { id: 'p1', title: 'Ситуация 1', description: 'На полке выставлена обувь в ряд без шахматного расположения', question: 'Какое правило визуального мерчендайзинга нарушено? Как должно быть расположено обувь согласно стандартам Basconi?', answers: [] },
+          { id: 'p2', title: 'Ситуация 2', description: 'Сапоги размещены на верхней полке вместо нижней', question: 'Какие правила размещения обуви на полках нарушены? Почему сапоги должны размещаться на нижних полках?', answers: [] },
+          { id: 'p3', title: 'Ситуация 3', description: 'В витрине представлена только одна пара обуви на модель', question: 'Какие стандарты оформления витрин нарушены? Сколько пар обуви должно быть представлено на одну модель в витрине?', answers: [] }
         ],
         quiz: [
           { q: 'Какие размеры правых полупарок выставляются по умолчанию?', options: ['Женский 36, мужской 40', 'Женский 37, мужской 41', 'Женский 38, мужской 42', 'Женский 39, мужской 43'], correct: 1 },
@@ -1626,13 +1238,16 @@ function createFullCourse() {
         ]
       },
       {
-        id: 'b2', title: 'Блок 2: Сезонные стратегии и зонирование', icon: '🗓️', videoUrl: '',
+        id: 'b2', title: 'Блок 2: Сезонные стратегии и зонирование', icon: '️',
+        videoUrl: '',
         theoryBlocks: [
           { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">👥 Гендерное зонирование:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Магазин делится на женскую (70% площади) и мужскую зоны</li><li>При 2+ витринах — делить по гендерному признаку</li><li>При одной витрине — предпочтение женскому ассортименту</li></ul>' },
-          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2"> Стилевые группы:</h4><div class="grid grid-cols-3 gap-2 text-xs mb-3"><div class="bg-purple-50 p-2 rounded"><b class="text-purple-700">Classic</b><br>Туфли, лоферы, ботинки на тонкой подошве</div><div class="bg-green-50 p-2 rounded"><b class="text-green-700">Casual</b><br>Ботинки, казаки, сапоги кэжуал</div><div class="bg-blue-50 p-2 rounded"><b class="text-blue-700">Sport/Active</b><br>Кеды и кроссовки</div></div>' },
-          { id: 'tb3', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2"> Капсульная выкладка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Максимум 3 оттенка в капсуле</li><li>От светлого к темному слева направо и снизу вверх</li><li>Товары одного цвета — по диагонали на двух соседних полках</li></ul>' }
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎨 Стилевые группы:</h4><div class="grid grid-cols-3 gap-2 text-xs mb-3"><div class="bg-purple-50 p-2 rounded"><b class="text-purple-700">Classic</b><br>Туфли, лоферы, ботинки на тонкой подошве</div><div class="bg-green-50 p-2 rounded"><b class="text-green-700">Casual</b><br>Ботинки, казаки, сапоги кэжуал</div><div class="bg-blue-50 p-2 rounded"><b class="text-blue-700">Sport/Active</b><br>Кеды и кроссовки</div></div>' },
+          { id: 'tb3', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎨 Капсульная выкладка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Максимум 3 оттенка в капсуле</li><li>От светлого к темному слева направо и снизу вверх</li><li>Товары одного цвета — по диагонали на двух соседних полках</li></ul>' }
         ],
-        practice: [{ id: 'p1', title: 'Ситуация 1', description: 'Перед вами схема магазина с указанием горячих, теплых и холодных зон', question: 'Распределите товары по зонам.', answers: [] }],
+        practice: [
+          { id: 'p1', title: 'Ситуация 1', description: 'Перед вами схема магазина с указанием горячих, теплых и холодных зон', question: 'Распределите товары по зонам.', answers: [] }
+        ],
         quiz: [
           { q: 'Как распределить витрины при наличии двух?', options: ['Обе женские', 'Обе мужские', 'По гендерному признаку', 'Чередовать'], correct: 2 },
           { q: 'Максимум цветов в капсульной выкладке?', options: ['1', '2', '3', '4'], correct: 2 },
@@ -1641,12 +1256,15 @@ function createFullCourse() {
         ]
       },
       {
-        id: 'b3', title: 'Блок 3: Презентационные зоны и витрины', icon: '🪟', videoUrl: '',
+        id: 'b3', title: 'Блок 3: Презентационные зоны и витрины', icon: '🪟',
+        videoUrl: '',
         theoryBlocks: [
           { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🪟 Витрины:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Чистая, аккуратная, привлекательная</li><li>Не более 3 оттенков на одной витрине</li><li>На верхние полки — классика, на нижние — кэжуал</li><li>Минимум 2 пары на модель в витрине</li><li>Обновление — не реже 1 раза в 2 недели</li></ul>' },
           { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2"> Презентационный стол:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700 mb-3"><li>Это "внутренняя витрина" магазина</li><li>Выкладка — целостная гармоничная история</li><li>Обновление каждые 2 недели</li></ul><h4 class="font-bold text-gray-800 mb-2">⚡ Зона импульсного спроса:</h4><p class="text-sm text-gray-700">Прикассовая, кассовая и закассовая зона. Принцип: "Увидел — купил!"</p>' }
         ],
-        practice: [{ id: 'p1', title: 'Ситуация 1', description: 'Фото витрины с единственной парой обуви на модель', question: 'Какое правило оформления витрины нарушено?', answers: [] }],
+        practice: [
+          { id: 'p1', title: 'Ситуация 1', description: 'Фото витрины с единственной парой обуви на модель', question: 'Какое правило оформления витрины нарушено?', answers: [] }
+        ],
         quiz: [
           { q: 'Сколько пар обуви на модель в витрине?', options: ['Не менее 1', 'Не менее 2', 'Не менее 3', 'Не менее 4'], correct: 1 },
           { q: 'Как часто обновлять витрину?', options: ['Каждые 3 дня', 'Каждую неделю', 'Каждые две недели', 'Каждый месяц'], correct: 2 },
@@ -1654,12 +1272,15 @@ function createFullCourse() {
         ]
       },
       {
-        id: 'b4', title: 'Блок 4: Ротация и поддержание стандартов', icon: '', videoUrl: '',
+        id: 'b4', title: 'Блок 4: Ротация и поддержание стандартов', icon: '🔄',
+        videoUrl: '',
         theoryBlocks: [
           { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🔄 Типы ротации:</h4><div class="space-y-2 mb-3"><div class="bg-rose-50 p-3 rounded-lg border-l-4 border-vitacci"><b class="text-vitacci">Частичная ротация</b><p class="text-sm text-gray-700">Каждые 2 недели. Обновление витрин и презентационного стола.</p></div><div class="bg-amber-50 p-3 rounded-lg border-l-4 border-amber-500"><b class="text-amber-700">Межсезонная ротация</b><p class="text-sm text-gray-700">При смене сезонов ОЗ/ВЛ. Перегруппировка всего ассортимента.</p></div><div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500"><b class="text-blue-700">Глобальная ротация</b><p class="text-sm text-gray-700">1-2 раза в год. Полная перестановка оборудования.</p></div></div>' },
           { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">✅ Ежедневная проверка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Освещение — все лампы рабочие</li><li>Выкладка — шахматная, по цвету</li><li>POS-материалы — на уровне глаз</li></ul>' }
         ],
-        practice: [{ id: 'p1', title: 'Ситуация 1', description: 'Сегодня 15 ноября, начало зимнего сезона, поступила новая коллекция ОЗ', question: 'Какую ротацию необходимо провести?', answers: [] }],
+        practice: [
+          { id: 'p1', title: 'Ситуация 1', description: 'Сегодня 15 ноября, начало зимнего сезона, поступила новая коллекция ОЗ', question: 'Какую ротацию необходимо провести?', answers: [] }
+        ],
         quiz: [
           { q: 'Какие виды ротации выделяются?', options: ['Частичная, межсезонная, глобальная', 'Ежедневная, еженедельная', 'По моделям, цветам', 'Плановая, внеплановая'], correct: 0 },
           { q: 'Что такое "золотая полка"?', options: ['Полка у кассы', 'Полка с дорогими товарами', 'Полка на уровне глаз покупателя', 'Полка с акциями'], correct: 2 },
@@ -1667,12 +1288,15 @@ function createFullCourse() {
         ]
       },
       {
-        id: 'b5', title: 'Блок 5: Интеграция знаний и практика', icon: '🏆', videoUrl: '',
+        id: 'b5', title: 'Блок 5: Интеграция знаний и практика', icon: '🏆',
+        videoUrl: '',
         theoryBlocks: [
           { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">📈 Связь ВМ с продажами:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Правильная выкладка увеличивает продажи на 20-30%</li><li>Витрина увеличивает трафик на 25-30%</li><li>Золотая полка — высота 1,2м до 1,7м</li></ul>' },
-          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">⚠️ Типичные ошибки:</h4><div class="space-y-2 mb-3"><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700">❌ Ошибка 1: Неправильное зонирование</b><p class="text-sm text-gray-700">Мужская обувь у входа.<br><b class="text-green-700">✅ Решение:</b> женская зона 70% площади, ближе к входу</p></div><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700">❌ Ошибка 2: Нарушение шахматной выкладки</b><p class="text-sm text-gray-700">Обувь в ряд.<br><b class="text-green-700">✅ Решение:</b> шахматный порядок</p></div></div>' }
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">⚠️ Типичные ошибки:</h4><div class="space-y-2 mb-3"><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700"> Ошибка 1: Неправильное зонирование</b><p class="text-sm text-gray-700">Мужская обувь у входа.<br><b class="text-green-700">✅ Решение:</b> женская зона 70% площади, ближе к входу</p></div><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700"> Ошибка 2: Нарушение шахматной выкладки</b><p class="text-sm text-gray-700">Обувь в ряд.<br><b class="text-green-700">✅ Решение:</b> шахматный порядок</p></div></div>' }
         ],
-        practice: [{ id: 'p1', title: 'Финальная ситуация', description: 'Перед вами фото торгового зала', question: 'Проведите полный аудит выкладки', answers: [] }],
+        practice: [
+          { id: 'p1', title: 'Финальная ситуация', description: 'Перед вами фото торгового зала', question: 'Проведите полный аудит выкладки', answers: [] }
+        ],
         quiz: [
           { q: 'Какая зона называется "зоной импульсного спроса"?', options: ['Входная группа', 'Презентационный стол', 'Прикассовая, кассовая и закассовая зона', 'Дальние ниши'], correct: 2 },
           { q: 'Что такое капсульная выкладка?', options: ['По размерам', 'Взаимозаменяемые предметы, сочетающиеся по цвету, фактуре и стилю', 'Только продаваемые модели', 'От дешевого к дорогому'], correct: 1 },
@@ -1706,12 +1330,9 @@ async function initDemo() {
   const passwords = DB.passwords;
   if (!passwords['admin@academy.ru']) { passwords['admin@academy.ru'] = 'admin123'; DB.passwords = passwords; }
 }
-
-function uploadLogo(brand, event) { const file = event.target.files[0]; if (!file) return; const key = 'logo_' + brand + '_' + Date.now(); FileDB.put(key, file).then(function() { const settings = DB.settings; if (settings['logo' + brand.toUpperCase()]) FileDB.delete(settings['logo' + brand.toUpperCase()]); settings['logo' + brand.toUpperCase()] = key; DB.settings = settings; renderSettings(); }).catch(function(err) { alert('Ошибка загрузки: ' + err.message); }); }
-function removeLogo(brand) { const settings = DB.settings; if (settings['logo' + brand.toUpperCase()]) { FileDB.delete(settings['logo' + brand.toUpperCase()]); settings['logo' + brand.toUpperCase()] = null; DB.settings = settings; } renderSettings(); }
-
 async function init() {
   console.log('🚀 Инициализация приложения...');
+  
   let connected = false;
   try {
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Таймаут')), 8000));
@@ -1720,29 +1341,27 @@ async function init() {
     console.warn('⚠️ Supabase недоступен:', e.message);
     connected = false;
   }
+  
   if (connected) {
     console.log('✅ Supabase подключен, загружаем данные...');
     try {
-      const { data: stores, error: storeError } = await supabaseClient.from('stores').select('*');
-      if (!storeError && stores && stores.length > 0) {
-        DB.stores = stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand, createdAt: s.created_at }));
-        console.log('✅ Магазинов:', stores.length);
-      }
-      const { data: employees, error: empError } = await supabaseClient.from('employees').select('*');
-      if (!empError && employees && employees.length > 0) {
-        DB.employees = employees.map(e => ({ id: e.id, name: e.name, email: e.email, storeId: e.store_id, position: e.position, role: e.role, isAdmin: e.is_admin }));
-        console.log('✅ Сотрудников:', employees.length);
+      const loaded = await loadFromSupabase();
+      if (!loaded) {
+        console.log('️ Данные не загружены из облака, используем локальные');
+        await initDemo();
       }
     } catch (e) {
       console.error('Ошибка загрузки из Supabase:', e);
       await initDemo();
     }
   } else {
-    console.log('💾 Используем локальные данные');
+    console.log(' Используем локальные данные');
     await initDemo();
   }
+  
   const loadingOverlay = document.getElementById('loadingOverlay');
   if (loadingOverlay) loadingOverlay.classList.add('hidden');
+  
   if (isAdminModeActive()) {
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('adminMode').classList.remove('hidden');
@@ -1750,6 +1369,7 @@ async function init() {
     switchTab('dashboard');
     return;
   }
+  
   const params = new URLSearchParams(location.search);
   const hashParams = new URLSearchParams(location.hash.substring(1));
   const token = params.get('token') || hashParams.get('token');
@@ -1757,14 +1377,17 @@ async function init() {
     const link = DB.links.find(l => l.token === token);
     if (link) { startCourseMode(token); return; }
   }
+  
   document.getElementById('loginPage').classList.remove('hidden');
   document.getElementById('adminMode').classList.add('hidden');
   document.getElementById('courseMode').classList.add('hidden');
+  
   const tokenInput = document.getElementById('tokenInput');
   if (tokenInput) {
     tokenInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') loginByToken(); });
     tokenInput.focus();
   }
+  
   console.log('✅ Приложение готово');
   console.log('📧 Email: admin@academy.ru');
   console.log(' Пароль: admin123');
@@ -1778,3 +1401,5 @@ if (document.readyState === 'loading') {
 </script>
 </body>
 </html>
+
+
