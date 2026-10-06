@@ -43,7 +43,6 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
 .btn-ghost:hover { background: #f3f4f6; }
 .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
 .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
-.btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 500; cursor: pointer; border: none; font-size: 0.875rem; }
 .admin-badge { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.625rem; font-weight: 700; }
 .admin-card { border: 2px solid #f59e0b; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); }
 .chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.75rem; }
@@ -79,6 +78,8 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
 .token-display { font-family: 'Courier New', monospace; background: linear-gradient(135deg, #fdf2f4 0%, #fef3c7 100%); border: 2px dashed #8B1E3F; border-radius: 0.75rem; padding: 1rem; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.1em; color: #8B1E3F; text-align: center; word-break: break-all; }
 .admin-login-btn { background: linear-gradient(135deg, #1A1A1A 0%, #4B5563 100%); color: white; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; width: 100%; justify-content: center; }
 .admin-login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+.cloud-sync-btn { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.5rem 1rem; border-radius: 9999px; font-weight: 600; cursor: pointer; border: none; font-size: 0.75rem; transition: all 0.2s; }
+.cloud-sync-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
 .preview-banner { background: linear-gradient(135deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%); color: white; position: relative; overflow: hidden; }
 .preview-banner::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.15) 0%, transparent 50%); pointer-events: none; }
 .preview-banner .preview-badge { background: rgba(255,255,255,0.95); color: #dc2626; font-weight: 700; padding: 0.5rem 1rem; border-radius: 9999px; display: inline-flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-size: 0.875rem; }
@@ -117,7 +118,7 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
     </div>
     <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-6">
       <div class="flex items-start gap-3">
-        <div class="text-2xl"></div>
+        <div class="text-2xl">🎓</div>
         <div>
           <div class="font-bold text-gray-800 text-sm">Вход по коду доступа</div>
           <div class="text-xs text-gray-600 mt-1">Введите код, который вам отправил администратор</div>
@@ -160,7 +161,7 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
       <button type="button" onclick="performAdminLogin()" class="btn-primary w-full py-3">Войти</button>
       <button type="button" onclick="closeAdminLoginModal()" class="btn-secondary w-full">Отмена</button>
       <div class="text-center">
-        <button type="button" onclick="showMasterLoginModal()" class="text-xs text-amber-700 hover:underline font-semibold"> Экстренный вход (master2024)</button>
+        <button type="button" onclick="showMasterLoginModal()" class="text-xs text-amber-700 hover:underline font-semibold">🔑 Экстренный вход (master2024)</button>
       </div>
     </div>
   </div>
@@ -202,16 +203,18 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
           <div><div id="siteTitle" class="text-xl font-bold">VITACCI | BASCONI ACADEMY</div><div id="siteSubtitle" class="text-xs opacity-80">Обучающий портал холдинга</div></div>
         </div>
         <div class="flex items-center gap-2">
-          <button type="button" id="cloudStatusBadge" onclick="syncToSupabase()" class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold cursor-pointer hover:bg-green-600 transition" title="Нажмите для синхронизации с облаком">☁️ Облако</button>
+          <button type="button" id="cloudStatusBadge" onclick="syncToSupabase()" class="cloud-sync-btn" title="Нажмите для синхронизации с облаком">☁️ Облако</button>
           <span class="bg-amber-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👑 Администратор</span>
           <button type="button" onclick="exitAdminMode()" class="btn-ghost text-white/80 hover:text-white text-sm">🚪 Выйти</button>
         </div>
       </div>
       <nav class="flex gap-6 overflow-x-auto scrollbar">
-        <button type="button" onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer"> Обзор</button>
-        <button type="button" onclick="switchTab('stores')" data-tab="stores" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer"> Магазины</button>
+        <button type="button" onclick="switchTab('dashboard')" data-tab="dashboard" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📊 Обзор</button>
+        <button type="button" onclick="switchTab('stores')" data-tab="stores" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🏪 Магазины</button>
         <button type="button" onclick="switchTab('employees')" data-tab="employees" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">👥 Сотрудники</button>
         <button type="button" onclick="switchTab('courses')" data-tab="courses" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📚 Курсы</button>
+        <button type="button" onclick="switchTab('library')" data-tab="library" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📖 Библиотека</button>
+        <button type="button" onclick="switchTab('webinars')" data-tab="webinars" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🎥 Вебинары</button>
         <button type="button" onclick="switchTab('links')" data-tab="links" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🔗 Ссылки</button>
         <button type="button" onclick="switchTab('progress')" data-tab="progress" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📈 Успеваемость</button>
         <button type="button" onclick="switchTab('settings')" data-tab="settings" class="tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">⚙️ Настройки</button>
@@ -251,6 +254,36 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
       <div id="coursesList" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
     </section>
 
+    <section id="tab-library" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">📖 Библиотека</h2><button type="button" onclick="openLibraryUploadModal()" class="btn-primary">+ Загрузить файл</button></div>
+      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <div class="flex gap-2 flex-wrap mb-4">
+          <button type="button" onclick="filterLibrary('all')" class="chip bg-gray-100 text-gray-700">Все файлы</button>
+          <button type="button" onclick="filterLibrary('pdf')" class="chip bg-gray-100 text-gray-700">📕 PDF</button>
+          <button type="button" onclick="filterLibrary('excel')" class="chip bg-gray-100 text-gray-700">📊 Excel</button>
+          <button type="button" onclick="filterLibrary('word')" class="chip bg-gray-100 text-gray-700">📝 Word</button>
+          <button type="button" onclick="filterLibrary('video')" class="chip bg-gray-100 text-gray-700"> Видео</button>
+        </div>
+        <div class="flex gap-3">
+          <input id="librarySearch" type="text" placeholder="🔍 Поиск..." class="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm" oninput="renderLibrary()">
+          <select id="libraryCategoryFilter" onchange="renderLibrary()" class="border border-gray-200 rounded-lg px-4 py-2 text-sm">
+            <option value="">Все категории</option>
+            <option value="Мерчбуки">Мерчбуки</option>
+            <option value="Инструкции">Инструкции</option>
+            <option value="Видеоуроки">Видеоуроки</option>
+            <option value="Презентации">Презентации</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+      </div>
+      <div id="libraryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <section id="tab-webinars" class="tab-content hidden fade-in">
+      <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">🎥 Вебинары</h2><button type="button" onclick="openWebinarModal()" class="btn-primary">+ Создать вебинар</button></div>
+      <div id="webinarsList" class="space-y-4"></div>
+    </section>
+
     <section id="tab-links" class="tab-content hidden fade-in">
       <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl font-bold text-gray-800">Коды доступа</h2><button type="button" onclick="openLinkModal()" class="btn-primary">+ Создать код</button></div>
       <div class="bg-white rounded-2xl shadow-sm overflow-hidden"><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50"><tr class="text-left text-sm text-gray-600"><th class="p-4">Сотрудник</th><th class="p-4">Курс</th><th class="p-4">Код доступа</th><th class="p-4">Статус</th><th class="p-4">Действия</th></tr></thead><tbody id="linksTable"></tbody></table></div></div>
@@ -272,7 +305,7 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
         </div>
       </div>
       <div class="admin-card rounded-2xl p-6 shadow-sm">
-        <h3 class="font-bold text-gray-800 mb-4"> Администраторы</h3>
+        <h3 class="font-bold text-gray-800 mb-4">👑 Администраторы</h3>
         <div class="flex gap-2 mb-4"><input id="newAdminEmail" type="email" placeholder="Email нового администратора" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"><button type="button" onclick="addAdmin()" class="btn-primary">+ Добавить</button></div>
         <div id="adminsList" class="space-y-2"></div>
       </div>
@@ -280,14 +313,97 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
   </main>
 </div>
 
+<div id="employeeMode" class="hidden min-h-screen bg-gradient-to-br from-rose-50 to-stone-50">
+  <header class="gradient-header text-white shadow-lg no-print">
+    <div class="max-w-7xl mx-auto px-6 py-5">
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-4">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3 bg-white/10 rounded-xl px-4 py-2">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-vitacci rounded flex items-center justify-center text-white font-bold text-xs">V</div>
+              <span id="empBrandNameV" class="text-lg font-bold tracking-wider">VITACCI</span>
+            </div>
+            <div class="w-px h-8 bg-white/30"></div>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-basconi-black rounded flex items-center justify-center text-white font-bold text-xs">B</div>
+              <span id="empBrandNameB" class="text-lg font-bold tracking-wider">BASCONI</span>
+            </div>
+          </div>
+          <div><div id="empSiteTitle" class="text-xl font-bold">VITACCI | BASCONI ACADEMY</div><div id="empSiteSubtitle" class="text-xs opacity-80">Обучающий портал холдинга</div></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👤 Сотрудник</span>
+          <button type="button" onclick="exitEmployeeMode()" class="btn-ghost text-white/80 hover:text-white text-sm">🚪 Выйти</button>
+        </div>
+      </div>
+      <nav class="flex gap-6 overflow-x-auto scrollbar">
+        <button type="button" onclick="switchEmployeeTab('courses')" data-emp-tab="courses" class="emp-tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📚 Мои курсы</button>
+        <button type="button" onclick="switchEmployeeTab('library')" data-emp-tab="library" class="emp-tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">📖 Библиотека</button>
+        <button type="button" onclick="switchEmployeeTab('webinars')" data-emp-tab="webinars" class="emp-tab-btn py-3 text-white/80 hover:text-white whitespace-nowrap cursor-pointer">🎥 Вебинары</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-6">
+    <section id="emp-tab-courses" class="emp-tab-content fade-in">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">📚 Мои курсы</h2>
+      <div id="empCoursesList" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+    </section>
+
+    <section id="emp-tab-library" class="emp-tab-content hidden fade-in">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">📖 Библиотека материалов</h2>
+      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+        <div class="flex gap-2 flex-wrap mb-4">
+          <button type="button" onclick="filterEmployeeLibrary('all')" class="chip bg-gray-100 text-gray-700">Все файлы</button>
+          <button type="button" onclick="filterEmployeeLibrary('pdf')" class="chip bg-gray-100 text-gray-700">📕 PDF</button>
+          <button type="button" onclick="filterEmployeeLibrary('excel')" class="chip bg-gray-100 text-gray-700">📊 Excel</button>
+          <button type="button" onclick="filterEmployeeLibrary('word')" class="chip bg-gray-100 text-gray-700">📝 Word</button>
+          <button type="button" onclick="filterEmployeeLibrary('video')" class="chip bg-gray-100 text-gray-700">🎬 Видео</button>
+        </div>
+        <div class="flex gap-3">
+          <input id="empLibrarySearch" type="text" placeholder=" Поиск..." class="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm" oninput="renderEmployeeLibrary()">
+          <select id="empLibraryCategoryFilter" onchange="renderEmployeeLibrary()" class="border border-gray-200 rounded-lg px-4 py-2 text-sm">
+            <option value="">Все категории</option>
+            <option value="Мерчбуки">Мерчбуки</option>
+            <option value="Инструкции">Инструкции</option>
+            <option value="Видеоуроки">Видеоуроки</option>
+            <option value="Презентации">Презентации</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+      </div>
+      <div id="empLibraryList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <section id="emp-tab-webinars" class="emp-tab-content hidden fade-in">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">🎥 Вебинары</h2>
+      <div id="empWebinarsList" class="space-y-4"></div>
+    </section>
+  </main>
+</div>
+
 <div id="courseMode" class="hidden min-h-screen bg-gradient-to-br from-rose-50 to-stone-50">
   <div class="max-w-4xl mx-auto p-6">
     <div id="courseHeader" class="gradient-header text-white rounded-2xl p-6 mb-6 shadow-xl">
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div><div class="text-sm opacity-80">Добро пожаловать,</div><div id="studentName" class="text-2xl font-bold"></div><div id="studentStore" class="text-sm opacity-80"></div></div>
-        <div class="text-right"><div class="text-sm opacity-80">Общий прогресс</div><div id="totalProgress" class="text-3xl font-bold">0%</div></div>
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-2">
+        <button type="button" onclick="exitCourseToEmployeeHome()" class="btn-ghost text-white hover:bg-white/20 rounded-lg px-3 py-2 text-sm font-semibold">
+          ← Сохранить и выйти
+        </button>
+        <div class="text-right">
+          <div class="text-sm opacity-80">Общий прогресс</div>
+          <div id="totalProgress" class="text-3xl font-bold">0%</div>
+        </div>
       </div>
-      <div class="mt-4 bg-white/20 rounded-full h-2 overflow-hidden"><div id="totalProgressBar" class="bg-white h-full progress-bar" style="width:0%"></div></div>
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <div class="text-sm opacity-80">Добро пожаловать,</div>
+          <div id="studentName" class="text-2xl font-bold"></div>
+          <div id="studentStore" class="text-sm opacity-80"></div>
+        </div>
+      </div>
+      <div class="mt-4 bg-white/20 rounded-full h-2 overflow-hidden">
+        <div id="totalProgressBar" class="bg-white h-full progress-bar" style="width:0%"></div>
+      </div>
       <div id="courseTitleBox" class="mt-4 text-sm opacity-90"></div>
     </div>
     <div id="blocksContainer" class="space-y-4"></div>
@@ -316,15 +432,15 @@ function updateSyncStatus(status, message) {
   const cloudBadge = document.getElementById('cloudStatusBadge');
   const loadingStatus = document.getElementById('loadingStatus');
   if (syncEl) {
-    if (status === 'online') syncEl.innerHTML = '<span class="sync-indicator sync-online">☁️ Подключено к облаку</span>';
+    if (status === 'online') syncEl.innerHTML = '<span class="sync-indicator sync-online">️ Подключено к облаку</span>';
     else if (status === 'offline') syncEl.innerHTML = '<span class="sync-indicator sync-offline">💾 Локальный режим</span>';
-    else if (status === 'error') syncEl.innerHTML = '<span class="sync-indicator sync-error">⚠️ Ошибка: ' + (message || '') + '</span>';
+    else if (status === 'error') syncEl.innerHTML = '<span class="sync-indicator sync-error">️ Ошибка: ' + (message || '') + '</span>';
     else syncEl.innerHTML = '<span class="sync-indicator sync-syncing">🔄 ' + (message || 'Синхронизация...') + '</span>';
   }
   if (cloudBadge) {
-    if (status === 'online') { cloudBadge.textContent = '☁️ Облако'; cloudBadge.className = 'bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold'; }
-    else if (status === 'offline') { cloudBadge.textContent = '💾 Локально'; cloudBadge.className = 'bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-semibold'; }
-    else { cloudBadge.textContent = '⚠️ Ошибка'; cloudBadge.className = 'bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold'; }
+    if (status === 'online') { cloudBadge.textContent = '☁️ Облако'; cloudBadge.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)'; }
+    else if (status === 'offline') { cloudBadge.textContent = '💾 Локально'; cloudBadge.style.background = 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)'; }
+    else { cloudBadge.textContent = '⚠️ Ошибка'; cloudBadge.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'; }
   }
   if (loadingStatus) loadingStatus.textContent = message || 'Загрузка...';
 }
@@ -417,50 +533,10 @@ async function loadFromSupabase() {
   }
 }
 
-// Функция загрузки из облака
-async function loadFromCloud() {
-  if (!isSupabaseConnected || !supabaseClient) {
-    alert('❌ Supabase не подключен');
-    return;
-  }
-  
-  try {
-    updateSyncStatus('syncing', 'Загрузка из облака...');
-    
-    const { data: employees, error } = await supabaseClient
-      .from('employees')
-      .select('*');
-    
-    if (error) {
-      console.error('Ошибка загрузки:', error);
-      updateSyncStatus('error', error.message);
-      return;
-    }
-    
-    if (employees && employees.length > 0) {
-      DB.employees = employees.map(e => ({
-        id: e.id,
-        name: e.name,
-        email: e.email,
-        storeId: e.store_id,
-        position: e.position,
-        role: e.role,
-        isAdmin: e.is_admin
-      }));
-      renderAll();
-      updateSyncStatus('online');
-      alert('✅ Загружено ' + employees.length + ' сотрудников из облака');
-    }
-  } catch (e) {
-    console.error('Ошибка:', e);
-    updateSyncStatus('error', e.message);
-  }
-}
-
 const MASTER_KEY = 'master2024';
 let editorState = null;
 let currentToken = null, currentEmployee = null, currentCourse = null;
-let unsavedChanges = {};
+let currentEmployeeTab = 'courses';
 
 const DB = {
   get stores() { return JSON.parse(localStorage.getItem('vba_stores') || '[]'); },
@@ -473,6 +549,10 @@ const DB = {
   set progress(v) { localStorage.setItem('vba_progress', JSON.stringify(v)); },
   get courses() { return JSON.parse(localStorage.getItem('vba_courses') || '[]'); },
   set courses(v) { localStorage.setItem('vba_courses', JSON.stringify(v)); },
+  get webinars() { return JSON.parse(localStorage.getItem('vba_webinars') || '[]'); },
+  set webinars(v) { localStorage.setItem('vba_webinars', JSON.stringify(v)); },
+  get library() { return JSON.parse(localStorage.getItem('vba_library') || '[]'); },
+  set library(v) { localStorage.setItem('vba_library', JSON.stringify(v)); },
   get admins() { try { return JSON.parse(localStorage.getItem('vba_admins') || '["admin@academy.ru"]'); } catch(e) { return ['admin@academy.ru']; } },
   set admins(v) { localStorage.setItem('vba_admins', JSON.stringify(v)); },
   get passwords() { try { return JSON.parse(localStorage.getItem('vba_passwords') || '{}'); } catch(e) { return {}; } },
@@ -559,6 +639,7 @@ function enterAsAdmin(email, needsPasswordSetup) {
   if (email) localStorage.setItem('vba_admin_email', email);
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('adminMode').classList.remove('hidden');
+  document.getElementById('employeeMode').classList.add('hidden');
   document.getElementById('courseMode').classList.add('hidden');
   switchTab('dashboard');
   if (needsPasswordSetup) {
@@ -570,6 +651,7 @@ function exitAdminMode() {
   localStorage.removeItem('vba_admin_mode');
   localStorage.removeItem('vba_admin_email');
   document.getElementById('adminMode').classList.add('hidden');
+  document.getElementById('employeeMode').classList.add('hidden');
   document.getElementById('courseMode').classList.add('hidden');
   document.getElementById('loginPage').classList.remove('hidden');
   const tokenInput = document.getElementById('tokenInput');
@@ -585,7 +667,7 @@ function removePassword(email) { const passwords = DB.passwords; delete password
 function showSetPasswordModal(email) {
   const currentPassword = DB.passwords[email.toLowerCase()] || '';
   openModal(
-    '<div class="p-6 max-w-lg mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800"> Управление паролем</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"><div class="text-xs text-blue-900"><b>Email:</b> ' + esc(email) + '</div></div><div class="space-y-3"><div><label class="text-sm text-gray-600 font-medium">Новый пароль</label><input id="newPasswordInput" type="password" placeholder="Введите новый пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><div class="text-xs text-gray-500 mt-1">Минимум 6 символов</div></div><div><label class="text-sm text-gray-600 font-medium">Подтверждение пароля</label><input id="confirmPasswordInput" type="password" placeholder="Повторите пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div id="passwordError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSavePassword" class="btn-primary flex-1">💾 Сохранить пароль</button>' + (currentPassword ? '<button type="button" id="btnRemovePassword" class="btn-danger flex-1">🗑️ Удалить пароль</button>' : '') + '</div></div>',
+    '<div class="p-6 max-w-lg mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">🔐 Управление паролем</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()"></button></div><div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"><div class="text-xs text-blue-900"><b>Email:</b> ' + esc(email) + '</div></div><div class="space-y-3"><div><label class="text-sm text-gray-600 font-medium">Новый пароль</label><input id="newPasswordInput" type="password" placeholder="Введите новый пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><div class="text-xs text-gray-500 mt-1">Минимум 6 символов</div></div><div><label class="text-sm text-gray-600 font-medium">Подтверждение пароля</label><input id="confirmPasswordInput" type="password" placeholder="Повторите пароль" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div id="passwordError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSavePassword" class="btn-primary flex-1">💾 Сохранить пароль</button>' + (currentPassword ? '<button type="button" id="btnRemovePassword" class="btn-danger flex-1">🗑️ Удалить пароль</button>' : '') + '</div></div>',
     'max-w-lg'
   );
   document.getElementById('btnSavePassword').onclick = function() {
@@ -607,7 +689,7 @@ function showSetPasswordModal(email) {
 function showEditEmailModal(email, idx) {
   const isMainAdmin = email.toLowerCase() === 'admin@academy.ru';
   openModal(
-    '<div class="p-6 max-w-lg mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">✏️ Изменить email</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div>' + (isMainAdmin ? '<div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4"><div class="text-xs text-amber-900"><b>⚠️ Внимание!</b> Вы редактируете email главного администратора.</div></div>' : '') + '<div class="space-y-3"><div><label class="text-sm text-gray-600 font-medium">Текущий email</label><div class="w-full mt-1 bg-gray-100 rounded-lg px-4 py-2 text-gray-600 font-mono">' + esc(email) + '</div></div><div><label class="text-sm text-gray-600 font-medium">Новый email</label><input id="newAdminEmailInput" type="email" value="' + esc(email) + '" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div id="editEmailError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSaveEmail" class="btn-primary flex-1">💾 Сохранить</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Отмена</button></div></div>',
+    '<div class="p-6 max-w-lg mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">✏️ Изменить email</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()"></button></div>' + (isMainAdmin ? '<div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4"><div class="text-xs text-amber-900"><b>⚠️ Внимание!</b> Вы редактируете email главного администратора.</div></div>' : '') + '<div class="space-y-3"><div><label class="text-sm text-gray-600 font-medium">Текущий email</label><div class="w-full mt-1 bg-gray-100 rounded-lg px-4 py-2 text-gray-600 font-mono">' + esc(email) + '</div></div><div><label class="text-sm text-gray-600 font-medium">Новый email</label><input id="newAdminEmailInput" type="email" value="' + esc(email) + '" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div id="editEmailError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSaveEmail" class="btn-primary flex-1">💾 Сохранить</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Отмена</button></div></div>',
     'max-w-lg'
   );
   document.getElementById('btnSaveEmail').onclick = function() {
@@ -641,7 +723,7 @@ function renderAdminsList() {
     const empStore = emp ? (DB.stores.find(s => s.id === emp.storeId)?.name || '') : '—';
     const isMainAdmin = email.toLowerCase() === 'admin@academy.ru';
     const hasPass = hasPassword(email);
-    return '<div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-amber-200"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold text-sm">' + empName.charAt(0) + '</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><div class="font-medium text-gray-800 text-sm truncate">' + esc(empName) + '</div>' + (isMainAdmin ? '<span class="admin-badge">ГЛАВНЫЙ АДМИН</span>' : '<span class="admin-badge">АДМИН</span>') + '</div><div class="text-xs text-gray-500">' + esc(empPosition) + (empStore ? ' · ' + esc(empStore) : '') + '</div><div class="flex items-center gap-1 mt-1"><div class="text-xs text-gray-400 truncate font-mono">' + esc(email) + '</div><button type="button" class="edit-email-btn" onclick="showEditEmailModal(\'' + esc(email) + '\', ' + idx + ')" title="Изменить email">✏️</button></div></div><div class="flex flex-col gap-1"><button type="button" class="btn-primary btn-sm" onclick="showSetPasswordModal(\'' + esc(email) + '\')">' + (hasPass ? ' Изменить пароль' : '🔐 Установить пароль') + '</button><div class="text-center">' + (hasPass ? '<span class="password-status password-set">✓ Пароль установлен</span>' : '<span class="password-status password-not-set"> Пароль не установлен</span>') + '</div>' + (isMainAdmin ? '' : '<button type="button" class="btn-danger btn-sm" onclick="removeAdmin(' + idx + ')">✕ Удалить</button>') + '</div></div>';
+    return '<div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-amber-200"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center font-bold text-sm">' + empName.charAt(0) + '</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><div class="font-medium text-gray-800 text-sm truncate">' + esc(empName) + '</div>' + (isMainAdmin ? '<span class="admin-badge">ГЛАВНЫЙ АДМИН</span>' : '<span class="admin-badge">АДМИН</span>') + '</div><div class="text-xs text-gray-500">' + esc(empPosition) + (empStore ? ' · ' + esc(empStore) : '') + '</div><div class="flex items-center gap-1 mt-1"><div class="text-xs text-gray-400 truncate font-mono">' + esc(email) + '</div><button type="button" class="edit-email-btn" onclick="showEditEmailModal(\'' + esc(email) + '\', ' + idx + ')" title="Изменить email">✏️</button></div></div><div class="flex flex-col gap-1"><button type="button" class="btn-primary btn-sm" onclick="showSetPasswordModal(\'' + esc(email) + '\')">' + (hasPass ? '🔑 Изменить пароль' : '🔐 Установить пароль') + '</button><div class="text-center">' + (hasPass ? '<span class="password-status password-set">✓ Пароль установлен</span>' : '<span class="password-status password-not-set">⚠ Пароль не установлен</span>') + '</div>' + (isMainAdmin ? '' : '<button type="button" class="btn-danger btn-sm" onclick="removeAdmin(' + idx + ')">✕ Удалить</button>') + '</div></div>';
   }).join('');
 }
 
@@ -677,7 +759,7 @@ function switchTab(tab) {
   renderAll();
 }
 
-function renderAll() { renderSettings(); renderDashboard(); renderStores(); renderEmployees(); renderCourses(); renderLinks(); renderProgress(); renderAdminsList(); }
+function renderAll() { renderSettings(); renderDashboard(); renderStores(); renderEmployees(); renderCourses(); renderLibrary(); renderWebinars(); renderLinks(); renderProgress(); renderAdminsList(); }
 
 function renderSettings() {
   const s = DB.settings;
@@ -685,6 +767,10 @@ function renderSettings() {
   document.getElementById('siteSubtitle').textContent = s.siteSubtitle || 'Обучающий портал холдинга';
   document.getElementById('brandNameV').textContent = s.brandV || 'VITACCI';
   document.getElementById('brandNameB').textContent = s.brandB || 'BASCONI';
+  document.getElementById('empSiteTitle').textContent = s.siteTitle || 'VITACCI | BASCONI ACADEMY';
+  document.getElementById('empSiteSubtitle').textContent = s.siteSubtitle || 'Обучающий портал холдинга';
+  document.getElementById('empBrandNameV').textContent = s.brandV || 'VITACCI';
+  document.getElementById('empBrandNameB').textContent = s.brandB || 'BASCONI';
   document.getElementById('courseFooter').textContent = '© ' + (s.siteTitle || 'VITACCI | BASCONI ACADEMY');
   document.title = s.siteTitle || 'VITACCI | BASCONI ACADEMY';
   const st = document.getElementById('settingSiteTitle'), ss = document.getElementById('settingSiteSubtitle');
@@ -748,7 +834,7 @@ function renderDashboard() {
 function renderStores() {
   const stores = DB.stores, employees = DB.employees; const el = document.getElementById('storesList');
   if (stores.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">Нет магазинов</div>'; return; }
-  el.innerHTML = stores.map(s => { const count = employees.filter(e => e.storeId === s.id).length; const avg = count ? Math.round(employees.filter(e => e.storeId === s.id).reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / count) : 0; const brandColor = s.brand === 'vitacci' ? 'bg-vitacci' : s.brand === 'basconi' ? 'bg-basconi-black' : 'bg-gradient-to-r from-vitacci to-basconi-black'; const s2 = DB.settings; const brandLabel = s.brand === 'vitacci' ? s2.brandV : s.brand === 'basconi' ? s2.brandB : s2.brandV + ' | ' + s2.brandB; return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex justify-between items-start mb-3"><div class="w-12 h-12 ' + brandColor + ' rounded-xl flex items-center justify-center text-white text-xs font-bold">' + esc(brandLabel.substring(0, 3)) + '</div><div class="flex gap-1"><button type="button" class="btn-ghost" onclick="openStoreModal(\'' + s.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteStore(\'' + s.id + '\')">🗑️</button></div></div><h3 class="font-bold text-gray-800">' + esc(s.name) + '</h3><p class="text-sm text-gray-500 mt-1"> ' + esc(s.address) + '</p><div class="flex gap-3 mt-4 pt-4 border-t border-gray-100"><div class="flex-1"><div class="text-xs text-gray-500">Сотрудников</div><div class="font-bold text-gray-800">' + count + '</div></div><div class="flex-1"><div class="text-xs text-gray-500">Прогресс</div><div class="font-bold text-vitacci">' + avg + '%</div></div></div></div>'; }).join('');
+  el.innerHTML = stores.map(s => { const count = employees.filter(e => e.storeId === s.id).length; const avg = count ? Math.round(employees.filter(e => e.storeId === s.id).reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / count) : 0; const brandColor = s.brand === 'vitacci' ? 'bg-vitacci' : s.brand === 'basconi' ? 'bg-basconi-black' : 'bg-gradient-to-r from-vitacci to-basconi-black'; const s2 = DB.settings; const brandLabel = s.brand === 'vitacci' ? s2.brandV : s.brand === 'basconi' ? s2.brandB : s2.brandV + ' | ' + s2.brandB; return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex justify-between items-start mb-3"><div class="w-12 h-12 ' + brandColor + ' rounded-xl flex items-center justify-center text-white text-xs font-bold">' + esc(brandLabel.substring(0, 3)) + '</div><div class="flex gap-1"><button type="button" class="btn-ghost" onclick="openStoreModal(\'' + s.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteStore(\'' + s.id + '\')">🗑️</button></div></div><h3 class="font-bold text-gray-800">' + esc(s.name) + '</h3><p class="text-sm text-gray-500 mt-1">📍 ' + esc(s.address) + '</p><div class="flex gap-3 mt-4 pt-4 border-t border-gray-100"><div class="flex-1"><div class="text-xs text-gray-500">Сотрудников</div><div class="font-bold text-gray-800">' + count + '</div></div><div class="flex-1"><div class="text-xs text-gray-500">Прогресс</div><div class="font-bold text-vitacci">' + avg + '%</div></div></div></div>'; }).join('');
 }
 
 function renderEmployees() {
@@ -764,9 +850,77 @@ function renderCourses() {
     const totalQuiz = c.blocks.reduce((s, b) => s + (b.quiz?.length || 0), 0);
     const totalTheory = c.blocks.reduce((s, b) => s + (b.theoryBlocks?.length || 0), 0);
     const totalPractice = c.blocks.reduce((s, b) => s + (b.practice?.length || 0), 0);
-    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="gradient-header p-5 text-white"><div class="text-5xl mb-2">' + (c.icon || '📚') + '</div><h3 class="font-bold text-lg">' + esc(c.title) + '</h3><p class="text-sm opacity-90 mt-1">' + esc(c.description || '') + '</p></div><div class="p-5"><div class="flex gap-2 flex-wrap mb-4 text-xs"><span class="chip bg-rose-50 text-vitacci">️ ' + (c.duration || '—') + '</span><span class="chip bg-stone-100 text-basconi-black">📖 ' + c.blocks.length + ' блоков</span><span class="chip bg-blue-50 text-blue-700">📝 ' + totalQuiz + ' вопросов</span><span class="chip bg-purple-50 text-purple-700">📚 ' + totalTheory + ' блоков теории</span><span class="chip bg-green-50 text-green-700">🎯 ' + totalPractice + ' ситуаций</span></div><div class="flex gap-2"><button type="button" class="btn-primary text-sm flex-1" onclick="openCourseEditor(\'' + c.id + '\')">✏️ Редактировать</button><button type="button" class="btn-secondary text-sm" onclick="previewCourse(\'' + c.id + '\')">👁️ Предпросмотр</button><button type="button" class="btn-danger text-sm" onclick="deleteCourse(\'' + c.id + '\')">🗑️</button></div></div></div>';
+    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="gradient-header p-5 text-white"><div class="text-5xl mb-2">' + (c.icon || '📚') + '</div><h3 class="font-bold text-lg">' + esc(c.title) + '</h3><p class="text-sm opacity-90 mt-1">' + esc(c.description || '') + '</p></div><div class="p-5"><div class="flex gap-2 flex-wrap mb-4 text-xs"><span class="chip bg-rose-50 text-vitacci">⏱️ ' + (c.duration || '—') + '</span><span class="chip bg-stone-100 text-basconi-black">📖 ' + c.blocks.length + ' блоков</span><span class="chip bg-blue-50 text-blue-700">📝 ' + totalQuiz + ' вопросов</span><span class="chip bg-purple-50 text-purple-700">📚 ' + totalTheory + ' блоков теории</span><span class="chip bg-green-50 text-green-700">🎯 ' + totalPractice + ' ситуаций</span></div><div class="flex gap-2"><button type="button" class="btn-primary text-sm flex-1" onclick="openCourseEditor(\'' + c.id + '\')">✏️ Редактировать</button><button type="button" class="btn-secondary text-sm" onclick="previewCourse(\'' + c.id + '\')">️ Предпросмотр</button><button type="button" class="btn-danger text-sm" onclick="deleteCourse(\'' + c.id + '\')">🗑️</button></div></div></div>';
   }).join('');
 }
+
+function renderLibrary() {
+  const library = DB.library; const el = document.getElementById('libraryList');
+  const search = (document.getElementById('librarySearch')?.value || '').toLowerCase();
+  const categoryFilter = document.getElementById('libraryCategoryFilter')?.value || '';
+  if (library.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">📚</div><div class="text-lg font-medium">Библиотека пуста</div></div>'; return; }
+  let filtered = library.filter(item => {
+    if (categoryFilter && item.category !== categoryFilter) return false;
+    if (search && !item.name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  if (filtered.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">🔍</div><div class="text-lg font-medium">Ничего не найдено</div></div>'; return; }
+  el.innerHTML = filtered.map(item => {
+    const icon = item.type === 'pdf' ? '' : item.type === 'excel' ? '📊' : item.type === 'word' ? '📝' : item.type === 'video' ? '🎬' : '📄';
+    const date = new Date(item.createdAt).toLocaleDateString('ru-RU');
+    return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex items-start gap-3 mb-3"><div class="text-4xl">' + icon + '</div><div class="flex-1 min-w-0"><div class="font-bold text-gray-800 text-sm truncate">' + esc(item.name) + '</div><div class="text-xs text-gray-500 mt-1">' + esc(item.category || 'Без категории') + '</div></div></div><div class="text-xs text-gray-500 mb-3">📅 ' + date + ' · 👤 ' + esc(item.uploadedBy || 'Администратор') + '</div><div class="flex gap-2"><button type="button" class="btn-primary btn-sm flex-1">️ Скачать</button><button type="button" class="btn-danger btn-sm" onclick="deleteLibraryFile(\'' + item.id + '\')">🗑️</button></div></div>';
+  }).join('');
+}
+
+function deleteLibraryFile(id) {
+  if (!confirm('Удалить файл?')) return;
+  const library = DB.library;
+  DB.library = library.filter(i => i.id !== id);
+  renderLibrary();
+}
+
+function openLibraryUploadModal() {
+  openModal(
+    '<div class="p-6 max-w-2xl mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">📤 Загрузка файла</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="space-y-4"><div><label class="text-sm text-gray-600 font-medium">Название файла</label><input id="libraryFileName" type="text" placeholder="Например: Мерчбук VITACCI ОЗ 2024" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div><label class="text-sm text-gray-600 font-medium">Категория</label><select id="libraryFileCategory" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><option value="Мерчбуки">Мерчбуки</option><option value="Инструкции">Инструкции</option><option value="Видеоуроки">Видеоуроки</option><option value="Презентации">Презентации</option><option value="Другое">Другое</option></select></div><div><label class="text-sm text-gray-600 font-medium">Описание</label><textarea id="libraryFileDescription" placeholder="Краткое описание..." class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none" rows="3"></textarea></div><div class="flex gap-2 mt-6"><button type="button" onclick="saveLibraryFile()" class="btn-primary flex-1">📤 Загрузить</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Отмена</button></div></div></div>',
+    'max-w-2xl'
+  );
+}
+
+function saveLibraryFile() {
+  const fileName = document.getElementById('libraryFileName').value.trim();
+  const category = document.getElementById('libraryFileCategory').value;
+  const description = document.getElementById('libraryFileDescription').value.trim();
+  if (!fileName) return alert('Введите название файла');
+  const library = DB.library;
+  library.push({ id: 'lib_' + Date.now(), name: fileName, category: category, description: description, createdAt: Date.now(), uploadedBy: getCurrentAdminEmail() || 'Администратор' });
+  DB.library = library;
+  closeModal();
+  renderLibrary();
+  alert('✅ Файл добавлен в библиотеку!');
+}
+
+function filterLibrary(category) {
+  document.getElementById('libraryCategoryFilter').value = category === 'all' ? '' : category;
+  renderLibrary();
+}
+
+function renderWebinars() {
+  const webinars = DB.webinars; const el = document.getElementById('webinarsList');
+  if (webinars.length === 0) { el.innerHTML = '<div class="text-center py-12 text-gray-400">Нет вебинаров</div>'; return; }
+  el.innerHTML = webinars.map(w => {
+    const date = new Date(w.date); const dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }); const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    const isUpcoming = w.status === 'upcoming';
+    return '<div class="bg-white rounded-2xl shadow-sm p-6 card-hover ' + (isUpcoming ? 'border-l-4 border-vitacci' : 'border-l-4 border-gray-300') + '"><div class="flex items-start justify-between mb-4 flex-wrap gap-3"><div><div class="flex items-center gap-2"><h3 class="font-bold text-gray-800 text-lg">' + esc(w.title) + '</h3>' + (isUpcoming ? '<span class="chip bg-red-100 text-red-700">● LIVE</span>' : '<span class="chip bg-green-100 text-green-700">✓ Завершен</span>') + '</div><div class="text-sm text-gray-500 mt-1">📅 ' + dateStr + ' в ' + timeStr + ' · ⏱️ ' + w.duration + '</div></div><div class="flex gap-2"><button type="button" class="btn-ghost" onclick="openWebinarModal(\'' + w.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteWebinar(\'' + w.id + '\')">🗑️</button></div></div><p class="text-sm text-gray-600 mb-4">' + esc(w.description || '') + '</p><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Ведущий</div><div class="font-medium text-gray-800 text-sm">' + esc(w.host || '—') + '</div></div><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Участники</div><div class="font-medium text-gray-800 text-sm">' + (w.participants?.length || 0) + ' / ' + (w.maxParticipants || '∞') + '</div></div><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Ссылка</div><div class="text-sm text-vitacci font-medium truncate">' + esc(w.link || '—') + '</div></div></div></div>';
+  }).join('');
+}
+
+function openWebinarModal(webinarId) {
+  const webinar = webinarId ? DB.webinars.find(w => w.id === webinarId) : null; const dateStr = webinar ? new Date(webinar.date).toISOString().slice(0, 16) : '';
+  openModal('<div class="p-6 max-w-2xl mx-auto"><h3 class="text-xl font-bold text-gray-800 mb-4">' + (webinar ? 'Редактировать' : 'Новый') + ' вебинар</h3><div class="space-y-3"><div><label class="text-sm text-gray-600">Название</label><input id="webinarTitle" value="' + escAttr(webinar?.title || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Описание</label><textarea id="webinarDesc" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2" rows="3">' + esc(webinar?.description || '') + '</textarea></div><div class="grid grid-cols-2 gap-3"><div><label class="text-sm text-gray-600">Дата и время</label><input type="datetime-local" id="webinarDate" value="' + dateStr + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Длительность</label><input id="webinarDuration" value="' + escAttr(webinar?.duration || '60 мин') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div></div><div><label class="text-sm text-gray-600">Ссылка (Zoom, Teams)</label><input id="webinarLink" value="' + escAttr(webinar?.link || '') + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Статус</label><select id="webinarStatus" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"><option value="upcoming"' + (webinar?.status === 'upcoming' ? ' selected' : '') + '>Предстоящий</option><option value="completed"' + (webinar?.status === 'completed' ? ' selected' : '') + '>Завершен</option></select></div></div><div class="flex gap-2 mt-6"><button type="button" id="btnSaveWebinar" class="btn-primary flex-1">Сохранить</button><button type="button" id="btnCancelWebinar" class="btn-secondary flex-1">Отмена</button></div></div>', 'max-w-2xl');
+  document.getElementById('btnSaveWebinar').onclick = function() { saveWebinar(webinarId || ''); }; document.getElementById('btnCancelWebinar').onclick = closeModal;
+}
+function saveWebinar(id) { const title = document.getElementById('webinarTitle').value.trim(); const description = document.getElementById('webinarDesc').value.trim(); const date = document.getElementById('webinarDate').value; const duration = document.getElementById('webinarDuration').value.trim(); const link = document.getElementById('webinarLink').value.trim(); const status = document.getElementById('webinarStatus').value; if (!title) return alert('Введите название'); if (!date) return alert('Выберите дату'); const webinars = DB.webinars; if (id) { const idx = webinars.findIndex(w => w.id === id); webinars[idx] = Object.assign({}, webinars[idx], { title, description, date: new Date(date).toISOString(), duration, link, status }); } else { webinars.push({ id: 'w' + Date.now(), title, description, date: new Date(date).toISOString(), duration, link, status, participants: [], createdAt: Date.now() }); } DB.webinars = webinars; closeModal(); renderAll(); }
+function deleteWebinar(id) { if (!confirm('Удалить вебинар?')) return; DB.webinars = DB.webinars.filter(w => w.id !== id); renderAll(); }
 
 function renderLinks() {
   const links = DB.links, employees = DB.employees, stores = DB.stores, courses = DB.courses;
@@ -777,11 +931,40 @@ function renderLinks() {
     const p = getEmployeeProgress(l.employeeId, l.courseId);
     const statusColor = p === 100 ? 'bg-green-100 text-green-700' : p > 0 ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600';
     const statusText = p === 100 ? 'Завершен' : p > 0 ? 'В процессе' : 'Не начат';
-    return '<tr class="border-t border-gray-100 hover:bg-gray-50"><td class="p-4"><div class="font-medium text-gray-800">' + esc(emp?.name || '—') + '</div><div class="text-xs text-gray-500">' + esc(store?.name || '') + '</div></td><td class="p-4 text-sm text-gray-700">' + esc(course ? course.title.substring(0, 35) : '—') + '</td><td class="p-4"><div class="flex items-center gap-2"><div class="token-display text-base px-3 py-2 flex-1">' + esc(l.token) + '</div><button type="button" class="btn-primary btn-sm" onclick="copyToken(\'' + l.token + '\')">📋 Скопировать</button></div></td><td class="p-4"><span class="text-xs px-2 py-1 rounded-full ' + statusColor + '">' + statusText + ' · ' + p + '%</span></td><td class="p-4"><button type="button" class="btn-ghost" onclick="deleteLink(\'' + l.token + '\')">️</button></td></tr>';
+    return '<tr class="border-t border-gray-100 hover:bg-gray-50"><td class="p-4"><div class="font-medium text-gray-800">' + esc(emp?.name || '—') + '</div><div class="text-xs text-gray-500">' + esc(store?.name || '') + '</div></td><td class="p-4 text-sm text-gray-700">' + esc(course ? course.title.substring(0, 35) : '—') + '</td><td class="p-4"><div class="flex items-center gap-2"><div class="token-display text-base px-3 py-2 flex-1">' + esc(l.token) + '</div><button type="button" class="btn-primary btn-sm" onclick="copyToken(\'' + l.token + '\')">📋 Скопировать</button></div></td><td class="p-4"><span class="text-xs px-2 py-1 rounded-full ' + statusColor + '">' + statusText + ' · ' + p + '%</span></td><td class="p-4"><button type="button" class="btn-ghost" onclick="deleteLink(\'' + l.token + '\')">🗑️</button></td></tr>';
   }).join('');
 }
 
 function copyToken(token) { navigator.clipboard.writeText(token).then(function() { alert('✅ Код скопирован: ' + token); }).catch(function() { alert('Код: ' + token); }); }
+
+function showEmployeeDetails(empId, courseId) {
+  const employee = DB.employees.find(e => e.id === empId); const course = DB.courses.find(c => c.id === courseId);
+  if (!employee || !course) return;
+  const store = DB.stores.find(s => s.id === employee.storeId);
+  const empProgress = DB.progress[empId]?.[courseId] || {};
+  let totalCorrect = 0; let totalQuestions = 0; let completedTests = 0;
+  let testResults = [];
+  course.blocks.forEach((b, i) => {
+    const bp = empProgress[b.id] || {}; const score = bp.score || 0; const total = bp.total || 0; const completed = bp.completed || false;
+    totalCorrect += score; totalQuestions += total; if (completed && total > 0) completedTests++;
+    testResults.push({ blockIndex: i, blockTitle: b.title, blockIcon: b.icon, score: score, total: total, completed: completed, percentage: total > 0 ? Math.round((score / total) * 100) : 0 });
+  });
+  const avgTestScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+  const testStatus = avgTestScore >= 80 ? 'Отлично' : avgTestScore >= 60 ? 'Хорошо' : avgTestScore >= 40 ? 'Удовлетворительно' : 'Требует повторения';
+  const testStatusColor = avgTestScore >= 80 ? 'score-excellent' : avgTestScore >= 60 ? 'score-good' : avgTestScore >= 40 ? 'score-average' : 'score-low';
+  let blocksHtml = testResults.map((tr, i) => {
+    const theoryCount = (course.blocks[i].theoryBlocks || []).length; const practiceCount = (course.blocks[i].practice || []).length; const quizCount = (course.blocks[i].quiz || []).length;
+    let scoreBadge = '<span class="chip bg-gray-100 text-gray-600">Не пройден</span>';
+    if (tr.completed && tr.total > 0) { const badgeClass = tr.percentage >= 80 ? 'score-excellent' : tr.percentage >= 60 ? 'score-good' : tr.percentage >= 40 ? 'score-average' : 'score-low'; scoreBadge = '<span class="score-badge ' + badgeClass + '">' + tr.score + '/' + tr.total + ' (' + tr.percentage + '%)</span>'; }
+    return '<div class="detail-row border border-gray-200 rounded-xl p-4 mb-3 ' + (tr.completed ? 'bg-green-50/30' : 'bg-white') + '"><div class="flex items-start justify-between mb-3 flex-wrap gap-2"><div class="flex items-center gap-3"><div class="text-2xl">' + tr.blockIcon + '</div><div><div class="font-bold text-gray-800">Блок ' + (tr.blockIndex + 1) + ': ' + esc(tr.blockTitle) + '</div><div class="text-xs text-gray-500 mt-1">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' · 📝 ' + quizCount + '</div></div></div>' + (tr.completed ? '<span class="chip bg-green-100 text-green-700 font-semibold">✓ Завершён</span>' : '<span class="chip bg-gray-100 text-gray-600">Не начат</span>') + '</div><div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3"><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1">📚 Теория</div><span class="chip bg-blue-100 text-blue-700">' + theoryCount + ' блоков</span></div><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1">🎯 Практика</div><span class="chip bg-green-100 text-green-700">' + practiceCount + ' ситуаций</span></div><div class="bg-white rounded-lg p-3 border border-gray-100"><div class="text-xs text-gray-500 mb-1"> Тест</div>' + scoreBadge + '</div></div></div>';
+  }).join('');
+  const totalBlocks = course.blocks.length; const completedBlocks = testResults.filter(tr => tr.completed).length;
+  const totalPractice = course.blocks.reduce((sum, b) => sum + (b.practice?.length || 0), 0);
+  openModal(
+    '<div class="p-6"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-14 h-14 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-2xl">' + employee.name.charAt(0) + '</div><div><h3 class="text-xl font-bold text-gray-800">' + esc(employee.name) + '</h3><div class="text-sm text-gray-500">' + esc(employee.position) + ' · ' + esc(store?.name || '—') + '</div></div></div><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div><div class="bg-gradient-to-br from-rose-50 to-stone-50 rounded-2xl p-5 mb-5"><div class="flex items-center gap-3 mb-3"><span class="text-3xl">' + (course.icon || '📚') + '</span><div><div class="font-bold text-gray-800 text-lg">' + esc(course.title) + '</div><div class="text-xs text-gray-500">Детальная успеваемость</div></div></div><div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Прогресс</div><div class="text-2xl font-bold text-vitacci">' + getEmployeeProgress(empId, courseId) + '%</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Блоков пройдено</div><div class="text-2xl font-bold text-gray-800">' + completedBlocks + '/' + totalBlocks + '</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Практических ситуаций</div><div class="text-2xl font-bold text-gray-800">' + totalPractice + '</div></div><div class="bg-white rounded-lg p-3"><div class="text-xs text-gray-500">Пройдено тестов</div><div class="text-2xl font-bold text-gray-800">' + completedTests + '/' + totalBlocks + '</div></div></div></div><div class="test-result-card"><h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><span class="text-2xl">📊</span> Итоги тестирования</h4><div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4"><div class="test-stat-box"><div class="test-stat-value">' + totalCorrect + '/' + totalQuestions + '</div><div class="test-stat-label">Правильных ответов</div></div><div class="test-stat-box"><div class="test-stat-value">' + avgTestScore + '%</div><div class="test-stat-label">Средний балл</div></div><div class="test-stat-box"><div class="test-stat-value">' + completedTests + '</div><div class="test-stat-label">Пройдено тестов</div></div><div class="test-stat-box"><div class="test-stat-value"><span class="score-badge ' + testStatusColor + '">' + testStatus + '</span></div><div class="test-stat-label">Общий результат</div></div></div></div><h4 class="font-bold text-gray-800 mb-3 mt-6">📋 Детализация по блокам</h4><div class="max-h-[40vh] overflow-y-auto scrollbar pr-2">' + blocksHtml + '</div><div class="flex gap-2 mt-5 pt-4 border-t border-gray-200"><button type="button" class="btn-secondary flex-1" onclick="closeModal()">Закрыть</button></div></div>',
+    'max-w-5xl'
+  );
+}
 
 function renderProgress() {
   const employees = DB.employees;
@@ -791,7 +974,9 @@ function renderProgress() {
     const p = getEmployeeProgress(e.id);
     const store = DB.stores.find(s => s.id === e.storeId);
     const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase());
-    return '<div class="bg-white rounded-2xl p-5 shadow-sm"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-lg">' + e.name.charAt(0) + '</div><div><div class="font-bold text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.position) + ' · ' + esc(store?.name || '—') + '</div></div></div><div class="text-right"><div class="text-2xl font-bold text-vitacci">' + p + '%</div><div class="text-xs text-gray-500">прогресс</div></div></div><div class="bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div></div>';
+    const empLinks = DB.links.filter(l => l.employeeId === e.id);
+    const courseId = empLinks.length > 0 ? empLinks[0].courseId : null;
+    return '<div class="bg-white rounded-2xl p-5 shadow-sm"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-lg">' + e.name.charAt(0) + '</div><div><div class="font-bold text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.position) + ' · ' + esc(store?.name || '—') + '</div></div></div><div class="text-right"><div class="text-2xl font-bold text-vitacci">' + p + '%</div><div class="text-xs text-gray-500 mb-2">прогресс</div>' + (courseId ? '<button type="button" class="btn-info btn-sm" onclick="showEmployeeDetails(\'' + e.id + '\', \'' + courseId + '\')">📊 Подробнее</button>' : '') + '</div></div><div class="bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div></div>';
   }).join('');
 }
 
@@ -817,74 +1002,30 @@ function openEmployeeModal(empId) {
   document.getElementById('btnCancelEmp').onclick = closeModal;
 }
 function saveEmployee(id) {
-  const name = document.getElementById('empName').value.trim();
-  const email = document.getElementById('empEmail').value.trim();
-  const storeId = document.getElementById('empStore').value;
-  const position = document.getElementById('empPosition').value;
-  const isAdmin = document.getElementById('empIsAdmin').checked;
-  
+  const name = document.getElementById('empName').value.trim(); const email = document.getElementById('empEmail').value.trim(); const storeId = document.getElementById('empStore').value; const position = document.getElementById('empPosition').value; const isAdmin = document.getElementById('empIsAdmin').checked;
   if (!name) return alert('Введите ФИО');
-  
   const employees = DB.employees;
-  if (id) {
-    const idx = employees.findIndex(e => e.id === id);
-    employees[idx] = Object.assign({}, employees[idx], {
-      name: name, email: email, storeId: storeId,
-      position: position, isAdmin: isAdmin
-    });
-  } else {
-    employees.push({
-      id: 'e' + Date.now(), name: name, email: email,
-      storeId: storeId, position: position, isAdmin: isAdmin
-    });
-  }
+  if (id) { const idx = employees.findIndex(e => e.id === id); employees[idx] = Object.assign({}, employees[idx], { name: name, email: email, storeId: storeId, position: position, isAdmin: isAdmin }); }
+  else { employees.push({ id: 'e' + Date.now(), name: name, email: email, storeId: storeId, position: position, isAdmin: isAdmin }); }
   DB.employees = employees;
-  
   const admins = DB.admins;
-  if (isAdmin && email && !admins.some(a => a.toLowerCase() === email.toLowerCase())) {
-    admins.push(email);
-  } else if (!isAdmin && email) {
-    const idx2 = admins.findIndex(a => a.toLowerCase() === email.toLowerCase());
-    if (idx2 >= 0 && email.toLowerCase() !== 'admin@academy.ru') admins.splice(idx2, 1);
-  }
+  if (isAdmin && email && !admins.some(a => a.toLowerCase() === email.toLowerCase())) admins.push(email);
+  else if (!isAdmin && email) { const idx2 = admins.findIndex(a => a.toLowerCase() === email.toLowerCase()); if (idx2 >= 0 && email.toLowerCase() !== 'admin@academy.ru') admins.splice(idx2, 1); }
   DB.admins = admins;
-  
-  closeModal();
-  renderAll();
-  
-  // Автоматическая синхронизация с облаком
-  if (isSupabaseConnected) {
-    syncToSupabase();
-  }
+  closeModal(); renderAll();
+  if (isSupabaseConnected) syncToSupabase();
 }
 async function deleteEmployee(id) {
   if (!confirm('Удалить сотрудника?')) return;
-  
-  // Удаляем из localStorage
   DB.employees = DB.employees.filter(e => e.id !== id);
   DB.links = DB.links.filter(l => l.employeeId !== id);
-  const p = DB.progress;
-  delete p[id];
-  DB.progress = p;
-  
-  // Удаляем из Supabase
+  const p = DB.progress; delete p[id]; DB.progress = p;
   if (isSupabaseConnected && supabaseClient) {
     try {
-      const { error } = await supabaseClient
-        .from('employees')
-        .delete()
-        .eq('id', id);
-      
-      if (error) {
-        console.error('Ошибка удаления из Supabase:', error);
-      } else {
-        console.log('✅ Сотрудник удалён из облака');
-      }
-    } catch (e) {
-      console.error('Ошибка синхронизации:', e);
-    }
+      await supabaseClient.from('employees').delete().eq('id', id);
+      console.log('✅ Сотрудник удалён из облака');
+    } catch (e) { console.error('Ошибка удаления из Supabase:', e); }
   }
-  
   renderAll();
 }
 
@@ -919,12 +1060,555 @@ async function loginByToken() {
   if (token.toLowerCase() === 'admin') { errorEl.classList.add('hidden'); showAdminLoginModal(); return; }
   const link = DB.links.find(l => l.token === token);
   if (!link) { errorEl.textContent = 'Код доступа не найден. Проверьте правильность ввода или обратитесь к администратору.'; errorEl.classList.remove('hidden'); return; }
+  currentToken = token;
+  currentEmployee = DB.employees.find(function(e) { return e.id === link.employeeId; });
+  if (!currentEmployee) { errorEl.textContent = 'Сотрудник не найден'; errorEl.classList.remove('hidden'); return; }
   document.getElementById('loginPage').classList.add('hidden');
-  startCourseMode(token);
+  document.getElementById('employeeMode').classList.remove('hidden');
+  document.getElementById('adminMode').classList.add('hidden');
+  document.getElementById('courseMode').classList.add('hidden');
+  switchEmployeeTab('courses');
 }
 
+function switchEmployeeTab(tab) {
+  currentEmployeeTab = tab;
+  document.querySelectorAll('.emp-tab-content').forEach(el => el.classList.add('hidden'));
+  const targetTab = document.getElementById('emp-tab-' + tab);
+  if (targetTab) targetTab.classList.remove('hidden');
+  document.querySelectorAll('.emp-tab-btn').forEach(btn => { btn.classList.remove('tab-active'); if (btn.dataset.empTab === tab) btn.classList.add('tab-active'); });
+  if (tab === 'courses') renderEmployeeCourses();
+  else if (tab === 'library') renderEmployeeLibrary();
+  else if (tab === 'webinars') renderEmployeeWebinars();
+}
+
+function renderEmployeeCourses() {
+  const empLinks = DB.links.filter(l => l.employeeId === currentEmployee.id);
+  const el = document.getElementById('empCoursesList');
+  if (empLinks.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">📚</div><div class="text-lg font-medium">У вас пока нет назначенных курсов</div><div class="text-sm text-gray-500 mt-2">Обратитесь к администратору для получения кода доступа</div></div>'; return; }
+  el.innerHTML = empLinks.map(l => {
+    const course = DB.courses.find(c => c.id === l.courseId);
+    if (!course) return '';
+    const progress = getEmployeeProgress(currentEmployee.id, course.id);
+    const totalQuiz = course.blocks.reduce((s, b) => s + (b.quiz?.length || 0), 0);
+    const totalTheory = course.blocks.reduce((s, b) => s + (b.theoryBlocks?.length || 0), 0);
+    const totalPractice = course.blocks.reduce((s, b) => s + (b.practice?.length || 0), 0);
+    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="gradient-header p-5 text-white"><div class="text-5xl mb-2">' + (course.icon || '📚') + '</div><h3 class="font-bold text-lg">' + esc(course.title) + '</h3><p class="text-sm opacity-90 mt-1">' + esc(course.description || '') + '</p></div><div class="p-5"><div class="flex gap-2 flex-wrap mb-4 text-xs"><span class="chip bg-rose-50 text-vitacci">️ ' + (course.duration || '—') + '</span><span class="chip bg-stone-100 text-basconi-black">📖 ' + course.blocks.length + ' блоков</span><span class="chip bg-blue-50 text-blue-700">📝 ' + totalQuiz + ' вопросов</span><span class="chip bg-purple-50 text-purple-700">📚 ' + totalTheory + ' блоков теории</span><span class="chip bg-green-50 text-green-700">🎯 ' + totalPractice + ' ситуаций</span></div><div class="mb-4"><div class="flex justify-between text-sm mb-1"><span class="text-gray-600">Прогресс</span><span class="font-bold text-vitacci">' + progress + '%</span></div><div class="bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + progress + '%"></div></div></div><div class="flex gap-2"><button type="button" class="btn-primary text-sm flex-1" onclick="startCourseMode(\'' + l.token + '\')">▶️ ' + (progress > 0 ? 'Продолжить' : 'Начать') + '</button></div></div></div>';
+  }).join('');
+}
+
+function renderEmployeeLibrary() {
+  const library = DB.library; const el = document.getElementById('empLibraryList');
+  const search = (document.getElementById('empLibrarySearch')?.value || '').toLowerCase();
+  const categoryFilter = document.getElementById('empLibraryCategoryFilter')?.value || '';
+  if (library.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">📚</div><div class="text-lg font-medium">Библиотека пуста</div></div>'; return; }
+  let filtered = library.filter(item => {
+    if (categoryFilter && item.category !== categoryFilter) return false;
+    if (search && !item.name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  if (filtered.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">🔍</div><div class="text-lg font-medium">Ничего не найдено</div></div>'; return; }
+  el.innerHTML = filtered.map(item => {
+    const icon = item.type === 'pdf' ? '📕' : item.type === 'excel' ? '📊' : item.type === 'word' ? '📝' : item.type === 'video' ? '' : '📄';
+    const date = new Date(item.createdAt).toLocaleDateString('ru-RU');
+    return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex items-start gap-3 mb-3"><div class="text-4xl">' + icon + '</div><div class="flex-1 min-w-0"><div class="font-bold text-gray-800 text-sm truncate">' + esc(item.name) + '</div><div class="text-xs text-gray-500 mt-1">' + esc(item.category || 'Без категории') + '</div></div></div><div class="text-xs text-gray-500 mb-3">📅 ' + date + ' ·  ' + esc(item.uploadedBy || 'Администратор') + '</div><div class="flex gap-2"><button type="button" class="btn-primary btn-sm flex-1">⬇️ Скачать</button></div></div>';
+  }).join('');
+}
+
+function filterEmployeeLibrary(category) {
+  document.getElementById('empLibraryCategoryFilter').value = category === 'all' ? '' : category;
+  renderEmployeeLibrary();
+}
+
+function renderEmployeeWebinars() {
+  const webinars = DB.webinars; const el = document.getElementById('empWebinarsList');
+  if (webinars.length === 0) { el.innerHTML = '<div class="text-center py-12 text-gray-400">Нет вебинаров</div>'; return; }
+  el.innerHTML = webinars.map(w => {
+    const date = new Date(w.date); const dateStr = date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' }); const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    const isUpcoming = w.status === 'upcoming';
+    return '<div class="bg-white rounded-2xl shadow-sm p-6 card-hover ' + (isUpcoming ? 'border-l-4 border-vitacci' : 'border-l-4 border-gray-300') + '"><div class="flex items-start justify-between mb-4 flex-wrap gap-3"><div><div class="flex items-center gap-2"><h3 class="font-bold text-gray-800 text-lg">' + esc(w.title) + '</h3>' + (isUpcoming ? '<span class="chip bg-red-100 text-red-700">● LIVE</span>' : '<span class="chip bg-green-100 text-green-700">✓ Завершен</span>') + '</div><div class="text-sm text-gray-500 mt-1">📅 ' + dateStr + ' в ' + timeStr + ' · ⏱️ ' + w.duration + '</div></div></div><p class="text-sm text-gray-600 mb-4">' + esc(w.description || '') + '</p><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Ведущий</div><div class="font-medium text-gray-800 text-sm">' + esc(w.host || '—') + '</div></div><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Участники</div><div class="font-medium text-gray-800 text-sm">' + (w.participants?.length || 0) + ' / ' + (w.maxParticipants || '∞') + '</div></div><div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">Ссылка</div><div class="text-sm text-vitacci font-medium truncate">' + esc(w.link || '—') + '</div></div></div></div>';
+  }).join('');
+}
+
+function exitEmployeeMode() {
+  currentEmployee = null;
+  currentCourse = null;
+  currentToken = null;
+  document.getElementById('employeeMode').classList.add('hidden');
+  document.getElementById('courseMode').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+  const tokenInput = document.getElementById('tokenInput');
+  if (tokenInput) tokenInput.value = '';
+}
+
+function renderCourseBlocks() {
+  var progress = DB.progress[currentEmployee.id]?.[currentCourse.id] || {};
+  var container = document.getElementById('blocksContainer');
+  container.innerHTML = currentCourse.blocks.map(function(b, i) {
+    var bp = progress[b.id]; var done = bp?.completed;
+    var theoryCount = (b.theoryBlocks || []).length; var practiceCount = (b.practice || []).length;
+    var scoreInfo = '';
+    if (done && bp.score !== undefined && bp.score !== null && bp.total > 0) {
+      var pct = Math.round((bp.score / bp.total) * 100);
+      var scoreColor = pct >= 70 ? 'text-green-700 bg-green-100' : pct >= 40 ? 'text-yellow-700 bg-yellow-100' : 'text-red-700 bg-red-100';
+      scoreInfo = '<div class="text-xs mt-1"><span class="chip ' + scoreColor + '">📝 Тест: ' + bp.score + '/' + bp.total + ' (' + pct + '%)</span></div>';
+    }
+    var practiceAnswers = bp?.practiceAnswers || {};
+    var answeredCount = Object.keys(practiceAnswers).filter(k => practiceAnswers[k] && practiceAnswers[k].length > 0).length;
+    var practiceInfo = answeredCount > 0 ? '<div class="text-xs mt-1"><span class="chip bg-green-100 text-green-700">🎯 Ответов на практику: ' + answeredCount + '/' + practiceCount + '</span></div>' : '';
+    return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden card-hover"><div class="p-5 flex items-center gap-4"><div class="text-3xl">' + b.icon + '</div><div class="flex-1"><div class="font-bold text-gray-800">' + esc(b.title) + '</div><div class="text-xs text-gray-500 mt-1">📚 ' + theoryCount + ' блоков теории · 🎯 ' + practiceCount + ' ситуаций · 📝 ' + (b.quiz?.length || 0) + ' вопросов</div>' + scoreInfo + practiceInfo + '</div>' + (done ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">✓ Пройдено</span>' : '<button type="button" class="btn-primary text-sm" onclick="openBlock(' + i + ')">Начать</button>') + '</div></div>';
+  }).join('');
+}
+
+function updateCourseProgress() { var p = getEmployeeProgress(currentEmployee.id, currentCourse.id); document.getElementById('totalProgress').textContent = p + '%'; document.getElementById('totalProgressBar').style.width = p + '%'; }
+
+function renderTheoryContentInCourse(tb) {
+  if (tb.type === 'text') return '<div class="prose prose-sm max-w-none mb-3">' + (tb.content || '') + '</div>';
+  if (tb.type === 'pdf') return '<div class="mb-3"><div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"><span class="text-2xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName || 'Документ') + '</div></div><button type="button" class="btn-primary btn-sm" onclick="downloadFile(\'' + tb.key + '\', \'' + escAttr(tb.fileName || 'document') + '\')">⬇️ Скачать</button></div></div>';
+  if (tb.type === 'image') return '<div class="mb-3"><img src="' + tb.dataUrl + '" class="w-full rounded-lg">' + (tb.caption ? '<div class="text-xs text-gray-500 mt-1 text-center">' + esc(tb.caption) + '</div>' : '') + '</div>';
+  if (tb.type === 'video') return '<div class="mb-3"><div class="video-container"><video controls preload="metadata" src="' + tb.videoUrl + '"></video></div></div>';
+  return '';
+}
+
+function renderAnswerContentInCourse(a) {
+  if (a.type === 'text') return '<div class="prose prose-sm max-w-none mb-2">' + (a.content || '') + '</div>';
+  if (a.type === 'pdf') return '<div class="mb-2"><div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border border-gray-200"><span class="text-xl"></span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(a.fileName || 'Документ') + '</div></div><button type="button" class="btn-primary btn-sm" onclick="downloadFile(\'' + a.key + '\', \'' + escAttr(a.fileName || 'document') + '\')">⬇️</button></div></div>';
+  if (a.type === 'image') return '<div class="mb-2"><img src="' + a.dataUrl + '" class="w-full rounded-lg">' + (a.caption ? '<div class="text-xs text-gray-500 mt-1 text-center">' + esc(a.caption) + '</div>' : '') + '</div>';
+  if (a.type === 'video') return '<div class="mb-2"><div class="video-container"><video controls preload="metadata" src="' + a.videoUrl + '"></video></div></div>';
+  return '';
+}
+
+async function downloadFile(key, name) { var blob = await FileDB.get(key); if (!blob) return; var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = name; a.click(); URL.revokeObjectURL(url); }
+
+function openBlock(idx) {
+  var block = currentCourse.blocks[idx];
+  var videoSrc = block.videoUrl || '';
+  var videoHtml = videoSrc ? '<div class="mb-4"><div class="video-container"><video controls preload="metadata" src="' + videoSrc + '"></video></div></div>' : '';
+  var theoryHtml = (block.theoryBlocks || []).map(function(tb) { return renderTheoryContentInCourse(tb); }).join('');
+  if (!theoryHtml) theoryHtml = '<div class="text-gray-400 text-sm text-center py-4">Теория не добавлена</div>';
+  var practiceHtml = (block.practice || []).map(function(p, pi) { return renderStudentPracticeForm(block.id, p, pi); }).join('');
+  if (!practiceHtml) practiceHtml = '<div class="text-gray-400 text-sm text-center py-4">Практические задания не добавлены</div>';
+  var quizBtn = block.quiz && block.quiz.length > 0 ? '<button type="button" class="btn-primary flex-1" onclick="startQuiz(' + idx + ')">Перейти к тесту →</button>' : '<button type="button" class="btn-primary flex-1" onclick="completeBlockWithoutQuiz(' + idx + ')">Завершить блок →</button>';
+  openModal('<div class="p-6"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="text-3xl">' + block.icon + '</div><div><div class="text-xs text-gray-500">Блок ' + (idx + 1) + ' из ' + currentCourse.blocks.length + '</div><h3 class="text-lg font-bold text-gray-800">' + esc(block.title) + '</h3></div></div><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div>' + videoHtml + '<div class="mb-6"><div class="section-header"><div class="flex items-center gap-2"><span class="text-xl"></span><span class="font-bold text-gray-800">Теория</span></div></div>' + theoryHtml + '</div><div class="mb-6"><div class="section-header" style="border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><span class="font-bold text-gray-800">Практика — дайте свой ответ</span></div></div>' + practiceHtml + '</div><div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">' + quizBtn + '<button type="button" class="btn-secondary" onclick="closeModal()">Закрыть</button></div></div>', 'max-w-4xl');
+}
+
+function renderStudentPracticeForm(blockId, p, pi) {
+  var empProgress = DB.progress[currentEmployee.id]?.[currentCourse.id] || {};
+  var blockProgress = empProgress[blockId] || {};
+  var practiceAnswers = blockProgress.practiceAnswers?.[p.id] || [];
+  var answersHtml = practiceAnswers.map(function(a, ai) { return renderStudentAnswerItem(blockId, p.id, a, ai); }).join('');
+  var hasUnsavedChanges = unsavedChanges[blockId + '_' + p.id] || false;
+  var saveIndicatorClass = hasUnsavedChanges ? 'unsaved' : (practiceAnswers.length > 0 ? 'saved' : '');
+  var saveIndicatorText = hasUnsavedChanges ? '️ Есть несохранённые изменения' : (practiceAnswers.length > 0 ? '✅ Сохранено' : '');
+  return '<div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 mb-4 border-l-4 border-green-500"><div class="flex items-start gap-3 mb-3"><div class="text-3xl">🎯</div><div class="flex-1"><div class="font-bold text-gray-800 text-lg mb-1">' + esc(p.title || 'Ситуация ' + (pi + 1)) + '</div>' + (p.description ? '<div class="text-sm text-gray-600 mb-3">' + esc(p.description) + '</div>' : '') + '</div></div><div class="bg-white rounded-lg p-4 mb-3 shadow-sm"><div class="flex items-start gap-2 mb-2"><span class="text-xl">❓</span><div class="flex-1"><div class="text-xs font-semibold text-vitacci uppercase tracking-wide mb-1">Вопрос</div><div class="text-sm text-gray-800 font-medium">' + esc(p.question || '') + '</div></div></div></div><div class="practice-answer-editor"><div class="section-header" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">💬</span><span class="font-bold text-gray-800">Ваш ответ</span></div><div class="flex items-center gap-2">' + (saveIndicatorText ? '<span class="save-indicator ' + saveIndicatorClass + '">' + saveIndicatorText + '</span>' : '') + '<div class="text-xs text-gray-600">' + practiceAnswers.length + ' материал(ов) добавлено</div></div></div><div class="mb-3"><div class="text-xs text-gray-600 mb-2 font-medium">Добавить ответ:</div><div class="flex flex-wrap gap-2"><button type="button" class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'text\')">📝 Текст</button><button type="button" class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'pdf\')">📕 PDF/DOC</button><button type="button" class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'image\')">🖼️ Фото</button><button type="button" class="answer-type-btn" onclick="addStudentAnswer(\'' + blockId + '\', \'' + p.id + '\', \'video\')"> Видео</button></div></div><div id="studentAnswers_' + blockId + '_' + p.id + '">' + answersHtml + '</div>' + (practiceAnswers.length === 0 && !hasUnsavedChanges ? '<div class="text-center py-4 text-gray-400 text-sm">Добавьте свой ответ с помощью кнопок выше</div>' : '') + '<div class="flex gap-2 mt-4 pt-4 border-t border-gray-200"><button type="button" class="btn-success flex-1" onclick="savePracticeAnswers(\'' + blockId + '\', \'' + p.id + '\')">💾 Сохранить ответ</button><button type="button" class="btn-secondary" onclick="clearPracticeAnswers(\'' + blockId + '\', \'' + p.id + '\')">🗑️ Очистить</button></div></div></div>';
+}
+
+function renderStudentAnswerItem(blockId, practiceId, a, ai) {
+  var icon = a.type === 'text' ? '📝' : a.type === 'pdf' ? '📕' : a.type === 'image' ? '🖼️' : '🎬';
+  var typeLabel = a.type === 'text' ? 'Текст' : a.type === 'pdf' ? 'PDF/DOC' : a.type === 'image' ? 'Изображение' : 'Видео';
+  var contentHtml = '';
+  if (a.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button type="button" class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button type="button" class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button type="button" class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button type="button" class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button type="button" class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button></div><div id="studentAnswerText_' + blockId + '_' + practiceId + '_' + ai + '" contenteditable="true" class="rich-editor p-3" style="min-height:80px" oninput="markUnsavedChanges(\'' + blockId + '\', \'' + practiceId + '\')">' + (a.content || '') + '</div></div>'; }
+  else if (a.type === 'pdf') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'studentAnswerPdf_' + blockId + '_' + practiceId + '_' + ai + '\').click()"><input type="file" id="studentAnswerPdf_' + blockId + '_' + practiceId + '_' + ai + '" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadStudentAnswerFile(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ', event)"><div class="text-gray-500 text-sm"> Нажмите для загрузки PDF/DOC</div></div>' + (a.fileName ? '<div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded"><span class="text-xl"></span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(a.fileName) + '</div><div class="text-xs text-gray-500">' + formatFileSize(a.size || 0) + '</div></div></div>' : '') + '</div>'; }
+  else if (a.type === 'image') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'studentAnswerImg_' + blockId + '_' + practiceId + '_' + ai + '\').click()"><input type="file" id="studentAnswerImg_' + blockId + '_' + practiceId + '_' + ai + '" accept="image/*" class="hidden" onchange="uploadStudentAnswerImage(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ', event)"><div class="text-gray-500 text-sm">🖼️ Нажмите для загрузки изображения</div></div>' + (a.dataUrl ? '<div class="mt-2"><img src="' + a.dataUrl + '" class="w-full h-32 object-cover rounded-lg"><input value="' + escAttr(a.caption || '') + '" oninput="updateStudentAnswerCaption(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ', this.value); markUnsavedChanges(\'' + blockId + '\', \'' + practiceId + '\')" placeholder="Подпись" class="w-full mt-2 border border-gray-200 rounded px-2 py-1 text-sm"></div>' : '') + '</div>'; }
+  else if (a.type === 'video') { contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео</label><input value="' + escAttr(a.videoUrl || '') + '" oninput="updateStudentAnswerVideo(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ', this.value); markUnsavedChanges(\'' + blockId + '\', \'' + practiceId + '\')" placeholder="https://..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (a.videoUrl ? '<div class="video-container mt-2"><video controls preload="metadata" src="' + a.videoUrl + '"></video></div>' : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>'; }
+  return '<div class="student-answer-item"><span class="text-lg">' + icon + '</span><div class="flex-1 min-w-0"><div class="text-xs font-medium text-gray-700 mb-1">' + typeLabel + '</div>' + contentHtml + '</div><button type="button" class="student-answer-item-remove" onclick="removeStudentAnswer(\'' + blockId + '\', \'' + practiceId + '\', ' + ai + ')" title="Удалить ответ" style="color:#dc2626;cursor:pointer;font-size:1.25rem;background:none;border:none;">✕</button></div>';
+}
+
+function addStudentAnswer(blockId, practiceId, type) {
+  var progress = DB.progress;
+  if (!progress[currentEmployee.id]) progress[currentEmployee.id] = {};
+  if (!progress[currentEmployee.id][currentCourse.id]) progress[currentEmployee.id][currentCourse.id] = {};
+  if (!progress[currentEmployee.id][currentCourse.id][blockId]) progress[currentEmployee.id][currentCourse.id][blockId] = { completed: false, practiceAnswers: {} };
+  if (!progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers) progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers = {};
+  if (!progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId]) progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId] = [];
+  var newAnswer = { id: 'sa_' + Date.now(), type: type, content: '', key: null, dataUrl: '', videoUrl: '', fileName: '', caption: '', size: 0 };
+  progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId].push(newAnswer);
+  DB.progress = progress;
+  markUnsavedChanges(blockId, practiceId);
+  refreshStudentPracticeForm(blockId, practiceId);
+}
+
+function removeStudentAnswer(blockId, practiceId, ai) {
+  if (!confirm('Удалить этот ответ?')) return;
+  var progress = DB.progress;
+  var answer = progress[currentEmployee.id]?.[currentCourse.id]?.[blockId]?.practiceAnswers?.[practiceId]?.[ai];
+  if (answer && answer.key) FileDB.delete(answer.key);
+  progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId].splice(ai, 1);
+  DB.progress = progress;
+  markUnsavedChanges(blockId, practiceId);
+  refreshStudentPracticeForm(blockId, practiceId);
+}
+
+function markUnsavedChanges(blockId, practiceId) {
+  unsavedChanges[blockId + '_' + practiceId] = true;
+  refreshStudentPracticeForm(blockId, practiceId);
+}
+
+function refreshStudentPracticeForm(blockId, practiceId) {
+  var container = document.getElementById('studentAnswers_' + blockId + '_' + practiceId);
+  if (!container) return;
+  var progress = DB.progress[currentEmployee.id]?.[currentCourse.id] || {};
+  var blockProgress = progress[blockId] || {};
+  var practiceAnswers = blockProgress.practiceAnswers?.[practiceId] || [];
+  var answersHtml = practiceAnswers.map(function(a, ai) { return renderStudentAnswerItem(blockId, practiceId, a, ai); }).join('');
+  container.innerHTML = answersHtml;
+  if (practiceAnswers.length === 0 && !unsavedChanges[blockId + '_' + practiceId]) { container.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Добавьте свой ответ с помощью кнопок выше</div>'; }
+  var sectionHeaders = document.querySelectorAll('.practice-answer-editor .section-header');
+  sectionHeaders.forEach(function(header) {
+    var countDiv = header.querySelector('.text-xs.text-gray-600');
+    if (countDiv) countDiv.textContent = practiceAnswers.length + ' материал(ов) добавлено';
+    var indicatorDiv = header.querySelector('.save-indicator');
+    if (indicatorDiv) {
+      var hasUnsaved = unsavedChanges[blockId + '_' + practiceId] || false;
+      indicatorDiv.className = 'save-indicator ' + (hasUnsaved ? 'unsaved' : (practiceAnswers.length > 0 ? 'saved' : ''));
+      indicatorDiv.textContent = hasUnsaved ? '⚠️ Есть несохранённые изменения' : (practiceAnswers.length > 0 ? '✅ Сохранено' : '');
+    }
+  });
+  bindStudentAnswerHandlers(blockId, practiceId);
+}
+
+function bindStudentAnswerHandlers(blockId, practiceId) {
+  document.querySelectorAll('[id^="studentAnswerText_' + blockId + '_' + practiceId + '_"]').forEach(function(el) {
+    el.oninput = function() {
+      var parts = el.id.replace('studentAnswerText_' + blockId + '_' + practiceId + '_', '').split('_');
+      var ai = parseInt(parts[0]);
+      var progress = DB.progress;
+      if (progress[currentEmployee.id]?.[currentCourse.id]?.[blockId]?.practiceAnswers?.[practiceId]?.[ai]) {
+        progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId][ai].content = el.innerHTML;
+        DB.progress = progress;
+        markUnsavedChanges(blockId, practiceId);
+      }
+    };
+  });
+}
+
+async function uploadStudentAnswerFile(blockId, practiceId, ai, event) {
+  var file = event.target.files[0]; if (!file) return;
+  var key = 'student_answer_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+  try {
+    await FileDB.put(key, file);
+    var progress = DB.progress;
+    var answer = progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId][ai];
+    answer.key = key; answer.fileName = file.name; answer.size = file.size; answer.type = 'pdf';
+    DB.progress = progress;
+    markUnsavedChanges(blockId, practiceId);
+    refreshStudentPracticeForm(blockId, practiceId);
+  } catch (err) { alert('Ошибка загрузки: ' + err.message); }
+}
+
+function uploadStudentAnswerImage(blockId, practiceId, ai, event) {
+  var file = event.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var progress = DB.progress;
+    var answer = progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId][ai];
+    answer.dataUrl = e.target.result; answer.type = 'image';
+    DB.progress = progress;
+    markUnsavedChanges(blockId, practiceId);
+    refreshStudentPracticeForm(blockId, practiceId);
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateStudentAnswerVideo(blockId, practiceId, ai, value) {
+  var progress = DB.progress;
+  var answer = progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId][ai];
+  answer.videoUrl = value; answer.type = 'video';
+  DB.progress = progress;
+  markUnsavedChanges(blockId, practiceId);
+}
+
+function updateStudentAnswerCaption(blockId, practiceId, ai, value) {
+  var progress = DB.progress;
+  var answer = progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId][ai];
+  answer.caption = value;
+  DB.progress = progress;
+  markUnsavedChanges(blockId, practiceId);
+}
+
+function savePracticeAnswers(blockId, practiceId) {
+  showSaveNotification('💾 Сохранение...', 'saving');
+  unsavedChanges[blockId + '_' + practiceId] = false;
+  setTimeout(() => {
+    refreshStudentPracticeForm(blockId, practiceId);
+    showSaveNotification('✅ Ответ успешно сохранён!', 'success');
+  }, 500);
+}
+
+function saveAllPracticeAnswers() {
+  showSaveNotification('💾 Сохранение всех ответов...', 'saving');
+  unsavedChanges = {};
+  setTimeout(() => { showSaveNotification('✅ Все ответы сохранены!', 'success'); }, 500);
+}
+
+function clearPracticeAnswers(blockId, practiceId) {
+  if (!confirm('Очистить все ответы на эту ситуацию?')) return;
+  var progress = DB.progress;
+  if (progress[currentEmployee.id]?.[currentCourse.id]?.[blockId]?.practiceAnswers?.[practiceId]) {
+    var answers = progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId];
+    answers.forEach(function(a) { if (a.key) FileDB.delete(a.key); });
+    progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId] = [];
+    DB.progress = progress;
+  }
+  unsavedChanges[blockId + '_' + practiceId] = false;
+  refreshStudentPracticeForm(blockId, practiceId);
+  showSaveNotification('🗑️ Ответы очищены', 'success');
+}
+
+function completeBlockWithoutQuiz(idx) {
+  var block = currentCourse.blocks[idx];
+  var progress = DB.progress;
+  if (!progress[currentEmployee.id]) progress[currentEmployee.id] = {};
+  if (!progress[currentEmployee.id][currentCourse.id]) progress[currentEmployee.id][currentCourse.id] = {};
+  var existingBlockProgress = progress[currentEmployee.id][currentCourse.id][block.id] || {};
+  progress[currentEmployee.id][currentCourse.id][block.id] = { completed: true, score: null, total: 0, at: Date.now(), practiceAnswers: existingBlockProgress.practiceAnswers || {} };
+  DB.progress = progress;
+  closeModal();
+  renderCourseBlocks();
+  updateCourseProgress();
+}
+
+function startQuiz(idx) {
+  var block = currentCourse.blocks[idx]; var answers = {};
+  function renderQ() { openModal('<div class="p-6"><div class="flex items-center justify-between mb-4"><div class="text-sm text-gray-500">Вопрос <span id="qNum">1</span> из ' + block.quiz.length + '</div></div><div id="quizBody"></div></div>'); renderQuestion(0); }
+  function renderQuestion(qIdx) {
+    if (qIdx >= block.quiz.length) {
+      var correct = 0; block.quiz.forEach(function(q, i) { if (answers[i] === q.correct) correct++; });
+      var total = block.quiz.length; var pct = Math.round((correct / total) * 100);
+      var progress = DB.progress;
+      if (!progress[currentEmployee.id]) progress[currentEmployee.id] = {};
+      if (!progress[currentEmployee.id][currentCourse.id]) progress[currentEmployee.id][currentCourse.id] = {};
+      var existingBlockProgress = progress[currentEmployee.id][currentCourse.id][block.id] || {};
+      progress[currentEmployee.id][currentCourse.id][block.id] = { completed: true, score: correct, total: total, percentage: pct, at: Date.now(), practiceAnswers: existingBlockProgress.practiceAnswers || {} };
+      DB.progress = progress;
+      var resultEmoji = pct >= 70 ? '🎉' : pct >= 40 ? '👍' : '📚';
+      var resultTitle = pct >= 70 ? 'Отличный результат!' : pct >= 40 ? 'Хорошо! Можно улучшить' : 'Пройдено. Рекомендуем повторить материал';
+      var resultColor = pct >= 70 ? 'text-green-700' : pct >= 40 ? 'text-yellow-700' : 'text-orange-700';
+      openModal('<div class="p-6 text-center"><div class="text-6xl mb-3">' + resultEmoji + '</div><h3 class="text-xl font-bold text-gray-800 mb-2">' + resultTitle + '</h3><div class="my-4"><div class="text-5xl font-bold ' + resultColor + '">' + correct + ' из ' + total + '</div><div class="text-sm text-gray-500 mt-1">Правильных ответов (' + pct + '%)</div></div><div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-gray-700">✅ Блок завершён. Вы можете перейти к следующему блоку курса.</div><div class="flex gap-2 justify-center"><button type="button" class="btn-primary" onclick="closeModal(); renderCourseBlocks(); updateCourseProgress();">Продолжить →</button></div></div>');
+      return;
+    }
+    var q = block.quiz[qIdx]; document.getElementById('qNum').textContent = qIdx + 1;
+    document.getElementById('quizBody').innerHTML = '<div class="mb-4"><div class="font-medium text-gray-800 mb-3">' + esc(q.q) + '</div><div class="space-y-2">' + q.options.map(function(opt, i) { return '<label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50"><input type="radio" name="q' + qIdx + '" value="' + i + '" class="w-4 h-4"><span class="text-sm text-gray-700">' + esc(opt) + '</span></label>'; }).join('') + '</div></div><div class="flex gap-2"><button type="button" id="btnNextQ" class="btn-primary flex-1">' + (qIdx === block.quiz.length - 1 ? 'Завершить' : 'Далее →') + '</button></div>';
+    document.getElementById('btnNextQ').onclick = function() { var sel = document.querySelector('input[name="q' + qIdx + '"]:checked'); if (!sel) return alert('Выберите ответ'); answers[qIdx] = parseInt(sel.value); renderQuestion(qIdx + 1); };
+  }
+  renderQ();
+}
+
+function uploadLogo(brand, event) { const file = event.target.files[0]; if (!file) return; const key = 'logo_' + brand + '_' + Date.now(); FileDB.put(key, file).then(function() { const settings = DB.settings; if (settings['logo' + brand.toUpperCase()]) FileDB.delete(settings['logo' + brand.toUpperCase()]); settings['logo' + brand.toUpperCase()] = key; DB.settings = settings; renderSettings(); }).catch(function(err) { alert('Ошибка загрузки: ' + err.message); }); }
+function removeLogo(brand) { const settings = DB.settings; if (settings['logo' + brand.toUpperCase()]) { FileDB.delete(settings['logo' + brand.toUpperCase()]); settings['logo' + brand.toUpperCase()] = null; DB.settings = settings; } renderSettings(); }
+
+function createFullCourse() {
+  return {
+    id: 'course_vm_full', title: 'Визуальный мерчендайзинг: от основ к мастерству',
+    description: 'Полный курс по оформлению торгового пространства на основе мерчбуков Basconi и Vitacci',
+    duration: '45 мин', icon: '👠', coverKey: null, attachments: [], createdAt: Date.now(),
+    blocks: [
+      {
+        id: 'b1', title: 'Блок 1: Основы визуального мерчендайзинга', icon: '🎯',
+        videoUrl: '', videoKey: null,
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">Что такое визуальный мерчендайзинг?</h4><p class="text-sm text-gray-700 mb-3">Визуальный мерчендайзинг — это наука оформления торгового пространства, основанная на знаниях психологии человека, рекламы и маркетинга, направленная на создание привлекательной и эффективной среды для стимулирования продаж и улучшения восприятия бренда.</p>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2"> 4 ключевые функции ВМ:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li><b>Демонстрировать продукцию самым выгодным образом</b></li><li><b>Обеспечить покупателям наилучший выбор</b></li><li><b>Фокусировать внимание на конкретных продуктах</b> — "золотая полка" (1,2м-1,7м)</li><li><b>Использовать площадь максимально эффективно</b></li></ul>' },
+          { id: 'tb3', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🗺️ Зоны магазина:</h4><div class="grid grid-cols-3 gap-2 text-xs mb-3"><div class="bg-red-50 p-2 rounded border-l-4 border-red-500"><b class="text-red-700">Горячая зона</b><br>Входная часть, хиты продаж</div><div class="bg-yellow-50 p-2 rounded border-l-4 border-yellow-500"><b class="text-yellow-700">Теплая зона</b><br>Центр ТЗ, зона кассы</div><div class="bg-blue-50 p-2 rounded border-l-4 border-blue-500"><b class="text-blue-700">Холодная зона</b><br>Дальняя часть, распродажа</div></div>' },
+          { id: 'tb4', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">👟 Базовые правила выкладки:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li><b>Правые полупарки:</b> женский 37, мужской 41</li><li><b>Предпродажная подготовка:</b> снять бумагу, убрать набивку</li><li><b>Шахматная выкладка:</b> параллельно-перпендикулярная</li></ul>' }
+        ],
+        practice: [
+          { id: 'p1', title: 'Ситуация 1', description: 'На полке выставлена обувь в ряд без шахматного расположения', question: 'Какое правило визуального мерчендайзинга нарушено? Как должно быть расположено обувь согласно стандартам Basconi?', answers: [] },
+          { id: 'p2', title: 'Ситуация 2', description: 'Сапоги размещены на верхней полке вместо нижней', question: 'Какие правила размещения обуви на полках нарушены? Почему сапоги должны размещаться на нижних полках?', answers: [] },
+          { id: 'p3', title: 'Ситуация 3', description: 'В витрине представлена только одна пара обуви на модель', question: 'Какие стандарты оформления витрин нарушены? Сколько пар обуви должно быть представлено на одну модель в витрине?', answers: [] }
+        ],
+        quiz: [
+          { q: 'Какие размеры правых полупарок выставляются по умолчанию?', options: ['Женский 36, мужской 40', 'Женский 37, мужской 41', 'Женский 38, мужской 42', 'Женский 39, мужской 43'], correct: 1 },
+          { q: 'Что необходимо сделать с обувью перед выкладкой?', options: ['Снять упаковочную бумагу и набивку', 'Натереть воском', 'Проверить размеры', 'Все вышеперечисленное'], correct: 0 },
+          { q: 'Какое расположение моделей на полке правильное?', options: ['В ряд', 'В шахматном порядке', 'По высоте каблука', 'По цвету'], correct: 1 },
+          { q: 'Что такое "золотая полка"?', options: ['Полка у кассы', 'Полка с дорогими товарами', 'Полка на уровне глаз (1,2м-1,7м)', 'Полка с акциями'], correct: 2 }
+        ]
+      },
+      {
+        id: 'b2', title: 'Блок 2: Сезонные стратегии и зонирование', icon: '🗓️',
+        videoUrl: '', videoKey: null,
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">👥 Гендерное зонирование:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Магазин делится на женскую (70% площади) и мужскую зоны</li><li>При 2+ витринах — делить по гендерному признаку</li><li>При одной витрине — предпочтение женскому ассортименту</li></ul>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎨 Стилевые группы:</h4><div class="grid grid-cols-3 gap-2 text-xs mb-3"><div class="bg-purple-50 p-2 rounded"><b class="text-purple-700">Classic</b><br>Туфли, лоферы, ботинки на тонкой подошве</div><div class="bg-green-50 p-2 rounded"><b class="text-green-700">Casual</b><br>Ботинки, казаки, сапоги кэжуал</div><div class="bg-blue-50 p-2 rounded"><b class="text-blue-700">Sport/Active</b><br>Кеды и кроссовки</div></div>' },
+          { id: 'tb3', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎨 Капсульная выкладка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Максимум 3 оттенка в капсуле</li><li>От светлого к темному слева направо и снизу вверх</li><li>Товары одного цвета — по диагонали на двух соседних полках</li></ul>' }
+        ],
+        practice: [
+          { id: 'p1', title: 'Ситуация 1', description: 'Перед вами схема магазина с указанием горячих, теплых и холодных зон', question: 'Распределите товары по зонам.', answers: [] }
+        ],
+        quiz: [
+          { q: 'Как распределить витрины при наличии двух?', options: ['Обе женские', 'Обе мужские', 'По гендерному признаку', 'Чередовать'], correct: 2 },
+          { q: 'Максимум цветов в капсульной выкладке?', options: ['1', '2', '3', '4'], correct: 2 },
+          { q: 'Как выставлять обувь по цвету?', options: ['От темного к светлому', 'От светлого к темному слева направо и снизу вверх', 'Случайно', 'Черное рядом с белым'], correct: 1 },
+          { q: 'Какой процент площади занимает женская зона?', options: ['50%', '60%', '70%', '80%'], correct: 2 }
+        ]
+      },
+      {
+        id: 'b3', title: 'Блок 3: Презентационные зоны и витрины', icon: '',
+        videoUrl: '', videoKey: null,
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🪟 Витрины:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Чистая, аккуратная, привлекательная</li><li>Не более 3 оттенков на одной витрине</li><li>На верхние полки — классика, на нижние — кэжуал</li><li>Минимум 2 пары на модель в витрине</li><li>Обновление — не реже 1 раза в 2 недели</li></ul>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎯 Презентационный стол:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700 mb-3"><li>Это "внутренняя витрина" магазина</li><li>Выкладка — целостная гармоничная история</li><li>Обновление каждые 2 недели</li></ul><h4 class="font-bold text-gray-800 mb-2">⚡ Зона импульсного спроса:</h4><p class="text-sm text-gray-700">Прикассовая, кассовая и закассовая зона. Принцип: "Увидел — купил!"</p>' }
+        ],
+        practice: [
+          { id: 'p1', title: 'Ситуация 1', description: 'Фото витрины с единственной парой обуви на модель', question: 'Какое правило оформления витрины нарушено?', answers: [] }
+        ],
+        quiz: [
+          { q: 'Сколько пар обуви на модель в витрине?', options: ['Не менее 1', 'Не менее 2', 'Не менее 3', 'Не менее 4'], correct: 1 },
+          { q: 'Как часто обновлять витрину?', options: ['Каждые 3 дня', 'Каждую неделю', 'Каждые две недели', 'Каждый месяц'], correct: 2 },
+          { q: 'Что такое "зона импульсного спроса"?', options: ['Входная группа', 'Презентационный стол', 'Прикассовая, кассовая и закассовая зона', 'Дальние ниши'], correct: 2 }
+        ]
+      },
+      {
+        id: 'b4', title: 'Блок 4: Ротация и поддержание стандартов', icon: '',
+        videoUrl: '', videoKey: null,
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🔄 Типы ротации:</h4><div class="space-y-2 mb-3"><div class="bg-rose-50 p-3 rounded-lg border-l-4 border-vitacci"><b class="text-vitacci">Частичная ротация</b><p class="text-sm text-gray-700">Каждые 2 недели. Обновление витрин и презентационного стола.</p></div><div class="bg-amber-50 p-3 rounded-lg border-l-4 border-amber-500"><b class="text-amber-700">Межсезонная ротация</b><p class="text-sm text-gray-700">При смене сезонов ОЗ/ВЛ. Перегруппировка всего ассортимента.</p></div><div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500"><b class="text-blue-700">Глобальная ротация</b><p class="text-sm text-gray-700">1-2 раза в год. Полная перестановка оборудования.</p></div></div>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">✅ Ежедневная проверка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Освещение — все лампы рабочие</li><li>Выкладка — шахматная, по цвету</li><li>POS-материалы — на уровне глаз</li></ul>' }
+        ],
+        practice: [
+          { id: 'p1', title: 'Ситуация 1', description: 'Сегодня 15 ноября, начало зимнего сезона, поступила новая коллекция ОЗ', question: 'Какую ротацию необходимо провести?', answers: [] }
+        ],
+        quiz: [
+          { q: 'Какие виды ротации выделяются?', options: ['Частичная, межсезонная, глобальная', 'Ежедневная, еженедельная', 'По моделям, цветам', 'Плановая, внеплановая'], correct: 0 },
+          { q: 'Что такое "золотая полка"?', options: ['Полка у кассы', 'Полка с дорогими товарами', 'Полка на уровне глаз покупателя', 'Полка с акциями'], correct: 2 },
+          { q: 'Где размещать несезонную обувь?', options: ['У входа', 'В горячих зонах', 'В холодных зонах', 'На презентационном столе'], correct: 2 }
+        ]
+      },
+      {
+        id: 'b5', title: 'Блок 5: Интеграция знаний и практика', icon: '🏆',
+        videoUrl: '', videoKey: null,
+        theoryBlocks: [
+          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">📈 Связь ВМ с продажами:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Правильная выкладка увеличивает продажи на 20-30%</li><li>Витрина увеличивает трафик на 25-30%</li><li>Золотая полка — высота 1,2м до 1,7м</li></ul>' },
+          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">⚠️ Типичные ошибки:</h4><div class="space-y-2 mb-3"><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700">❌ Ошибка 1: Неправильное зонирование</b><p class="text-sm text-gray-700">Мужская обувь у входа.<br><b class="text-green-700">✅ Решение:</b> женская зона 70% площади, ближе к входу</p></div><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700">❌ Ошибка 2: Нарушение шахматной выкладки</b><p class="text-sm text-gray-700">Обувь в ряд.<br><b class="text-green-700">✅ Решение:</b> шахматный порядок</p></div></div>' }
+        ],
+        practice: [
+          { id: 'p1', title: 'Финальная ситуация', description: 'Перед вами фото торгового зала', question: 'Проведите полный аудит выкладки', answers: [] }
+        ],
+        quiz: [
+          { q: 'Какая зона называется "зоной импульсного спроса"?', options: ['Входная группа', 'Презентационный стол', 'Прикассовая, кассовая и закассовая зона', 'Дальние ниши'], correct: 2 },
+          { q: 'Что такое капсульная выкладка?', options: ['По размерам', 'Взаимозаменяемые предметы, сочетающиеся по цвету, фактуре и стилю', 'Только продаваемые модели', 'От дешевого к дорогому'], correct: 1 },
+          { q: 'Какие три стиля группировки обуви?', options: ['Formal, Business, Sport', 'Classic, Casual, Sport', 'Elegant, Simple, Active', 'Luxury, Basic, Trendy'], correct: 1 },
+          { q: 'Что НЕ относится к функциям ВМ?', options: ['Демонстрировать продукцию', 'Обеспечить выбор', 'Фокусировать внимание', 'Увеличивать цены'], correct: 3 }
+        ]
+      }
+    ]
+  };
+}
+
+function openCourseEditor(courseId) {
+   try {
+    let course, isNew = false;
+    if (courseId) { const found = DB.courses.find(c => c.id === courseId); if (!found) { alert('Курс не найден'); return; } course = JSON.parse(JSON.stringify(found)); }
+    else { isNew = true; course = { id: 'course_' + Date.now(), title: '', description: '', duration: '15 мин', icon: '📚', coverKey: null, attachments: [], createdAt: Date.now(), blocks: [] }; }
+    course.blocks.forEach(b => { if (b.theory && !b.theoryBlocks) b.theoryBlocks = [{ id: 'tb_' + Date.now(), type: 'text', content: b.theory }]; if (!b.theoryBlocks) b.theoryBlocks = []; if (!b.practice) b.practice = []; });
+    editorState = { course: course, isNew: isNew, activeBlockIdx: course.blocks.length > 0 ? 0 : -1, coverUrl: '', blockVideoUrls: {} };
+    renderCourseEditor();
+  } catch (err) { alert('Ошибка: ' + err.message); }
+}
+
+function renderCourseEditor() {
+  if (!editorState) return;
+  var c = editorState.course, isNew = editorState.isNew;
+  var blocksListHtml = c.blocks.map(function(b, i) {
+    var isActive = editorState.activeBlockIdx === i;
+    var theoryCount = (b.theoryBlocks || []).length; var practiceCount = (b.practice || []).length;
+    return '<div onclick="selectBlock(' + i + ')" class="editor-block ' + (isActive ? 'active' : '') + ' p-3 rounded-lg cursor-pointer hover:bg-gray-50 flex items-center gap-3"><span class="text-2xl">' + (b.icon || '📖') + '</span><div class="flex-1 min-w-0"><div class="font-medium text-sm text-gray-800 truncate">' + esc(b.title || 'Без названия') + '</div><div class="text-xs text-gray-500">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' · 📝 ' + (b.quiz?.length || 0) + '</div></div><div class="flex gap-1"><button type="button" onclick="event.stopPropagation(); moveBlock(' + i + ', -1)" class="btn-ghost text-xs" ' + (i === 0 ? 'disabled' : '') + '>↑</button><button type="button" onclick="event.stopPropagation(); moveBlock(' + i + ', 1)" class="btn-ghost text-xs" ' + (i === c.blocks.length - 1 ? 'disabled' : '') + '>↓</button><button type="button" onclick="event.stopPropagation(); deleteBlock(' + i + ')" class="btn-ghost text-xs" style="color:#dc2626">✕</button></div></div>';
+  }).join('');
+  var activeBlock = editorState.activeBlockIdx >= 0 ? c.blocks[editorState.activeBlockIdx] : null;
+  var blockEditorHtml = '';
+  if (activeBlock) {
+    var videoSrc = activeBlock.videoUrl || '';
+    var theoryBlocksHtml = (activeBlock.theoryBlocks || []).map(function(tb, tbi) { return renderTheoryBlock(tb, tbi); }).join('');
+    var practiceHtml = (activeBlock.practice || []).map(function(p, pi) { return renderPracticeSituation(p, pi); }).join('');
+    var quizHtml = (activeBlock.quiz || []).map(function(q, qi) {
+      return '<div class="border border-gray-200 rounded-xl p-3"><div class="flex items-center justify-between mb-2"><span class="text-xs font-medium text-gray-500">Вопрос ' + (qi + 1) + '</span><button type="button" class="text-red-500 text-xs hover:underline" onclick="removeQuizQuestion(' + qi + ')">Удалить</button></div><input value="' + escAttr(q.q) + '" oninput="updateQuizQ(' + qi + ', this.value)" placeholder="Текст вопроса" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2"><div class="space-y-1.5">' + q.options.map(function(opt, oi) {
+        return '<div class="flex items-center gap-2"><input type="radio" name="quiz' + qi + '" ' + (q.correct === oi ? 'checked' : '') + ' onchange="setQuizCorrect(' + qi + ', ' + oi + ')" class="w-4 h-4"><input value="' + escAttr(opt) + '" oninput="updateQuizOption(' + qi + ', ' + oi + ', this.value)" placeholder="Вариант ' + (oi + 1) + '" class="flex-1 border border-gray-200 rounded px-2 py-1 text-sm"><button type="button" class="text-red-400 text-xs" onclick="removeQuizOption(' + qi + ', ' + oi + ')">✕</button></div>';
+      }).join('') + '</div><button type="button" class="text-xs text-vitacci hover:underline mt-2" onclick="addQuizOption(' + qi + ')">+ Вариант ответа</button></div>';
+    }).join('');
+    blockEditorHtml = '<div class="space-y-4"><div class="grid grid-cols-2 gap-3"><div><label class="text-sm text-gray-600">Название блока</label><input id="blockTitle" value="' + escAttr(activeBlock.title) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div><div><label class="text-sm text-gray-600">Иконка</label><input id="blockIcon" value="' + escAttr(activeBlock.icon || '') + '" maxlength="2" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div></div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-rose-50 to-white"><div class="section-header"><div class="flex items-center gap-2"><span class="text-xl"></span><div><div class="font-bold text-gray-800">Теория</div><div class="text-xs text-gray-500">' + (activeBlock.theoryBlocks?.length || 0) + ' блоков контента</div></div></div></div><div class="flex flex-wrap gap-2 mb-3"><button type="button" class="theory-type-btn" onclick="addTheoryBlock(\'text\')"> Текстовый блок</button><button type="button" class="theory-type-btn" onclick="addTheoryBlock(\'pdf\')">📕 PDF документ</button><button type="button" class="theory-type-btn" onclick="addTheoryBlock(\'image\')">️ Изображение</button><button type="button" class="theory-type-btn" onclick="addTheoryBlock(\'video\')">🎬 Видео</button></div><div id="theoryBlocksContainer">' + theoryBlocksHtml + '</div>' + (activeBlock.theoryBlocks?.length === 0 ? '<div class="text-center py-6 text-gray-400 text-sm">Добавьте блоки теории</div>' : '') + '</div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-green-50 to-white"><div class="section-header" style="border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><div><div class="font-bold text-gray-800">Практика</div><div class="text-xs text-gray-500">' + (activeBlock.practice?.length || 0) + ' ситуаций</div></div></div></div><button type="button" class="btn-primary mb-3" onclick="addPracticeSituation()">+ Добавить ситуацию</button><div id="practiceContainer">' + practiceHtml + '</div>' + (activeBlock.practice?.length === 0 ? '<div class="text-center py-6 text-gray-400 text-sm">Добавьте практические ситуации</div>' : '') + '</div><div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-br from-blue-50 to-white"><div class="section-header" style="border-left-color: #3b82f6;"><div class="flex items-center gap-2"><span class="text-xl">📝</span><div><div class="font-bold text-gray-800">Тест</div><div class="text-xs text-gray-500">' + (activeBlock.quiz?.length || 0) + ' вопросов</div></div></div></div><button type="button" class="btn-primary mb-3" onclick="addQuizQuestion()">+ Добавить вопрос</button><div class="space-y-3">' + quizHtml + '</div></div></div>';
+  } else { blockEditorHtml = '<div class="text-center py-16 text-gray-400"><div class="text-5xl mb-3">📚</div><div>Выберите блок слева или создайте новый</div></div>'; }
+  var html = '<div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-wrap gap-3 z-10"><div class="flex items-center gap-3"><button type="button" class="btn-ghost text-xl" onclick="closeModal()">←</button><h3 class="text-xl font-bold text-gray-800">' + (isNew ? 'Новый курс' : 'Редактирование курса') + '</h3></div><div class="flex gap-2"><button type="button" class="btn-primary" onclick="saveCourse()">💾 Сохранить</button></div></div><div class="p-6"><div class="bg-gradient-to-br from-rose-50 to-stone-50 rounded-2xl p-5 mb-6"><h4 class="font-bold text-gray-800 mb-3">📋 Основная информация</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-3"><div class="md:col-span-2"><label class="text-sm text-gray-600">Название курса</label><input id="courseTitle" value="' + escAttr(c.title) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div><div class="md:col-span-2"><label class="text-sm text-gray-600">Описание</label><textarea id="courseDesc" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white" rows="2">' + esc(c.description || '') + '</textarea></div><div><label class="text-sm text-gray-600">Длительность</label><input id="courseDur" value="' + escAttr(c.duration) + '" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div><div><label class="text-sm text-gray-600">Иконка</label><input id="courseIcon" value="' + escAttr(c.icon || '📚') + '" maxlength="2" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 bg-white"></div></div></div><div><div class="flex items-center justify-between mb-3"><h4 class="font-bold text-gray-800">📖 Блоки курса</h4><button type="button" class="btn-primary" onclick="addBlock()">+ Добавить блок</button></div><div class="grid grid-cols-1 lg:grid-cols-3 gap-4"><div class="lg:col-span-1 bg-white border border-gray-200 rounded-2xl p-3"><div class="space-y-2">' + (blocksListHtml || '<div class="text-center py-8 text-gray-400 text-sm">Нет блоков</div>') + '</div></div><div class="lg:col-span-2 bg-white border border-gray-200 rounded-2xl p-5">' + blockEditorHtml + '</div></div></div></div>';
+  openModal(html); bindEditorFieldEvents();
+}
+
+function renderTheoryBlock(tb, tbi) {
+  var icon = tb.type === 'text' ? '📝' : tb.type === 'pdf' ? '📕' : tb.type === 'image' ? '🖼️' : '🎬';
+  var typeLabel = tb.type === 'text' ? 'Текст' : tb.type === 'pdf' ? 'PDF' : tb.type === 'image' ? 'Изображение' : 'Видео';
+  var contentHtml = '';
+  if (tb.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button type="button" class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button type="button" class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button type="button" class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button type="button" class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button type="button" class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button><span class="w-px bg-gray-300 mx-1"></span><button type="button" class="toolbar-btn" onclick="execHeading(\'h4\')">H4</button><button type="button" class="toolbar-btn" onclick="execHeading(\'p\')">P</button></div><div id="theoryText_' + tbi + '" contenteditable="true" class="rich-editor p-3" style="min-height:100px">' + (tb.content || '') + '</div></div>'; }
+  else if (tb.type === 'pdf') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'theoryPdf_' + tbi + '\').click()"><input type="file" id="theoryPdf_' + tbi + '" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadTheoryFile(' + tbi + ', event)"><div class="text-gray-500 text-sm">📕 Нажмите для загрузки PDF/DOC</div></div>' + (tb.fileName ? '<div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded"><span class="text-xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName) + '</div></div></div>' : '') + '</div>'; }
+  else if (tb.type === 'image') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'theoryImg_' + tbi + '\').click()"><input type="file" id="theoryImg_' + tbi + '" accept="image/*" class="hidden" onchange="uploadTheoryImage(' + tbi + ', event)"><div class="text-gray-500 text-sm">🖼️ Нажмите для загрузки изображения</div></div>' + (tb.dataUrl ? '<div class="mt-2"><img src="' + tb.dataUrl + '" class="w-full h-40 object-cover rounded-lg"><input value="' + escAttr(tb.caption || '') + '" oninput="updateTheoryCaption(' + tbi + ', this.value)" placeholder="Подпись к изображению" class="w-full mt-2 border border-gray-200 rounded px-2 py-1 text-sm"></div>' : '') + '</div>'; }
+  else if (tb.type === 'video') { contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео</label><input value="' + escAttr(tb.videoUrl || '') + '" oninput="updateTheoryVideo(' + tbi + ', this.value)" placeholder="https://..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (tb.videoUrl ? '<div class="video-container mt-2"><video controls preload="metadata" src="' + tb.videoUrl + '"></video></div>' : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>'; }
+  return '<div class="content-block"><button type="button" class="remove-btn btn-danger" onclick="removeTheoryBlock(' + tbi + ')">✕</button><div class="flex items-center gap-2 mb-2"><span class="text-xl">' + icon + '</span><span class="text-sm font-medium text-gray-700">' + typeLabel + '</span></div>' + contentHtml + '</div>';
+}
+
+function renderPracticeSituation(p, pi) {
+  var answersHtml = (p.answers || []).map(function(a, ai) { return renderAnswerItem(a, pi, ai); }).join('');
+  return '<div class="practice-card"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><div><input value="' + escAttr(p.title || '') + '" oninput="updatePracticeTitle(' + pi + ', this.value)" placeholder="Название ситуации" class="font-bold text-gray-800 border-b border-transparent hover:border-gray-300 focus:border-vitacci bg-transparent px-1 py-0.5 text-sm"></div></div><button type="button" class="btn-danger" onclick="removePracticeSituation(' + pi + ')">✕ Удалить</button></div><div class="space-y-2 mb-3"><div><label class="text-xs text-gray-500">Описание ситуации</label><textarea oninput="updatePracticeDesc(' + pi + ', this.value)" placeholder="Описание ситуации..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm" rows="2">' + esc(p.description || '') + '</textarea></div><div><label class="text-xs text-gray-500">Вопрос к ситуации</label><textarea oninput="updatePracticeQuestion(' + pi + ', this.value)" placeholder="Вопрос..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm" rows="2">' + esc(p.question || '') + '</textarea></div></div><div class="border-t border-gray-200 pt-3"><div class="flex items-center justify-between mb-2"><label class="text-xs font-medium text-gray-700">Ответы/Материалы от администратора (опционально)</label><div class="flex flex-wrap gap-1"><button type="button" class="theory-type-btn btn-sm" onclick="addPracticeAnswer(' + pi + ', \'text\')">📝 Текст</button><button type="button" class="theory-type-btn btn-sm" onclick="addPracticeAnswer(' + pi + ', \'pdf\')">📕 PDF</button><button type="button" class="theory-type-btn btn-sm" onclick="addPracticeAnswer(' + pi + ', \'image\')">🖼️ Фото</button><button type="button" class="theory-type-btn btn-sm" onclick="addPracticeAnswer(' + pi + ', \'video\')">🎬 Видео</button></div></div><div id="answers_' + pi + '">' + answersHtml + '</div>' + (p.answers?.length === 0 ? '<div class="text-center py-3 text-gray-400 text-xs">Добавьте ответы-подсказки с помощью кнопок выше (опционально)</div>' : '') + '</div></div>';
+}
+
+function renderAnswerItem(a, pi, ai) {
+  var icon = a.type === 'text' ? '📝' : a.type === 'pdf' ? '📕' : a.type === 'image' ? '🖼️' : '🎬';
+  var typeLabel = a.type === 'text' ? 'Текст' : a.type === 'pdf' ? 'PDF' : a.type === 'image' ? 'Изображение' : 'Видео';
+  var contentHtml = '';
+  if (a.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button type="button" class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button type="button" class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button type="button" class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button type="button" class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button type="button" class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button></div><div id="answerText_' + pi + '_' + ai + '" contenteditable="true" class="rich-editor p-3" style="min-height:80px">' + (a.content || '') + '</div></div>'; }
+  else if (a.type === 'pdf') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'answerPdf_' + pi + '_' + ai + '\').click()"><input type="file" id="answerPdf_' + pi + '_' + ai + '" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadAnswerFile(' + pi + ', ' + ai + ', event)"><div class="text-gray-500 text-sm">📕 Нажмите для загрузки PDF/DOC</div></div>' + (a.fileName ? '<div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded"><span class="text-xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(a.fileName) + '</div></div></div>' : '') + '</div>'; }
+  else if (a.type === 'image') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'answerImg_' + pi + '_' + ai + '\').click()"><input type="file" id="answerImg_' + pi + '_' + ai + '" accept="image/*" class="hidden" onchange="uploadAnswerImage(' + pi + ', ' + ai + ', event)"><div class="text-gray-500 text-sm">🖼️ Нажмите для загрузки изображения</div></div>' + (a.dataUrl ? '<div class="mt-2"><img src="' + a.dataUrl + '" class="w-full h-32 object-cover rounded-lg"><input value="' + escAttr(a.caption || '') + '" oninput="updateAnswerCaption(' + pi + ', ' + ai + ', this.value)" placeholder="Подпись" class="w-full mt-2 border border-gray-200 rounded px-2 py-1 text-sm"></div>' : '') + '</div>'; }
+  else if (a.type === 'video') { contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео</label><input value="' + escAttr(a.videoUrl || '') + '" oninput="updateAnswerVideo(' + pi + ', ' + ai + ', this.value)" placeholder="https://..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (a.videoUrl ? '<div class="video-container mt-2"><video controls preload="metadata" src="' + a.videoUrl + '"></video></div>' : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>'; }
+  return '<div class="answer-item"><span class="text-lg">' + icon + '</span><div class="flex-1 min-w-0"><div class="text-xs font-medium text-gray-700">' + typeLabel + '</div>' + contentHtml + '</div><button type="button" class="btn-danger" onclick="removePracticeAnswer(' + pi + ', ' + ai + ')">✕</button></div>';
+}
+
+function bindEditorFieldEvents() {
+  var mc = document.getElementById('modalContent');
+  var courseTitle = mc.querySelector('#courseTitle'); var courseDesc = mc.querySelector('#courseDesc'); var courseDur = mc.querySelector('#courseDur'); var courseIcon = mc.querySelector('#courseIcon');
+  if (courseTitle) courseTitle.oninput = function() { editorState.course.title = courseTitle.value; };
+  if (courseDesc) courseDesc.oninput = function() { editorState.course.description = courseDesc.value; };
+  if (courseDur) courseDur.oninput = function() { editorState.course.duration = courseDur.value; };
+  if (courseIcon) courseIcon.oninput = function() { editorState.course.icon = courseIcon.value; };
+  var blockTitle = mc.querySelector('#blockTitle'); var blockIcon = mc.querySelector('#blockIcon');
+  if (blockTitle) blockTitle.oninput = function() { if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].title = blockTitle.value; };
+  if (blockIcon) blockIcon.oninput = function() { if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].icon = blockIcon.value; };
+  document.querySelectorAll('[id^="theoryText_"]').forEach(function(el) { el.oninput = function() { var tbi = parseInt(el.id.replace('theoryText_', '')); if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].theoryBlocks[tbi].content = el.innerHTML; }; });
+  document.querySelectorAll('[id^="answerText_"]').forEach(function(el) { el.oninput = function() { var parts = el.id.replace('answerText_', '').split('_'); var pi = parseInt(parts[0]), ai = parseInt(parts[1]); if (editorState.activeBlockIdx >= 0) editorState.course.blocks[editorState.activeBlockIdx].practice[pi].answers[ai].content = el.innerHTML; }; });
+}
+
+function selectBlock(i) { editorState.activeBlockIdx = i; renderCourseEditor(); }
+function addBlock() { var c = editorState.course; c.blocks.push({ id: 'b_' + Date.now(), title: 'Новый блок', icon: '📖', videoUrl: '', videoKey: null, theoryBlocks: [], practice: [], quiz: [] }); editorState.activeBlockIdx = c.blocks.length - 1; renderCourseEditor(); }
+function deleteBlock(i) { if (!confirm('Удалить блок?')) return; var c = editorState.course; c.blocks.splice(i, 1); if (editorState.activeBlockIdx >= c.blocks.length) editorState.activeBlockIdx = c.blocks.length - 1; renderCourseEditor(); }
+function moveBlock(i, dir) { var c = editorState.course; var j = i + dir; if (j < 0 || j >= c.blocks.length) return; var tmp = c.blocks[i]; c.blocks[i] = c.blocks[j]; c.blocks[j] = tmp; if (editorState.activeBlockIdx === i) editorState.activeBlockIdx = j; else if (editorState.activeBlockIdx === j) editorState.activeBlockIdx = i; renderCourseEditor(); }
+function clearBlockVideo() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (block.videoKey) { FileDB.delete(block.videoKey); block.videoKey = null; } block.videoUrl = ''; renderCourseEditor(); }
+function addTheoryBlock(type) { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.theoryBlocks) block.theoryBlocks = []; var newBlock = { id: 'tb_' + Date.now(), type: type, content: '', key: null, dataUrl: '', videoUrl: '', fileName: '', caption: '' }; block.theoryBlocks.push(newBlock); renderCourseEditor(); }
+function removeTheoryBlock(tbi) { var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; if (tb.key) FileDB.delete(tb.key); block.theoryBlocks.splice(tbi, 1); renderCourseEditor(); }
+function uploadTheoryFile(tbi, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; var key = 'theory_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8); FileDB.put(key, file).then(function() { tb.key = key; tb.fileName = file.name; tb.type = 'pdf'; renderCourseEditor(); }).catch(function(err) { alert('Ошибка загрузки: ' + err.message); }); }
+function uploadTheoryImage(tbi, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; var reader = new FileReader(); reader.onload = function(e) { tb.dataUrl = e.target.result; tb.type = 'image'; renderCourseEditor(); }; reader.readAsDataURL(file); }
+function updateTheoryVideo(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].videoUrl = value; block.theoryBlocks[tbi].type = 'video'; }
+function updateTheoryCaption(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].caption = value; }
+function addPracticeSituation() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.practice) block.practice = []; block.practice.push({ id: 'p_' + Date.now(), title: 'Новая ситуация', description: '', question: '', answers: [] }); renderCourseEditor(); }
+function removePracticeSituation(pi) { if (!confirm('Удалить ситуацию?')) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; block.practice.splice(pi, 1); renderCourseEditor(); }
+function updatePracticeTitle(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].title = value; }
+function updatePracticeDesc(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].description = value; }
+function updatePracticeQuestion(pi, value) { editorState.course.blocks[editorState.activeBlockIdx].practice[pi].question = value; }
+function addPracticeAnswer(pi, type) { var block = editorState.course.blocks[editorState.activeBlockIdx]; var practice = block.practice[pi]; if (!practice.answers) practice.answers = []; practice.answers.push({ id: 'a_' + Date.now(), type: type, content: '', key: null, dataUrl: '', videoUrl: '', fileName: '', caption: '' }); renderCourseEditor(); }
+function removePracticeAnswer(pi, ai) { var block = editorState.course.blocks[editorState.activeBlockIdx]; var answer = block.practice[pi].answers[ai]; if (answer.key) FileDB.delete(answer.key); block.practice[pi].answers.splice(ai, 1); renderCourseEditor(); }
+function uploadAnswerFile(pi, ai, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var answer = block.practice[pi].answers[ai]; var key = 'answer_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8); FileDB.put(key, file).then(function() { answer.key = key; answer.fileName = file.name; answer.type = 'pdf'; renderCourseEditor(); }).catch(function(err) { alert('Ошибка загрузки: ' + err.message); }); }
+function uploadAnswerImage(pi, ai, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var answer = block.practice[pi].answers[ai]; var reader = new FileReader(); reader.onload = function(e) { answer.dataUrl = e.target.result; answer.type = 'image'; renderCourseEditor(); }; reader.readAsDataURL(file); }
+function updateAnswerVideo(pi, ai, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.practice[pi].answers[ai].videoUrl = value; block.practice[pi].answers[ai].type = 'video'; }
+function updateAnswerCaption(pi, ai, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.practice[pi].answers[ai].caption = value; }
+function addQuizQuestion() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.quiz) block.quiz = []; block.quiz.push({ q: '', options: ['', ''], correct: 0 }); renderCourseEditor(); }
+function removeQuizQuestion(i) { editorState.course.blocks[editorState.activeBlockIdx].quiz.splice(i, 1); renderCourseEditor(); }
+function updateQuizQ(qi, value) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].q = value; }
+function updateQuizOption(qi, oi, value) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].options[oi] = value; }
+function addQuizOption(qi) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].options.push(''); renderCourseEditor(); }
+function removeQuizOption(qi, oi) { var q = editorState.course.blocks[editorState.activeBlockIdx].quiz[qi]; if (q.options.length <= 2) return alert('Минимум 2 варианта'); q.options.splice(oi, 1); if (q.correct >= q.options.length) q.correct = 0; renderCourseEditor(); }
+function setQuizCorrect(qi, oi) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].correct = oi; }
+function execCmd(cmd) { document.execCommand(cmd, false, null); }
+function execHeading(tag) { document.execCommand('formatBlock', false, tag); }
+function saveCourse() { var c = editorState.course; if (!c.title.trim()) return alert('Введите название курса'); if (c.blocks.length === 0) return alert('Добавьте хотя бы один блок'); var courses = DB.courses; var idx = courses.findIndex(function(x) { return x.id === c.id; }); if (idx >= 0) courses[idx] = c; else courses.push(c); DB.courses = courses; closeModal(); renderAll(); alert('✅ Курс сохранён!'); }
+function deleteCourse(id) { if (!confirm('Удалить курс?')) return; DB.courses = DB.courses.filter(function(c) { return c.id !== id; }); DB.links = DB.links.filter(function(l) { return l.courseId !== id; }); renderAll(); }
+function previewCourse(courseId) { var course = DB.courses.find(function(c) { return c.id === courseId; }); if (!course) return; var previewEmpId = 'preview_emp_' + Date.now(); var previewToken = 'preview_' + Date.now(); var tempEmp = { id: previewEmpId, name: 'Предпросмотр (Администратор)', position: 'Администратор', email: 'preview@academy.ru', storeId: '' }; var tempLink = { token: previewToken, employeeId: previewEmpId, courseId: courseId, preview: true, createdAt: Date.now() }; window._previewBackup = { employees: JSON.parse(JSON.stringify(DB.employees)), links: JSON.parse(JSON.stringify(DB.links)), courses: JSON.parse(JSON.stringify(DB.courses)), progress: JSON.parse(JSON.stringify(DB.progress)) }; DB.employees = DB.employees.concat([tempEmp]); DB.links = DB.links.concat([tempLink]); startCourseMode(previewToken); }
+function exitPreview() { if (window._previewBackup) { DB.employees = window._previewBackup.employees; DB.links = window._previewBackup.links; DB.courses = window._previewBackup.courses; DB.progress = window._previewBackup.progress; window._previewBackup = null; } document.getElementById('courseMode').classList.add('hidden'); document.getElementById('adminMode').classList.remove('hidden'); renderAll(); }
+
 function startCourseMode(token) {
-  var link = DB.links.find(function(l) { return l.token === token; });
+ var link = DB.links.find(function(l) { return l.token === token; });
   if (!link) { document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="text-6xl mb-4">🔒</div><h1 class="text-2xl font-bold text-gray-800">Код недействителен</h1><button type="button" onclick="location.reload()" class="btn-primary mt-4">← Вернуться</button></div></div>'; return; }
   currentToken = token; currentEmployee = DB.employees.find(function(e) { return e.id === link.employeeId; }); currentCourse = DB.courses.find(function(c) { return c.id === link.courseId; });
   if (!currentEmployee || !currentCourse) { document.body.innerHTML = '<div class="min-h-screen flex items-center justify-center"><div class="text-center"><div class="text-6xl mb-4">⚠️</div><h1 class="text-2xl font-bold text-gray-800">Данные не найдены</h1><button type="button" onclick="location.reload()" class="btn-primary mt-4">← Вернуться</button></div></div>'; return; }
@@ -1210,104 +1894,6 @@ function startQuiz(idx) {
   renderQ();
 }
 
-function createFullCourse() {
-  return {
-    id: 'course_vm_full', title: 'Визуальный мерчендайзинг: от основ к мастерству',
-    description: 'Полный курс по оформлению торгового пространства на основе мерчбуков Basconi и Vitacci',
-    duration: '45 мин', icon: '👠', createdAt: Date.now(),
-    blocks: [
-      {
-        id: 'b1', title: 'Блок 1: Основы визуального мерчендайзинга', icon: '',
-        videoUrl: '',
-        theoryBlocks: [
-          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">Что такое визуальный мерчендайзинг?</h4><p class="text-sm text-gray-700 mb-3">Визуальный мерчендайзинг — это наука оформления торгового пространства, основанная на знаниях психологии человека, рекламы и маркетинга, направленная на создание привлекательной и эффективной среды для стимулирования продаж и улучшения восприятия бренда.</p>' },
-          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎯 4 ключевые функции ВМ:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li><b>Демонстрировать продукцию самым выгодным образом</b></li><li><b>Обеспечить покупателям наилучший выбор</b></li><li><b>Фокусировать внимание на конкретных продуктах</b> — "золотая полка" (1,2м-1,7м)</li><li><b>Использовать площадь максимально эффективно</b></li></ul>' },
-          { id: 'tb3', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🗺️ Зоны магазина:</h4><div class="grid grid-cols-3 gap-2 text-xs mb-3"><div class="bg-red-50 p-2 rounded border-l-4 border-red-500"><b class="text-red-700">Горячая зона</b><br>Входная часть, хиты продаж</div><div class="bg-yellow-50 p-2 rounded border-l-4 border-yellow-500"><b class="text-yellow-700">Теплая зона</b><br>Центр ТЗ, зона кассы</div><div class="bg-blue-50 p-2 rounded border-l-4 border-blue-500"><b class="text-blue-700">Холодная зона</b><br>Дальняя часть, распродажа</div></div>' },
-          { id: 'tb4', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">👟 Базовые правила выкладки:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li><b>Правые полупарки:</b> женский 37, мужской 41</li><li><b>Предпродажная подготовка:</b> снять бумагу, убрать набивку</li><li><b>Шахматная выкладка:</b> параллельно-перпендикулярная</li></ul>' }
-        ],
-        practice: [
-          { id: 'p1', title: 'Ситуация 1', description: 'На полке выставлена обувь в ряд без шахматного расположения', question: 'Какое правило визуального мерчендайзинга нарушено? Как должно быть расположено обувь согласно стандартам Basconi?', answers: [] },
-          { id: 'p2', title: 'Ситуация 2', description: 'Сапоги размещены на верхней полке вместо нижней', question: 'Какие правила размещения обуви на полках нарушены? Почему сапоги должны размещаться на нижних полках?', answers: [] },
-          { id: 'p3', title: 'Ситуация 3', description: 'В витрине представлена только одна пара обуви на модель', question: 'Какие стандарты оформления витрин нарушены? Сколько пар обуви должно быть представлено на одну модель в витрине?', answers: [] }
-        ],
-        quiz: [
-          { q: 'Какие размеры правых полупарок выставляются по умолчанию?', options: ['Женский 36, мужской 40', 'Женский 37, мужской 41', 'Женский 38, мужской 42', 'Женский 39, мужской 43'], correct: 1 },
-          { q: 'Что необходимо сделать с обувью перед выкладкой?', options: ['Снять упаковочную бумагу и набивку', 'Натереть воском', 'Проверить размеры', 'Все вышеперечисленное'], correct: 0 },
-          { q: 'Какое расположение моделей на полке правильное?', options: ['В ряд', 'В шахматном порядке', 'По высоте каблука', 'По цвету'], correct: 1 },
-          { q: 'Что такое "золотая полка"?', options: ['Полка у кассы', 'Полка с дорогими товарами', 'Полка на уровне глаз (1,2м-1,7м)', 'Полка с акциями'], correct: 2 }
-        ]
-      },
-      {
-        id: 'b2', title: 'Блок 2: Сезонные стратегии и зонирование', icon: '️',
-        videoUrl: '',
-        theoryBlocks: [
-          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">👥 Гендерное зонирование:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Магазин делится на женскую (70% площади) и мужскую зоны</li><li>При 2+ витринах — делить по гендерному признаку</li><li>При одной витрине — предпочтение женскому ассортименту</li></ul>' },
-          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎨 Стилевые группы:</h4><div class="grid grid-cols-3 gap-2 text-xs mb-3"><div class="bg-purple-50 p-2 rounded"><b class="text-purple-700">Classic</b><br>Туфли, лоферы, ботинки на тонкой подошве</div><div class="bg-green-50 p-2 rounded"><b class="text-green-700">Casual</b><br>Ботинки, казаки, сапоги кэжуал</div><div class="bg-blue-50 p-2 rounded"><b class="text-blue-700">Sport/Active</b><br>Кеды и кроссовки</div></div>' },
-          { id: 'tb3', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🎨 Капсульная выкладка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Максимум 3 оттенка в капсуле</li><li>От светлого к темному слева направо и снизу вверх</li><li>Товары одного цвета — по диагонали на двух соседних полках</li></ul>' }
-        ],
-        practice: [
-          { id: 'p1', title: 'Ситуация 1', description: 'Перед вами схема магазина с указанием горячих, теплых и холодных зон', question: 'Распределите товары по зонам.', answers: [] }
-        ],
-        quiz: [
-          { q: 'Как распределить витрины при наличии двух?', options: ['Обе женские', 'Обе мужские', 'По гендерному признаку', 'Чередовать'], correct: 2 },
-          { q: 'Максимум цветов в капсульной выкладке?', options: ['1', '2', '3', '4'], correct: 2 },
-          { q: 'Как выставлять обувь по цвету?', options: ['От темного к светлому', 'От светлого к темному слева направо и снизу вверх', 'Случайно', 'Черное рядом с белым'], correct: 1 },
-          { q: 'Какой процент площади занимает женская зона?', options: ['50%', '60%', '70%', '80%'], correct: 2 }
-        ]
-      },
-      {
-        id: 'b3', title: 'Блок 3: Презентационные зоны и витрины', icon: '🪟',
-        videoUrl: '',
-        theoryBlocks: [
-          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🪟 Витрины:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Чистая, аккуратная, привлекательная</li><li>Не более 3 оттенков на одной витрине</li><li>На верхние полки — классика, на нижние — кэжуал</li><li>Минимум 2 пары на модель в витрине</li><li>Обновление — не реже 1 раза в 2 недели</li></ul>' },
-          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2"> Презентационный стол:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700 mb-3"><li>Это "внутренняя витрина" магазина</li><li>Выкладка — целостная гармоничная история</li><li>Обновление каждые 2 недели</li></ul><h4 class="font-bold text-gray-800 mb-2">⚡ Зона импульсного спроса:</h4><p class="text-sm text-gray-700">Прикассовая, кассовая и закассовая зона. Принцип: "Увидел — купил!"</p>' }
-        ],
-        practice: [
-          { id: 'p1', title: 'Ситуация 1', description: 'Фото витрины с единственной парой обуви на модель', question: 'Какое правило оформления витрины нарушено?', answers: [] }
-        ],
-        quiz: [
-          { q: 'Сколько пар обуви на модель в витрине?', options: ['Не менее 1', 'Не менее 2', 'Не менее 3', 'Не менее 4'], correct: 1 },
-          { q: 'Как часто обновлять витрину?', options: ['Каждые 3 дня', 'Каждую неделю', 'Каждые две недели', 'Каждый месяц'], correct: 2 },
-          { q: 'Что такое "зона импульсного спроса"?', options: ['Входная группа', 'Презентационный стол', 'Прикассовая, кассовая и закассовая зона', 'Дальние ниши'], correct: 2 }
-        ]
-      },
-      {
-        id: 'b4', title: 'Блок 4: Ротация и поддержание стандартов', icon: '🔄',
-        videoUrl: '',
-        theoryBlocks: [
-          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">🔄 Типы ротации:</h4><div class="space-y-2 mb-3"><div class="bg-rose-50 p-3 rounded-lg border-l-4 border-vitacci"><b class="text-vitacci">Частичная ротация</b><p class="text-sm text-gray-700">Каждые 2 недели. Обновление витрин и презентационного стола.</p></div><div class="bg-amber-50 p-3 rounded-lg border-l-4 border-amber-500"><b class="text-amber-700">Межсезонная ротация</b><p class="text-sm text-gray-700">При смене сезонов ОЗ/ВЛ. Перегруппировка всего ассортимента.</p></div><div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500"><b class="text-blue-700">Глобальная ротация</b><p class="text-sm text-gray-700">1-2 раза в год. Полная перестановка оборудования.</p></div></div>' },
-          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">✅ Ежедневная проверка:</h4><ul class="list-disc pl-5 space-y-1 text-sm text-gray-700"><li>Освещение — все лампы рабочие</li><li>Выкладка — шахматная, по цвету</li><li>POS-материалы — на уровне глаз</li></ul>' }
-        ],
-        practice: [
-          { id: 'p1', title: 'Ситуация 1', description: 'Сегодня 15 ноября, начало зимнего сезона, поступила новая коллекция ОЗ', question: 'Какую ротацию необходимо провести?', answers: [] }
-        ],
-        quiz: [
-          { q: 'Какие виды ротации выделяются?', options: ['Частичная, межсезонная, глобальная', 'Ежедневная, еженедельная', 'По моделям, цветам', 'Плановая, внеплановая'], correct: 0 },
-          { q: 'Что такое "золотая полка"?', options: ['Полка у кассы', 'Полка с дорогими товарами', 'Полка на уровне глаз покупателя', 'Полка с акциями'], correct: 2 },
-          { q: 'Где размещать несезонную обувь?', options: ['У входа', 'В горячих зонах', 'В холодных зонах', 'На презентационном столе'], correct: 2 }
-        ]
-      },
-      {
-        id: 'b5', title: 'Блок 5: Интеграция знаний и практика', icon: '🏆',
-        videoUrl: '',
-        theoryBlocks: [
-          { id: 'tb1', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">📈 Связь ВМ с продажами:</h4><ul class="list-disc pl-5 space-y-2 text-sm text-gray-700 mb-3"><li>Правильная выкладка увеличивает продажи на 20-30%</li><li>Витрина увеличивает трафик на 25-30%</li><li>Золотая полка — высота 1,2м до 1,7м</li></ul>' },
-          { id: 'tb2', type: 'text', content: '<h4 class="font-bold text-gray-800 mb-2">⚠️ Типичные ошибки:</h4><div class="space-y-2 mb-3"><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700"> Ошибка 1: Неправильное зонирование</b><p class="text-sm text-gray-700">Мужская обувь у входа.<br><b class="text-green-700">✅ Решение:</b> женская зона 70% площади, ближе к входу</p></div><div class="bg-red-50 p-3 rounded-lg"><b class="text-red-700"> Ошибка 2: Нарушение шахматной выкладки</b><p class="text-sm text-gray-700">Обувь в ряд.<br><b class="text-green-700">✅ Решение:</b> шахматный порядок</p></div></div>' }
-        ],
-        practice: [
-          { id: 'p1', title: 'Финальная ситуация', description: 'Перед вами фото торгового зала', question: 'Проведите полный аудит выкладки', answers: [] }
-        ],
-        quiz: [
-          { q: 'Какая зона называется "зоной импульсного спроса"?', options: ['Входная группа', 'Презентационный стол', 'Прикассовая, кассовая и закассовая зона', 'Дальние ниши'], correct: 2 },
-          { q: 'Что такое капсульная выкладка?', options: ['По размерам', 'Взаимозаменяемые предметы, сочетающиеся по цвету, фактуре и стилю', 'Только продаваемые модели', 'От дешевого к дорогому'], correct: 1 },
-          { q: 'Какие три стиля группировки обуви?', options: ['Formal, Business, Sport', 'Classic, Casual, Sport', 'Elegant, Simple, Active', 'Luxury, Basic, Trendy'], correct: 1 },
-          { q: 'Что НЕ относится к функциям ВМ?', options: ['Демонстрировать продукцию', 'Обеспечить выбор', 'Фокусировать внимание', 'Увеличивать цены'], correct: 3 }
-        ]
-      }
-    ]
-  };
-}
-
 async function initDemo() {
   if (DB.stores.length === 0) {
     DB.stores = [
@@ -1330,9 +1916,9 @@ async function initDemo() {
   const passwords = DB.passwords;
   if (!passwords['admin@academy.ru']) { passwords['admin@academy.ru'] = 'admin123'; DB.passwords = passwords; }
 }
+
 async function init() {
   console.log('🚀 Инициализация приложения...');
-  
   let connected = false;
   try {
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Таймаут')), 8000));
@@ -1341,13 +1927,12 @@ async function init() {
     console.warn('⚠️ Supabase недоступен:', e.message);
     connected = false;
   }
-  
   if (connected) {
     console.log('✅ Supabase подключен, загружаем данные...');
     try {
       const loaded = await loadFromSupabase();
       if (!loaded) {
-        console.log('️ Данные не загружены из облака, используем локальные');
+        console.log('⚠️ Данные не загружены из облака, используем локальные');
         await initDemo();
       }
     } catch (e) {
@@ -1355,42 +1940,47 @@ async function init() {
       await initDemo();
     }
   } else {
-    console.log(' Используем локальные данные');
+    console.log('💾 Используем локальные данные');
     await initDemo();
   }
-  
   const loadingOverlay = document.getElementById('loadingOverlay');
   if (loadingOverlay) loadingOverlay.classList.add('hidden');
-  
   if (isAdminModeActive()) {
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('adminMode').classList.remove('hidden');
+    document.getElementById('employeeMode').classList.add('hidden');
     document.getElementById('courseMode').classList.add('hidden');
     switchTab('dashboard');
     return;
   }
-  
   const params = new URLSearchParams(location.search);
   const hashParams = new URLSearchParams(location.hash.substring(1));
   const token = params.get('token') || hashParams.get('token');
   if (token) {
     const link = DB.links.find(l => l.token === token);
-    if (link) { startCourseMode(token); return; }
+    if (link) {
+      currentToken = token;
+      currentEmployee = DB.employees.find(function(e) { return e.id === link.employeeId; });
+      if (currentEmployee) {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('employeeMode').classList.remove('hidden');
+        switchEmployeeTab('courses');
+        return;
+      }
+    }
   }
-  
   document.getElementById('loginPage').classList.remove('hidden');
   document.getElementById('adminMode').classList.add('hidden');
+  document.getElementById('employeeMode').classList.add('hidden');
   document.getElementById('courseMode').classList.add('hidden');
-  
   const tokenInput = document.getElementById('tokenInput');
   if (tokenInput) {
     tokenInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') loginByToken(); });
     tokenInput.focus();
   }
-  
   console.log('✅ Приложение готово');
-  console.log('📧 Email: admin@academy.ru');
-  console.log(' Пароль: admin123');
+  console.log(' Email: admin@academy.ru');
+  console.log('🔑 Пароль: admin123');
 }
 
 if (document.readyState === 'loading') {
@@ -1403,3 +1993,4 @@ if (document.readyState === 'loading') {
 </html>
 
 
+       
