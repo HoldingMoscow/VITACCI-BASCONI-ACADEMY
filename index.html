@@ -638,28 +638,11 @@ async function syncToSupabase() {
   }
 }
 
-async function loadFromSupabase() {
-  if (!isSupabaseConnected || !supabaseClient) return false;
-  try {
-    updateSyncStatus('syncing', 'Загрузка данных...');
-    const { data: stores, error: storeError } = await supabaseClient.from('stores').select('*');
-    if (!storeError && stores && stores.length > 0) DB.stores = stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand, createdAt: s.created_at }));
-    const { data: employees, error: empError } = await supabaseClient.from('employees').select('*');
-    if (!empError && employees && employees.length > 0) DB.employees = employees.map(e => ({ id: e.id, name: e.name, email: e.email, storeId: e.store_id, position: e.position, role: e.role, isAdmin: e.is_admin }));
-    const { data: courses, error: courseError } = await supabaseClient.from('courses').select('*');
-    if (!courseError && courses && courses.length > 0) DB.courses = courses.map(c => ({ id: c.id, title: c.title, description: c.description, duration: c.duration, icon: c.icon, blocks: c.blocks || [], createdAt: c.created_at }));
-    const { data: codes, error: codeError } = await supabaseClient.from('access_codes').select('*');
-    if (!codeError && codes && codes.length > 0) DB.links = codes.map(c => ({ token: c.code, employeeId: c.employee_id, courseId: c.course_id, createdAt: c.created_at }));
-    updateSyncStatus('online');
-    return true;
-  } catch (e) {
-    console.error('❌ Ошибка загрузки:', e);
-    updateSyncStatus('offline');
-    return false;
-  }
-}
 async function syncProgressToCloud() {
-  if (!isSupabaseConnected || !supabaseClient) return;
+  if (!isSupabaseConnected || !supabaseClient) {
+    console.log('⚠️ Supabase не подключен, прогресс сохранен локально');
+    return;
+  }
   
   try {
     const progress = DB.progress;
@@ -688,15 +671,75 @@ async function syncProgressToCloud() {
     if (rows.length > 0) {
       const { error } = await supabaseClient.from('progress').upsert(rows);
       if (error) {
-        console.error('Ошибка синхронизации прогресса:', error);
+        console.error(' Ошибка синхронизации прогресса:', error);
       } else {
-        console.log('✅ Прогресс синхронизирован:', rows.length, 'записей');
+        console.log('✅ Прогресс синхронизирован с облаком:', rows.length, 'записей');
       }
     }
   } catch (e) {
     console.error('Ошибка синхронизации прогресса:', e);
   }
 }
+
+async function loadFromSupabase() {
+  if (!isSupabaseConnected || !supabaseClient) return false;
+  
+  try {
+    updateSyncStatus('syncing', 'Загрузка данных...');
+    
+    const { data: stores, error: storeError } = await supabaseClient.from('stores').select('*');
+    if (!storeError && stores && stores.length > 0) {
+      DB.stores = stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand, createdAt: s.created_at }));
+      console.log('✅ Магазинов:', stores.length);
+    }
+    
+    const { data: employees, error: empError } = await supabaseClient.from('employees').select('*');
+    if (!empError && employees && employees.length > 0) {
+      DB.employees = employees.map(e => ({ id: e.id, name: e.name, email: e.email, storeId: e.store_id, position: e.position, role: e.role, isAdmin: e.is_admin }));
+      console.log('✅ Сотрудников:', employees.length);
+    }
+    
+    const { data: courses, error: courseError } = await supabaseClient.from('courses').select('*');
+    if (!courseError && courses && courses.length > 0) {
+      DB.courses = courses.map(c => ({ id: c.id, title: c.title, description: c.description, duration: c.duration, icon: c.icon, blocks: c.blocks || [], createdAt: c.created_at }));
+      console.log('✅ Курсов:', courses.length);
+    }
+    
+    const { data: codes, error: codeError } = await supabaseClient.from('access_codes').select('*');
+    if (!codeError && codes && codes.length > 0) {
+      DB.links = codes.map(c => ({ token: c.code, employeeId: c.employee_id, courseId: c.course_id, createdAt: c.created_at }));
+      console.log('✅ Кодов:', codes.length);
+    }
+   
+    const { data: progress, error: progError } = await supabaseClient.from('progress').select('*');
+    if (!progError && progress && progress.length > 0) {
+      const progressMap = {};
+      progress.forEach(p => {
+        if (!progressMap[p.employee_id]) progressMap[p.employee_id] = {};
+        if (!progressMap[p.employee_id][p.course_id]) progressMap[p.employee_id][p.course_id] = {};
+        progressMap[p.employee_id][p.course_id][p.block_id] = {
+          completed: p.completed,
+          score: p.score,
+          total: p.total,
+          percentage: p.percentage,
+          practiceAnswers: p.practice_answers || {},
+          quizAnswers: p.quiz_answers || {},
+          at: p.created_at
+        };
+      });
+      DB.progress = progressMap;
+      console.log('✅ Прогресс загружен:', progress.length, 'записей');
+    }
+    
+    updateSyncStatus('online');
+    return true;
+  } catch (e) {
+    console.error('❌ Ошибка загрузки:', e);
+    updateSyncStatus('offline');
+    return false;
+  }
+}
+
 // =========================================================================
 // LOCALSTORAGE БАЗА ДАННЫХ
 // =========================================================================
