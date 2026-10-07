@@ -1370,29 +1370,66 @@ async function loginByToken() {
   const token = document.getElementById('tokenInput').value.trim();
   const errorEl = document.getElementById('loginError');
   const loadingEl = document.getElementById('loginLoading');
+  
   if (!token) { errorEl.textContent = 'Введите код доступа'; errorEl.classList.remove('hidden'); return; }
   if (token.toLowerCase() === 'admin') { errorEl.classList.add('hidden'); showAdminLoginModal(); return; }
+  
   errorEl.classList.add('hidden');
   loadingEl.classList.remove('hidden');
+  
+  // Сначала проверяем локально
   let link = DB.links.find(l => l.token === token);
-  if (!link && isSupabaseConnected) {
+  
+  // Если не найдено локально, проверяем в Supabase
+  if (!link && isSupabaseConnected && supabaseClient) {
     try {
-      const { data, error } = await supabaseClient.from('access_codes').select('*').eq('code', token).single();
-      if (!error && data) {
-        link = { token: data.code, employeeId: data.employee_id, courseId: data.course_id, createdAt: data.created_at };
-        const links = DB.links; links.push(link); DB.links = links;
+      const { data, error } = await supabaseClient
+        .from('access_codes')
+        .select('*')
+        .eq('code', token)
+        .limit(1);
+      
+      if (!error && data && data.length > 0) {
+        const record = data[0];
+        link = {
+          token: record.code,
+          employeeId: record.employee_id,
+          courseId: record.course_id,
+          createdAt: record.created_at
+        };
+        // Добавляем в локальный кэш
+        const links = DB.links;
+        links.push(link);
+        DB.links = links;
+        console.log('✅ Код найден в Supabase:', link.token);
       }
-    } catch (e) { console.error('Ошибка проверки кода в Supabase:', e); }
+    } catch (e) {
+      console.error('Ошибка проверки кода в Supabase:', e);
+    }
   }
+  
   loadingEl.classList.add('hidden');
-  if (!link) { errorEl.textContent = 'Код доступа не найден. Проверьте правильность ввода или обратитесь к администратору.'; errorEl.classList.remove('hidden'); return; }
+  
+  if (!link) {
+    errorEl.textContent = 'Код доступа не найден. Проверьте правильность ввода или обратитесь к администратору.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
   currentToken = token;
   currentEmployee = DB.employees.find(function(e) { return e.id === link.employeeId; });
-  if (!currentEmployee) { errorEl.textContent = 'Сотрудник не найден'; errorEl.classList.remove('hidden'); return; }
+  
+  if (!currentEmployee) {
+    errorEl.textContent = 'Сотрудник не найден. Обратитесь к администратору.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('employeeMode').classList.remove('hidden');
   document.getElementById('adminMode').classList.add('hidden');
   document.getElementById('courseMode').classList.add('hidden');
+  
   switchEmployeeTab('courses');
 }
 
