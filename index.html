@@ -658,7 +658,45 @@ async function loadFromSupabase() {
     return false;
   }
 }
-
+async function syncProgressToCloud() {
+  if (!isSupabaseConnected || !supabaseClient) return;
+  
+  try {
+    const progress = DB.progress;
+    const rows = [];
+    
+    for (const empId in progress) {
+      for (const courseId in progress[empId]) {
+        for (const blockId in progress[empId][courseId]) {
+          const bp = progress[empId][courseId][blockId];
+          rows.push({
+            id: `prog_${empId}_${courseId}_${blockId}`,
+            employee_id: empId,
+            course_id: courseId,
+            block_id: blockId,
+            completed: bp.completed || false,
+            score: bp.score || 0,
+            total: bp.total || 0,
+            percentage: bp.percentage || 0,
+            practice_answers: bp.practiceAnswers || {},
+            quiz_answers: bp.quizAnswers || {}
+          });
+        }
+      }
+    }
+    
+    if (rows.length > 0) {
+      const { error } = await supabaseClient.from('progress').upsert(rows);
+      if (error) {
+        console.error('Ошибка синхронизации прогресса:', error);
+      } else {
+        console.log('✅ Прогресс синхронизирован:', rows.length, 'записей');
+      }
+    }
+  } catch (e) {
+    console.error('Ошибка синхронизации прогресса:', e);
+  }
+}
 // =========================================================================
 // LOCALSTORAGE БАЗА ДАННЫХ
 // =========================================================================
@@ -2048,6 +2086,7 @@ function updateStudentAnswerCaption(blockId, practiceId, ai, value) {
 function savePracticeAnswers(blockId, practiceId) {
   showSaveNotification('💾 Сохранение...', 'saving');
   unsavedChanges[blockId + '_' + practiceId] = false;
+if (isSupabaseConnected) syncProgressToCloud();
   setTimeout(() => {
     refreshStudentPracticeForm(blockId, practiceId);
     showSaveNotification('✅ Ответ успешно сохранён!', 'success');
@@ -2088,6 +2127,7 @@ function completeBlockWithoutQuiz(idx) {
     practiceAnswers: existingBlockProgress.practiceAnswers || {} 
   };
   DB.progress = progress;
+ if (isSupabaseConnected) syncProgressToCloud();
   closeModal();
   renderCourseBlocks();
   updateCourseProgress();
@@ -2114,6 +2154,10 @@ progress[currentEmployee.id][currentCourse.id][block.id] = {
   quizAnswers: answers 
 };
       DB.progress = progress;
+
+if (isSupabaseConnected) {
+      syncProgressToCloud();
+    }
       var resultEmoji = pct >= 70 ? '🎉' : pct >= 40 ? '👍' : '📚';
       var resultTitle = pct >= 70 ? 'Отличный результат!' : pct >= 40 ? 'Хорошо! Можно улучшить' : 'Пройдено. Рекомендуем повторить материал';
       var resultColor = pct >= 70 ? 'text-green-700' : pct >= 40 ? 'text-yellow-700' : 'text-orange-700';
