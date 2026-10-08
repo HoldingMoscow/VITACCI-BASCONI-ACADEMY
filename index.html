@@ -77,6 +77,21 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
   font-size: 0.875rem; 
 }
+.btn-delete {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+.btn-delete:hover {
+  background: #fecaca;
+  transform: scale(1.05);
+}
 body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
 .gradient-header { background: linear-gradient(135deg, #8B1E3F 0%, #1A1A1A 100%); }
 .gradient-btn { background: linear-gradient(135deg, #8B1E3F 0%, #A82850 100%); }
@@ -628,13 +643,67 @@ async function syncToSupabase() {
     if (DB.stores.length > 0) await supabaseClient.from('stores').upsert(DB.stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand })));
     if (DB.employees.length > 0) await supabaseClient.from('employees').upsert(DB.employees.map(e => ({ id: e.id, name: e.name, email: e.email, store_id: e.storeId, position: e.position, is_admin: e.isAdmin || false })));
     if (DB.links.length > 0) await supabaseClient.from('access_codes').upsert(DB.links.map(l => ({ id: 'code_' + l.token, code: l.token, employee_id: l.employeeId, course_id: l.courseId, status: 'Активен' })));
-    if (DB.courses.length > 0) await supabaseClient.from('courses').upsert(DB.courses.map(c => ({ id: c.id, title: c.title, description: c.description, duration: c.duration, icon: c.icon, blocks: c.blocks })));
+    if (DB.courses.length > 0) {
+  const coursesData = DB.courses.map(c => ({
+    id: c.id,
+    title: c.title,
+    description: c.description || '',
+    duration: c.duration || '45 мин',
+    icon: c.icon || '📚',
+    blocks: c.blocks || [],
+    created_at: c.createdAt || new Date().toISOString()
+  }));
+  
+  const { error: courseError } = await supabaseClient
+    .from('courses')
+    .upsert(coursesData, { onConflict: 'id' });
+  
+  if (courseError) {
+    console.error('Ошибка синхронизации курсов:', courseError);
+  } else {
+    console.log('✅ Курсы синхронизированы:', coursesData.length);
+  }
+}
     updateSyncStatus('online');
     alert('✅ Данные синхронизированы с облаком!');
   } catch (e) {
     console.error('Ошибка синхронизации:', e);
     updateSyncStatus('error', e.message);
     alert('❌ Ошибка синхронизации: ' + e.message);
+  }
+}
+
+async function syncCourseToCloud(course) {
+  if (!isSupabaseConnected || !supabaseClient) {
+    console.log('⚠️ Supabase не подключен, курс сохранён только локально');
+    return;
+  }
+  
+  try {
+    console.log('🔄 Синхронизация курса с облаком:', course.title);
+    
+    const { data, error } = await supabaseClient
+      .from('courses')
+      .upsert({
+        id: course.id,
+        title: course.title,
+        description: course.description || '',
+        duration: course.duration || '45 мин',
+        icon: course.icon || '📚',
+        blocks: course.blocks || [],
+        created_at: course.createdAt || new Date().toISOString()
+      }, {
+        onConflict: 'id'
+      });
+    
+    if (error) {
+      console.error('❌ Ошибка синхронизации курса:', error);
+      alert('️ Курс сохранён локально, но не удалось синхронизировать с облаком: ' + error.message);
+    } else {
+      console.log('✅ Курс синхронизирован с облаком');
+    }
+  } catch (e) {
+    console.error('Ошибка синхронизации курса:', e);
   }
 }
 
@@ -700,10 +769,18 @@ async function loadFromSupabase() {
     }
     
     const { data: courses, error: courseError } = await supabaseClient.from('courses').select('*');
-    if (!courseError && courses && courses.length > 0) {
-      DB.courses = courses.map(c => ({ id: c.id, title: c.title, description: c.description, duration: c.duration, icon: c.icon, blocks: c.blocks || [], createdAt: c.created_at }));
-      console.log('✅ Курсов:', courses.length);
-    }
+if (!courseError && courses && courses.length > 0) {
+  DB.courses = courses.map(c => ({
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    duration: c.duration,
+    icon: c.icon || '📚',
+    blocks: c.blocks || [],
+    createdAt: c.created_at
+  }));
+  console.log('✅ Курсов:', courses.length);
+}
     
     const { data: codes, error: codeError } = await supabaseClient.from('access_codes').select('*');
     if (!codeError && codes && codes.length > 0) {
@@ -1050,9 +1127,32 @@ function renderStores() {
 }
 
 function renderEmployees() {
-  const employees = DB.employees, stores = DB.stores; const el = document.getElementById('employeesTable');
-  if (employees.length === 0) { el.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-400">Нет сотрудников</td></tr>'; return; }
-  el.innerHTML = employees.map(e => { const store = stores.find(s => s.id === e.storeId); const p = getEmployeeProgress(e.id); const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase()); return '<tr class="border-t border-gray-100 hover:bg-gray-50"><td class="p-4"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-full gradient-btn text-white flex items-center justify-center font-bold">' + e.name.charAt(0) + '</div><div><div class="font-medium text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.email || '') + '</div></div></div></td><td class="p-4 text-sm text-gray-700">' + esc(store?.name || '—') + '</td><td class="p-4 text-sm text-gray-700">' + esc(e.position) + '</td><td class="p-4">' + (isAdmin ? '<span class="admin-badge">Администратор</span>' : '<span class="chip bg-gray-100 text-gray-600">Сотрудник</span>') + '</td><td class="p-4"><div class="flex items-center gap-2"><div class="bg-gray-100 rounded-full h-2 w-24"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div><span class="text-sm font-medium">' + p + '%</span></div></td><td class="p-4"><div class="flex gap-1"><button type="button" class="btn-ghost" onclick="openEmployeeModal(\'' + e.id + '\')">✏️</button><button type="button" class="btn-ghost" onclick="deleteEmployee(\'' + e.id + '\')">️</button></div></td></tr>'; }).join('');
+  const employees = DB.employees, stores = DB.stores;
+  const el = document.getElementById('employeesTable');
+  if (employees.length === 0) {
+    el.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-400">Нет сотрудников</td></tr>';
+    return;
+  }
+  el.innerHTML = employees.map(e => {
+    const store = stores.find(s => s.id === e.storeId);
+    const p = getEmployeeProgress(e.id);
+    const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase());
+    return '<tr class="border-t border-gray-100 hover:bg-gray-50">' +
+      '<td class="p-4"><div class="flex items-center gap-3">' +
+        '<div class="w-9 h-9 rounded-full gradient-btn text-white flex items-center justify-center font-bold">' + e.name.charAt(0) + '</div>' +
+        '<div><div class="font-medium text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div>' +
+        '<div class="text-xs text-gray-500">' + esc(e.email || '') + '</div></div></div></td>' +
+      '<td class="p-4 text-sm text-gray-700">' + esc(store?.name || '—') + '</td>' +
+      '<td class="p-4 text-sm text-gray-700">' + esc(e.position) + '</td>' +
+      '<td class="p-4">' + (isAdmin ? '<span class="admin-badge">Администратор</span>' : '<span class="chip bg-gray-100 text-gray-600">Сотрудник</span>') + '</td>' +
+      '<td class="p-4"><div class="flex items-center gap-2">' +
+        '<div class="bg-gray-100 rounded-full h-2 w-24"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div>' +
+        '<span class="text-sm font-medium">' + p + '%</span></div></td>' +
+      '<td class="p-4"><div class="flex gap-1">' +
+        '<button type="button" class="btn-ghost" onclick="openEmployeeModal(\'' + e.id + '\')" title="Редактировать">✏️</button>' +
+        '<button type="button" class="btn-ghost" onclick="deleteEmployee(\'' + e.id + '\')" title="Удалить" style="color:#dc2626;">🗑️</button>' +
+      '</div></td></tr>';
+  }).join('');
 }
 
 function renderCourses() {
@@ -1410,17 +1510,32 @@ function saveEmployee(id) {
   if (isSupabaseConnected) syncToSupabase();
 }
 async function deleteEmployee(id) {
-  if (!confirm('Удалить сотрудника?')) return;
+  const emp = DB.employees.find(e => e.id === id);
+  if (!emp) return;
+  
+  if (!confirm('Удалить сотрудника "' + emp.name + '"?\n\nЭто действие нельзя отменить. Все связанные коды доступа и прогресс будут удалены.')) {
+    return;
+  }
+  
+  // Удаляем из localStorage
   DB.employees = DB.employees.filter(e => e.id !== id);
   DB.links = DB.links.filter(l => l.employeeId !== id);
-  const p = DB.progress; delete p[id]; DB.progress = p;
+  const p = DB.progress;
+  delete p[id];
+  DB.progress = p;
+  
+  // Удаляем из Supabase
   if (isSupabaseConnected && supabaseClient) {
     try {
       await supabaseClient.from('employees').delete().eq('id', id);
-      console.log('✅ Сотрудник удалён из облака');
-    } catch (e) { console.error('Ошибка удаления из Supabase:', e); }
+      console.log('✅ Сотрудник удалён из облака:', emp.name);
+    } catch (e) {
+      console.error('Ошибка удаления из Supabase:', e);
+    }
   }
+  
   renderAll();
+  alert('✅ Сотрудник "' + emp.name + '" удалён');
 }
 
 function openLinkModal() {
@@ -2454,8 +2569,56 @@ function addQuizOption(qi) { editorState.course.blocks[editorState.activeBlockId
 function removeQuizOption(qi, oi) { var q = editorState.course.blocks[editorState.activeBlockIdx].quiz[qi]; if (q.options.length <= 2) return alert('Минимум 2 варианта'); q.options.splice(oi, 1); if (q.correct >= q.options.length) q.correct = 0; renderCourseEditor(); }
 function setQuizCorrect(qi, oi) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].correct = oi; }
 function execCmd(cmd) { document.execCommand(cmd, false, null); }
-function saveCourse() { var c = editorState.course; if (!c.title.trim()) return alert('Введите название курса'); if (c.blocks.length === 0) return alert('Добавьте хотя бы один блок'); var courses = DB.courses; var idx = courses.findIndex(function(x) { return x.id === c.id; }); if (idx >= 0) courses[idx] = c; else courses.push(c); DB.courses = courses; closeModal(); renderAll(); alert('✅ Курс сохранён!'); }
-function deleteCourse(id) { if (!confirm('Удалить курс?')) return; DB.courses = DB.courses.filter(function(c) { return c.id !== id; }); DB.links = DB.links.filter(function(l) { return l.courseId !== id; }); renderAll(); }
+function saveCourse() {
+  var c = editorState.course;
+  if (!c.title.trim()) return alert('Введите название курса');
+  if (c.blocks.length === 0) return alert('Добавьте хотя бы один блок');
+  
+  var courses = DB.courses;
+  var idx = courses.findIndex(function(x) { return x.id === c.id; });
+  
+  if (idx >= 0) {
+    courses[idx] = c;
+  } else {
+    courses.push(c);
+  }
+  DB.courses = courses;
+  
+  // СИНХРОНИЗАЦИЯ С SUPABASE
+  if (isSupabaseConnected && supabaseClient) {
+    syncCourseToCloud(c);
+  }
+  
+  closeModal();
+  renderAll();
+  alert('✅ Курс сохранён!');
+}
+async function deleteCourse(id) {
+  if (!confirm('Удалить курс?')) return;
+  
+  DB.courses = DB.courses.filter(function(c) { return c.id !== id; });
+  DB.links = DB.links.filter(function(l) { return l.courseId !== id; });
+  
+  // Удаляем из Supabase
+  if (isSupabaseConnected && supabaseClient) {
+    try {
+      const { error } = await supabaseClient
+        .from('courses')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Ошибка удаления курса из облака:', error);
+      } else {
+        console.log('✅ Курс удалён из облака');
+      }
+    } catch (e) {
+      console.error('Ошибка удаления курса из облака:', e);
+    }
+  }
+  
+  renderAll();
+}
 
 async function initDemo() {
   try { await FileDB.init(); } catch (e) {}
