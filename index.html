@@ -576,6 +576,49 @@ const FileDB = {
   async delete(key) { if (!key) return; try { await this.init(); } catch(e) { return; } return new Promise((resolve, reject) => { try { const tx = this.db.transaction(this.storeName, 'readwrite'); tx.objectStore(this.storeName).delete(key); tx.oncomplete = () => resolve(); tx.onerror = e => reject(e); } catch (err) { reject(err); } }); }
 };
 
+// Загрузка изображения в Supabase Storage
+async function uploadImageToSupabase(file, folder = 'courses') {
+  if (!isSupabaseConnected || !supabaseClient) {
+    throw new Error('Supabase не подключен');
+  }
+  
+  const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}_${file.name}`;
+  
+  const { data, error } = await supabaseClient.storage
+    .from('course-images')
+    .upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+  
+  if (error) throw error;
+  
+  // Получаем публичный URL
+  const { data: urlData } = supabaseClient.storage
+    .from('course-images')
+    .getPublicUrl(fileName);
+  
+  return urlData.publicUrl;
+}
+
+// Удаление изображения из Supabase Storage
+async function deleteImageFromSupabase(imageUrl) {
+  if (!isSupabaseConnected || !supabaseClient || !imageUrl) return;
+  
+  try {
+    // Извлекаем путь из URL
+    const url = new URL(imageUrl);
+    const path = url.pathname.split('/object/public/course-images/')[1];
+    if (path) {
+      await supabaseClient.storage
+        .from('course-images')
+        .remove([path]);
+    }
+  } catch (e) {
+    console.error('Ошибка удаления изображения:', e);
+  }
+}
+
 const urlCache = {};
 async function getCachedUrl(key) { if (!key) return ''; if (urlCache[key]) return urlCache[key]; try { const blob = await FileDB.get(key); if (blob) { urlCache[key] = URL.createObjectURL(blob); return urlCache[key]; } } catch (e) {} return ''; }
 function formatFileSize(bytes) { if (bytes < 1024) return bytes + ' Б'; if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ'; return (bytes / (1024 * 1024)).toFixed(1) + ' МБ'; }
@@ -2553,7 +2596,49 @@ function moveBlock(i, dir) { var c = editorState.course; var j = i + dir; if (j 
 function addTheoryBlock(type) { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.theoryBlocks) block.theoryBlocks = []; var newBlock = { id: 'tb_' + Date.now(), type: type, content: '', key: null, dataUrl: '', videoUrl: '', fileName: '', caption: '' }; block.theoryBlocks.push(newBlock); renderCourseEditor(); }
 function removeTheoryBlock(tbi) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks.splice(tbi, 1); renderCourseEditor(); }
 function uploadTheoryFile(tbi, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; tb.fileName = file.name; tb.type = 'pdf'; renderCourseEditor(); }
-function uploadTheoryImage(tbi, event) { var file = event.target.files[0]; if (!file) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; var tb = block.theoryBlocks[tbi]; var reader = new FileReader(); reader.onload = function(e) { tb.dataUrl = e.target.result; tb.type = 'image'; renderCourseEditor(); }; reader.readAsDataURL(file); }
+async function uploadTheoryImage(tbi, event) {
+  var file = event.target.files[0];
+  if (!file) return;
+  
+  var block = editorState.course.blocks[editorState.activeBlockIdx];
+  var tb = block.theoryBlocks[tbi];
+  
+  // Показываем индикатор загрузки
+  showSaveNotification('📤 Загрузка изображения...', 'saving');
+  
+  try {
+    // Пытаемся загрузить в Supabase Storage
+    if (isSupabaseConnected && supabaseClient) {
+      const publicUrl = await uploadImageToSupabase(file, 'theory');
+      tb.dataUrl = publicUrl; // Сохраняем URL вместо base64
+      tb.imageKey = null;
+      tb.type = 'image';
+      showSaveNotification('✅ Изображение загружено в облако', 'success');
+    } else {
+      // Fallback: проверяем размер
+      const maxSize = 500 * 1024; // 500 КБ для localStorage
+      if (file.size > maxSize) {
+        alert('️ Файл слишком большой для локального хранения (' + formatFileSize(file.size) + ').\n\nПодключитесь к Supabase для загрузки больших файлов или сожмите изображение.');
+        return;
+      }
+      // Маленькое изображение — сохраняем в base64
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        tb.dataUrl = e.target.result;
+        tb.imageKey = null;
+        tb.type = 'image';
+        renderCourseEditor();
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+    renderCourseEditor();
+  } catch (err) {
+    console.error('Ошибка загрузки:', err);
+    alert('❌ Ошибка загрузки изображения: ' + err.message);
+  }
+}
+
 function updateTheoryVideo(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].videoUrl = value; block.theoryBlocks[tbi].type = 'video'; }
 function updateTheoryCaption(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].caption = value; }
 function addPracticeSituation() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.practice) block.practice = []; block.practice.push({ id: 'p_' + Date.now(), title: 'Новая ситуация', description: '', question: '', answers: [] }); renderCourseEditor(); }
@@ -2569,7 +2654,30 @@ function addQuizOption(qi) { editorState.course.blocks[editorState.activeBlockId
 function removeQuizOption(qi, oi) { var q = editorState.course.blocks[editorState.activeBlockIdx].quiz[qi]; if (q.options.length <= 2) return alert('Минимум 2 варианта'); q.options.splice(oi, 1); if (q.correct >= q.options.length) q.correct = 0; renderCourseEditor(); }
 function setQuizCorrect(qi, oi) { editorState.course.blocks[editorState.activeBlockIdx].quiz[qi].correct = oi; }
 function execCmd(cmd) { document.execCommand(cmd, false, null); }
-function saveCourse() {
+function clearOldCourseImages(olderThanDays = 30) {
+  const cutoffDate = Date.now() - (olderThanDays * 24 * 60 * 60 * 1000);
+  let deletedCount = 0;
+  
+  DB.courses.forEach(function(c) {
+    if (c.createdAt && c.createdAt < cutoffDate) {
+      c.blocks.forEach(function(b) {
+        if (b.theoryBlocks) {
+          b.theoryBlocks.forEach(function(tb) {
+            if (tb.dataUrl && tb.dataUrl.startsWith('data:image')) {
+              tb.dataUrl = '';
+              deletedCount++;
+            }
+          });
+        }
+      });
+    }
+  });
+  
+  DB.courses = DB.courses; // Триггерим сохранение
+  alert('✅ Удалено ' + deletedCount + ' старых изображений из курсов старше ' + olderThanDays + ' дней');
+  renderAll();
+}
+async function saveCourse() {
   var c = editorState.course;
   if (!c.title.trim()) return alert('Введите название курса');
   if (c.blocks.length === 0) return alert('Добавьте хотя бы один блок');
@@ -2577,47 +2685,43 @@ function saveCourse() {
   var courses = DB.courses;
   var idx = courses.findIndex(function(x) { return x.id === c.id; });
   
-  if (idx >= 0) {
-    courses[idx] = c;
-  } else {
-    courses.push(c);
-  }
-  DB.courses = courses;
-  
-  // СИНХРОНИЗАЦИЯ С SUPABASE
-  if (isSupabaseConnected && supabaseClient) {
-    syncCourseToCloud(c);
-  }
-  
-  closeModal();
-  renderAll();
-  alert('✅ Курс сохранён!');
-}
-async function deleteCourse(id) {
-  if (!confirm('Удалить курс?')) return;
-  
-  DB.courses = DB.courses.filter(function(c) { return c.id !== id; });
-  DB.links = DB.links.filter(function(l) { return l.courseId !== id; });
-  
-  // Удаляем из Supabase
-  if (isSupabaseConnected && supabaseClient) {
-    try {
-      const { error } = await supabaseClient
+  try {
+    // Сохраняем локально
+    if (idx >= 0) courses[idx] = c; else courses.push(c);
+    DB.courses = courses;
+    
+    // Синхронизируем с Supabase
+    if (isSupabaseConnected && supabaseClient) {
+      showSaveNotification('🔄 Синхронизация с облаком...', 'saving');
+      
+      const { data, error } = await supabaseClient
         .from('courses')
-        .delete()
-        .eq('id', id);
+        .upsert({
+          id: c.id,
+          title: c.title,
+          description: c.description || '',
+          duration: c.duration || '45 мин',
+          icon: c.icon || '📚',
+          blocks: c.blocks,
+          created_at: c.createdAt || new Date().toISOString()
+        }, { onConflict: 'id' });
       
       if (error) {
-        console.error('Ошибка удаления курса из облака:', error);
+        console.error('Ошибка синхронизации курса:', error);
+        showSaveNotification('️ Курс сохранён локально, но не в облаке', 'error');
       } else {
-        console.log('✅ Курс удалён из облака');
+        console.log('✅ Курс синхронизирован с облаком');
+        showSaveNotification('✅ Курс сохранён в облаке!', 'success');
       }
-    } catch (e) {
-      console.error('Ошибка удаления курса из облака:', e);
     }
+    
+    closeModal();
+    renderAll();
+    alert('✅ Курс сохранён!');
+  } catch (e) {
+    console.error('Ошибка сохранения курса:', e);
+    alert('❌ Ошибка сохранения: ' + e.message);
   }
-  
-  renderAll();
 }
 
 async function initDemo() {
