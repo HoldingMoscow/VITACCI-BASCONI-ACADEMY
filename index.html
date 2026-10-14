@@ -2179,11 +2179,19 @@ function addStudentAnswer(blockId, practiceId, type) {
   if (!progress[currentEmployee.id][currentCourse.id][blockId]) progress[currentEmployee.id][currentCourse.id][blockId] = { completed: false, practiceAnswers: {} };
   if (!progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers) progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers = {};
   if (!progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId]) progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId] = [];
+  
   var newAnswer = { id: 'sa_' + Date.now(), type: type, content: '', key: null, dataUrl: '', videoUrl: '', fileName: '', caption: '', size: 0 };
   progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId].push(newAnswer);
   DB.progress = progress;
-  markUnsavedChanges(blockId, practiceId);
+  
+  // Пересоздаём форму только при добавлении нового ответа (это необходимо)
   refreshStudentPracticeForm(blockId, practiceId);
+  
+  // Фокус на новый элемент
+  setTimeout(function() {
+    var newEl = document.getElementById('studentAnswerText_' + blockId + '_' + practiceId + '_' + (progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId].length - 1));
+    if (newEl) newEl.focus();
+  }, 100);
 }
 
 function removeStudentAnswer(blockId, practiceId, ai) {
@@ -2193,35 +2201,91 @@ function removeStudentAnswer(blockId, practiceId, ai) {
   if (answer && answer.key) FileDB.delete(answer.key);
   progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId].splice(ai, 1);
   DB.progress = progress;
-  markUnsavedChanges(blockId, practiceId);
+  unsavedChanges[blockId + '_' + practiceId] = true;
   refreshStudentPracticeForm(blockId, practiceId);
 }
 
 function markUnsavedChanges(blockId, practiceId) {
   unsavedChanges[blockId + '_' + practiceId] = true;
-  refreshStudentPracticeForm(blockId, practiceId);
+  // НЕ вызываем refreshStudentPracticeForm — только обновляем индикатор
+  updateSaveIndicator(blockId, practiceId);
+}
+
+function updateSaveIndicator(blockId, practiceId) {
+  var hasUnsaved = unsavedChanges[blockId + '_' + practiceId] || false;
+  var progress = DB.progress[currentEmployee.id]?.[currentCourse.id] || {};
+  var blockProgress = progress[blockId] || {};
+  var practiceAnswers = blockProgress.practiceAnswers?.[practiceId] || [];
+  var answerCount = practiceAnswers.length;
+  
+  // Обновляем счётчик материалов
+  var sectionHeaders = document.querySelectorAll('.practice-answer-editor .section-header');
+  sectionHeaders.forEach(function(header) {
+    var countDiv = header.querySelector('.text-xs.text-gray-600');
+    if (countDiv) countDiv.textContent = answerCount + ' материал(ов) добавлено';
+    var indicatorDiv = header.querySelector('.save-indicator');
+    if (indicatorDiv) {
+      indicatorDiv.className = 'save-indicator ' + (hasUnsaved ? 'unsaved' : (answerCount > 0 ? 'saved' : ''));
+      indicatorDiv.textContent = hasUnsaved ? '⚠️ Есть несохранённые изменения' : (answerCount > 0 ? '✅ Сохранено' : '');
+    }
+  });
 }
 
 function refreshStudentPracticeForm(blockId, practiceId) {
   var container = document.getElementById('studentAnswers_' + blockId + '_' + practiceId);
   if (!container) return;
+  
   var progress = DB.progress[currentEmployee.id]?.[currentCourse.id] || {};
   var blockProgress = progress[blockId] || {};
   var practiceAnswers = blockProgress.practiceAnswers?.[practiceId] || [];
+  
+  // Сохраняем текущий фокус и позицию курсора
+  var activeEl = document.activeElement;
+  var activeId = activeEl ? activeEl.id : null;
+  var cursorPos = null;
+  
+  if (activeEl && activeEl.isContentEditable) {
+    var sel = window.getSelection();
+    if (sel.rangeCount > 0) {
+      var range = sel.getRangeAt(0);
+      var preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(activeEl);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      cursorPos = preCaretRange.toString().length;
+    }
+  }
+  
   var answersHtml = practiceAnswers.map(function(a, ai) { return renderStudentAnswerItem(blockId, practiceId, a, ai); }).join('');
   container.innerHTML = answersHtml;
-  if (practiceAnswers.length === 0 && !unsavedChanges[blockId + '_' + practiceId]) { container.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Добавьте свой ответ с помощью кнопок выше</div>'; }
-  var sectionHeaders = document.querySelectorAll('.practice-answer-editor .section-header');
-  sectionHeaders.forEach(function(header) {
-    var countDiv = header.querySelector('.text-xs.text-gray-600');
-    if (countDiv) countDiv.textContent = practiceAnswers.length + ' материал(ов) добавлено';
-    var indicatorDiv = header.querySelector('.save-indicator');
-    if (indicatorDiv) {
-      var hasUnsaved = unsavedChanges[blockId + '_' + practiceId] || false;
-      indicatorDiv.className = 'save-indicator ' + (hasUnsaved ? 'unsaved' : (practiceAnswers.length > 0 ? 'saved' : ''));
-      indicatorDiv.textContent = hasUnsaved ? '⚠️ Есть несохранённые изменения' : (practiceAnswers.length > 0 ? '✅ Сохранено' : '');
+  
+  if (practiceAnswers.length === 0 && !unsavedChanges[blockId + '_' + practiceId]) {
+    container.innerHTML = '<div class="text-center py-4 text-gray-400 text-sm">Добавьте свой ответ с помощью кнопок выше</div>';
+  }
+  
+  // Обновляем индикатор
+  updateSaveIndicator(blockId, practiceId);
+  
+  // Восстанавливаем фокус и позицию курсора
+  if (activeId && cursorPos !== null) {
+    var newEl = document.getElementById(activeId);
+    if (newEl) {
+      setTimeout(function() {
+        newEl.focus();
+        var sel = window.getSelection();
+        var range = document.createRange();
+        var textNode = newEl.firstChild;
+        if (textNode && textNode.nodeType === 3) {
+          try {
+            range.setStart(textNode, Math.min(cursorPos, textNode.length));
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          } catch(e) {}
+        }
+      }, 0);
     }
-  });
+  }
+  
   bindStudentAnswerHandlers(blockId, practiceId);
 }
 
@@ -2234,7 +2298,8 @@ function bindStudentAnswerHandlers(blockId, practiceId) {
       if (progress[currentEmployee.id]?.[currentCourse.id]?.[blockId]?.practiceAnswers?.[practiceId]?.[ai]) {
         progress[currentEmployee.id][currentCourse.id][blockId].practiceAnswers[practiceId][ai].content = el.innerHTML;
         DB.progress = progress;
-        markUnsavedChanges(blockId, practiceId);
+        // Только обновляем индикатор, НЕ пересоздаём форму
+        updateSaveIndicator(blockId, practiceId);
       }
     };
   });
@@ -2287,9 +2352,11 @@ function updateStudentAnswerCaption(blockId, practiceId, ai, value) {
 function savePracticeAnswers(blockId, practiceId) {
   showSaveNotification('💾 Сохранение...', 'saving');
   unsavedChanges[blockId + '_' + practiceId] = false;
-if (isSupabaseConnected) syncProgressToCloud();
+  
+  // Обновляем индикатор без пересоздания формы
+  updateSaveIndicator(blockId, practiceId);
+  
   setTimeout(() => {
-    refreshStudentPracticeForm(blockId, practiceId);
     showSaveNotification('✅ Ответ успешно сохранён!', 'success');
   }, 500);
 }
@@ -2823,4 +2890,5 @@ if (document.readyState === 'loading') {
 </script>
 </body>
 </html>
+  
   
