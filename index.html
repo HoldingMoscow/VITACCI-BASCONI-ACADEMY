@@ -895,6 +895,12 @@ const DB = {
 
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function formatFileSize(bytes) {
+  if (!bytes || bytes === 0) return '0 Б';
+  if (bytes < 1024) return bytes + ' Б';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+}
 
 function showSaveNotification(message, type) {
   const notification = document.getElementById('saveNotification');
@@ -1406,37 +1412,69 @@ function showEmployeeDetails(empId, courseId) {
 }
 
 function exportEmployeePDF(empId, courseId) {
-  const employee = DB.employees.find(e => e.id === empId); const course = DB.courses.find(c => c.id === courseId);
+  const employee = DB.employees.find(e => e.id === empId);
+  const course = DB.courses.find(c => c.id === courseId);
   if (!employee || !course) return;
+  
   const store = DB.stores.find(s => s.id === employee.storeId);
   const empProgress = DB.progress[empId]?.[courseId] || {};
-  let totalCorrect = 0; let totalQuestions = 0; let completedTests = 0;
+  
+  let totalCorrect = 0;
+  let totalQuestions = 0;
+  let completedTests = 0;
   let testResults = [];
+  
   course.blocks.forEach((b, i) => {
-    const bp = empProgress[b.id] || {}; const score = bp.score || 0; const total = bp.total || 0; const completed = bp.completed || false;
-    totalCorrect += score; totalQuestions += total; if (completed && total > 0) completedTests++;
-    testResults.push({ blockIndex: i, blockTitle: b.title, blockIcon: b.icon, score: score, total: total, completed: completed, percentage: total > 0 ? Math.round((score / total) * 100) : 0 });
+    const bp = empProgress[b.id] || {};
+    const score = bp.score || 0;
+    const total = bp.total || 0;
+    const completed = bp.completed || false;
+    totalCorrect += score;
+    totalQuestions += total;
+    if (completed && total > 0) completedTests++;
+    testResults.push({
+      blockIndex: i,
+      blockTitle: b.title,
+      blockIcon: b.icon,
+      score: score,
+      total: total,
+      completed: completed,
+      percentage: total > 0 ? Math.round((score / total) * 100) : 0
+    });
   });
+  
   const avgTestScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
-  const totalBlocks = course.blocks.length; const completedBlocks = testResults.filter(tr => tr.completed).length;
+  const testStatus = avgTestScore >= 80 ? 'Отлично' : avgTestScore >= 60 ? 'Хорошо' : avgTestScore >= 40 ? 'Удовлетворительно' : 'Требует повторения';
+  const totalBlocks = course.blocks.length;
+  const completedBlocks = testResults.filter(tr => tr.completed).length;
   const totalPractice = course.blocks.reduce((sum, b) => sum + (b.practice?.length || 0), 0);
-  let blocksHtml = testResults.map((tr, i) => {
-    const theoryCount = (course.blocks[i].theoryBlocks || []).length; const practiceCount = (course.blocks[i].practice || []).length; const quizCount = (course.blocks[i].quiz || []).length;
+  const progress = getEmployeeProgress(empId, courseId);
+  
+  // Генерируем HTML отчёта
+  let blocksHtml = '';
+  testResults.forEach((tr, i) => {
+    const theoryCount = (course.blocks[i].theoryBlocks || []).length;
+    const practiceCount = (course.blocks[i].practice || []).length;
+    const quizCount = (course.blocks[i].quiz || []).length;
     const blockProgress = empProgress[course.blocks[i].id] || {};
     const practiceAnswers = blockProgress.practiceAnswers || {};
     const answeredPractices = Object.keys(practiceAnswers).filter(k => practiceAnswers[k] && practiceAnswers[k].length > 0).length;
+    
     let practiceDetailsHtml = '';
     if (answeredPractices > 0) {
       practiceDetailsHtml = '<div style="margin-top:10px">';
       course.blocks[i].practice.forEach(p => {
         const pAnswers = practiceAnswers[p.id] || [];
         if (pAnswers.length > 0) {
-          practiceDetailsHtml += '<div style="background:#f0fdf4;border:1px solid #10b981;border-radius:8px;padding:10px;margin-bottom:8px"><div style="font-weight:bold;margin-bottom:5px"> ' + esc(p.title || 'Ситуация') + '</div>';
+          practiceDetailsHtml += '<div style="background:#f0fdf4;border:1px solid #10b981;border-radius:8px;padding:10px;margin-bottom:8px">';
+          practiceDetailsHtml += '<div style="font-weight:bold;margin-bottom:5px"> ' + esc(p.title || 'Ситуация') + '</div>';
+          if (p.description) practiceDetailsHtml += '<div style="font-size:13px;color:#6b7280;margin-bottom:5px">' + esc(p.description) + '</div>';
+          if (p.question) practiceDetailsHtml += '<div style="font-size:13px;font-weight:600;margin-bottom:5px">❓ ' + esc(p.question) + '</div>';
           pAnswers.forEach(a => {
             const icon = a.type === 'text' ? '📝' : a.type === 'pdf' ? '📕' : a.type === 'image' ? '🖼️' : '🎬';
             const typeLabel = a.type === 'text' ? 'Текст' : a.type === 'pdf' ? 'PDF/DOC' : a.type === 'image' ? 'Изображение' : 'Видео';
             let contentPreview = '';
-            if (a.type === 'text') contentPreview = '<div style="background:#f9fafb;padding:8px;border-radius:4px;margin-top:4px;font-size:13px">' + (a.content || '') + '</div>';
+            if (a.type === 'text') contentPreview = '<div style="background:#f9fafb;padding:8px;border-radius:4px;margin-top:4px;font-size:13px">' + (a.content || 'Текстовый ответ') + '</div>';
             else if (a.type === 'pdf') contentPreview = '<div style="font-size:13px;margin-top:4px">📕 ' + esc(a.fileName || 'Документ') + ' (' + formatFileSize(a.size || 0) + ')</div>';
             else if (a.type === 'image') contentPreview = '<div style="margin-top:4px"><img src="' + a.dataUrl + '" style="max-width:100%;max-height:150px;border-radius:4px"></div>';
             else if (a.type === 'video') contentPreview = '<div style="font-size:13px;margin-top:4px">🎬 ' + esc(a.videoUrl || 'Видео') + '</div>';
@@ -1447,12 +1485,14 @@ function exportEmployeePDF(empId, courseId) {
       });
       practiceDetailsHtml += '</div>';
     }
+    
     let quizDetailsHtml = '';
     if (tr.completed && tr.total > 0 && course.blocks[i].quiz && course.blocks[i].quiz.length > 0) {
       quizDetailsHtml = '<div style="margin-top:10px">';
       course.blocks[i].quiz.forEach((q, qi) => {
         const userAnswer = blockProgress.quizAnswers?.[qi];
-        quizDetailsHtml += '<div style="background:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:10px;margin-bottom:8px"><div style="font-weight:bold;margin-bottom:5px">' + (qi + 1) + '. ' + esc(q.q) + '</div>';
+        quizDetailsHtml += '<div style="background:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:10px;margin-bottom:8px">';
+        quizDetailsHtml += '<div style="font-weight:bold;margin-bottom:5px">' + (qi + 1) + '. ' + esc(q.q) + '</div>';
         q.options.forEach((opt, oi) => {
           const isUserChoice = userAnswer === oi;
           const isCorrectAnswer = q.correct === oi;
@@ -1465,33 +1505,195 @@ function exportEmployeePDF(empId, courseId) {
       });
       quizDetailsHtml += '</div>';
     }
-    return '<div style="border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;background:' + (tr.completed ? '#f0fdf4' : 'white') + '"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><span style="font-size:24px">' + tr.blockIcon + '</span> <b>Блок ' + (tr.blockIndex + 1) + ': ' + esc(tr.blockTitle) + '</b><div style="font-size:12px;color:#6b7280;margin-top:4px">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' ·  ' + quizCount + '</div></div><span style="background:' + (tr.completed ? '#dcfce7' : '#f3f4f6') + ';color:' + (tr.completed ? '#166534' : '#6b7280') + ';padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600">' + (tr.completed ? '✓ Завершён' : 'Не начат') + '</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px"><div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">📚 Теория</div><div style="font-size:13px;font-weight:600">' + theoryCount + ' блоков</div></div><div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">🎯 Практика</div><div style="font-size:13px;font-weight:600">' + answeredPractices + '/' + practiceCount + ' отвечено</div></div><div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">📝 Тест</div><div style="font-size:13px;font-weight:600">' + (tr.total > 0 ? tr.score + '/' + tr.total + ' (' + tr.percentage + '%)' : '—') + '</div></div></div>' + practiceDetailsHtml + quizDetailsHtml + '</div>';
-  }).join('');
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Отчет: ' + esc(employee.name) + ' - ' + esc(course.title) + '</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#1f2937}h1{color:#8B1E3F;border-bottom:3px solid #8B1E3F;padding-bottom:10px}h2{color:#1A1A1A;margin-top:20px}.header-info{background:linear-gradient(135deg,#fdf2f4,#fef3c7);padding:15px;border-radius:8px;margin-bottom:20px}.stat-box{display:inline-block;background:white;border:1px solid #e5e7eb;border-radius:8px;padding:10px 15px;margin:5px;text-align:center}.stat-value{font-size:24px;font-weight:bold;color:#8B1E3F}.stat-label{font-size:12px;color:#6b7280}.badge{display:inline-block;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600}.badge-excellent{background:#10b981;color:white}.badge-good{background:#3b82f6;color:white}.badge-average{background:#f59e0b;color:white}.badge-low{background:#ef4444;color:white}.footer{margin-top:30px;padding-top:15px;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280;text-align:center}@media print{body{padding:10px}}</style></head><body><h1>📊 Отчет по успеваемости</h1><div class="header-info"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:18px;font-weight:bold">' + esc(employee.name) + '</div><div style="font-size:14px;color:#6b7280">' + esc(employee.position) + ' · ' + esc(store?.name || '—') + '</div></div><div style="text-align:right"><div style="font-size:12px;color:#6b7280">Курс</div><div style="font-weight:bold">' + esc(course.title) + '</div></div></div></div><h2>📈 Общие результаты</h2><div><div class="stat-box"><div class="stat-value">' + getEmployeeProgress(empId, courseId) + '%</div><div class="stat-label">Прогресс</div></div><div class="stat-box"><div class="stat-value">' + completedBlocks + '/' + totalBlocks + '</div><div class="stat-label">Блоков пройдено</div></div><div class="stat-box"><div class="stat-value">' + totalPractice + '</div><div class="stat-label">Практических ситуаций</div></div><div class="stat-box"><div class="stat-value">' + completedTests + '/' + totalBlocks + '</div><div class="stat-label">Пройдено тестов</div></div><div class="stat-box"><div class="stat-value">' + totalCorrect + '/' + totalQuestions + '</div><div class="stat-label">Правильных ответов</div></div><div class="stat-box"><div class="stat-value">' + avgTestScore + '%</div><div class="stat-label">Средний балл</div></div><div class="stat-box"><div class="stat-value"><span class="badge badge-' + (avgTestScore >= 80 ? 'excellent' : avgTestScore >= 60 ? 'good' : avgTestScore >= 40 ? 'average' : 'low') + '">' + testStatus + '</span></div><div class="stat-label">Общий результат</div></div></div><h2>📋 Детализация по блокам</h2>' + blocksHtml + '<div class="footer">© VITACCI | BASCONI ACADEMY · Отчет сформирован: ' + new Date().toLocaleString('ru-RU') + '</div></body></html>');
-  printWindow.document.close();
-  setTimeout(() => { printWindow.print(); }, 500);
+    
+    blocksHtml += '<div style="border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;background:' + (tr.completed ? '#f0fdf4' : 'white') + '">';
+    blocksHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    blocksHtml += '<div><span style="font-size:24px">' + tr.blockIcon + '</span> <b>Блок ' + (tr.blockIndex + 1) + ': ' + esc(tr.blockTitle) + '</b>';
+    blocksHtml += '<div style="font-size:12px;color:#6b7280;margin-top:4px">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' · 📝 ' + quizCount + '</div></div>';
+    blocksHtml += '<span style="background:' + (tr.completed ? '#dcfce7' : '#f3f4f6') + ';color:' + (tr.completed ? '#166534' : '#6b7280') + ';padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600">' + (tr.completed ? '✓ Завершён' : 'Не начат') + '</span>';
+    blocksHtml += '</div>';
+    blocksHtml += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">';
+    blocksHtml += '<div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">📚 Теория</div><div style="font-size:13px;font-weight:600">' + theoryCount + ' блоков</div></div>';
+    blocksHtml += '<div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">🎯 Практика</div><div style="font-size:13px;font-weight:600">' + answeredPractices + '/' + practiceCount + ' отвечено</div></div>';
+    blocksHtml += '<div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">📝 Тест</div><div style="font-size:13px;font-weight:600">' + (tr.total > 0 ? tr.score + '/' + tr.total + ' (' + tr.percentage + '%)' : '—') + '</div></div>';
+    blocksHtml += '</div>';
+    blocksHtml += practiceDetailsHtml + quizDetailsHtml;
+    blocksHtml += '</div>';
+  });
+  
+  const badgeColor = avgTestScore >= 80 ? '#10b981' : avgTestScore >= 60 ? '#3b82f6' : avgTestScore >= 40 ? '#f59e0b' : '#ef4444';
+  const reportDate = new Date().toLocaleString('ru-RU');
+  
+  const html = '<!DOCTYPE html>' +
+    '<html lang="ru">' +
+    '<head>' +
+      '<meta charset="UTF-8">' +
+      '<title>Отчёт: ' + esc(employee.name) + ' — ' + esc(course.title) + '</title>' +
+      '<style>' +
+        '@page { size: A4; margin: 15mm; }' +
+        'body { font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #1f2937; font-size: 13px; line-height: 1.5; }' +
+        'h1 { color: #8B1E3F; border-bottom: 3px solid #8B1E3F; padding-bottom: 10px; margin-top: 0; font-size: 22px; }' +
+        'h2 { color: #1A1A1A; margin-top: 25px; font-size: 18px; border-left: 4px solid #8B1E3F; padding-left: 10px; }' +
+        '.header-info { background: linear-gradient(135deg, #fdf2f4, #fef3c7); padding: 15px; border-radius: 8px; margin-bottom: 20px; }' +
+        '.stat-box { display: inline-block; background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 15px; margin: 5px; text-align: center; min-width: 100px; }' +
+        '.stat-value { font-size: 24px; font-weight: bold; color: #8B1E3F; }' +
+        '.stat-label { font-size: 11px; color: #6b7280; margin-top: 4px; }' +
+        '.badge { display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; color: white; }' +
+        '.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #6b7280; text-align: center; }' +
+        '.no-print { display: none; }' +
+        '@media print { body { padding: 10px; } .no-print { display: none !important; } }' +
+      '</style>' +
+    '</head>' +
+    '<body>' +
+      '<h1>📊 Отчёт по успеваемости сотрудника</h1>' +
+      '<div class="header-info">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">' +
+          '<div>' +
+            '<div style="font-size:20px;font-weight:bold">' + esc(employee.name) + '</div>' +
+            '<div style="font-size:14px;color:#6b7280">' + esc(employee.position) + ' · ' + esc(store?.name || '—') + '</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin-top:4px"> ' + esc(employee.email || '—') + '</div>' +
+          '</div>' +
+          '<div style="text-align:right">' +
+            '<div style="font-size:12px;color:#6b7280">Курс</div>' +
+            '<div style="font-weight:bold;font-size:14px">' + esc(course.title) + '</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin-top:4px">📅 ' + reportDate + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<h2>📈 Общие результаты</h2>' +
+      '<div>' +
+        '<div class="stat-box"><div class="stat-value">' + progress + '%</div><div class="stat-label">Общий прогресс</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + completedBlocks + '/' + totalBlocks + '</div><div class="stat-label">Блоков пройдено</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + totalPractice + '</div><div class="stat-label">Практических ситуаций</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + completedTests + '/' + totalBlocks + '</div><div class="stat-label">Пройдено тестов</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + totalCorrect + '/' + totalQuestions + '</div><div class="stat-label">Правильных ответов</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + avgTestScore + '%</div><div class="stat-label">Средний балл</div></div>' +
+        '<div class="stat-box"><div class="stat-value"><span class="badge" style="background:' + badgeColor + '">' + testStatus + '</span></div><div class="stat-label">Общий результат</div></div>' +
+      '</div>' +
+      '<h2>📋 Детализация по блокам</h2>' +
+      blocksHtml +
+      '<div class="footer">© ' + esc(DB.settings.siteTitle || 'VITACCI | BASCONI ACADEMY') + ' · Отчёт сформирован: ' + reportDate + '</div>' +
+      '<div class="no-print" style="margin-top:20px;text-align:center">' +
+        '<button onclick="window.print()" style="background:#8B1E3F;color:white;padding:12px 24px;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600">🖨️ Распечатать / Сохранить как PDF</button>' +
+      '</div>' +
+    '</body>' +
+    '</html>';
+  
+  // Надёжный способ открытия окна печати
+  try {
+    const printWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes,resizable=yes');
+    if (!printWindow) {
+      alert('⚠️ Браузер заблокировал всплывающее окно.\n\nРазрешите всплывающие окна для этого сайта или используйте кнопку "Распечатать" в браузере (Ctrl+P).');
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    
+    // Ждём загрузки и вызываем печать
+    printWindow.onload = function() {
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 500);
+    };
+  } catch (e) {
+    console.error('Ошибка открытия окна печати:', e);
+    alert(' Не удалось открыть окно печати: ' + e.message);
+  }
 }
 
 function exportAllProgressPDF() {
   const employees = DB.employees;
   if (employees.length === 0) { alert('Нет данных для экспорта'); return; }
+  
   const courses = DB.courses;
   const stores = DB.stores;
-  let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Отчет по успеваемости - VITACCI | BASCONI ACADEMY</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#1f2937}h1{color:#8B1E3F;border-bottom:3px solid #8B1E3F;padding-bottom:10px}h2{color:#1A1A1A;margin-top:20px}.employee-card{background:white;border:1px solid #e5e7eb;border-radius:12px;padding:15px;margin-bottom:15px}.stat-box{display:inline-block;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;margin:3px;text-align:center}.stat-value{font-size:18px;font-weight:bold;color:#8B1E3F}.stat-label{font-size:11px;color:#6b7280}.badge{display:inline-block;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600}.badge-excellent{background:#10b981;color:white}.badge-good{background:#3b82f6;color:white}.badge-average{background:#f59e0b;color:white}.badge-low{background:#ef4444;color:white}.footer{margin-top:30px;padding-top:15px;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280;text-align:center}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;font-size:13px}th{background:#f9fafb;font-weight:600}@media print{body{padding:10px}}</style></head><body><h1> Отчет по успеваемости сотрудников</h1><div style="background:linear-gradient(135deg,#fdf2f4,#fef3c7);padding:15px;border-radius:8px;margin-bottom:20px"><div style="font-size:14px"><b>Дата формирования:</b> ' + new Date().toLocaleString('ru-RU') + '</div><div style="font-size:14px"><b>Всего сотрудников:</b> ' + employees.length + '</div><div style="font-size:14px"><b>Всего курсов:</b> ' + courses.length + '</div></div><h2> Сотрудники</h2><table><thead><tr><th>Сотрудник</th><th>Должность</th><th>Магазин</th><th>Прогресс</th><th>Результат тестов</th><th>Статус</th></tr></thead><tbody>';
+  const s = DB.settings;
+  const reportDate = new Date().toLocaleString('ru-RU');
+  
+  let tableRows = '';
   employees.forEach(e => {
     const store = stores.find(s => s.id === e.storeId);
     const p = getEmployeeProgress(e.id);
     const scoreData = getEmployeeTestScore(e.id);
-    const status = p === 100 ? 'Завершен' : p > 0 ? 'В процессе' : 'Не начат';
-    const badgeClass = scoreData.avgScore >= 80 ? 'excellent' : scoreData.avgScore >= 60 ? 'good' : scoreData.avgScore >= 40 ? 'average' : 'low';
-    html += '<tr><td><b>' + esc(e.name) + '</b><br><span style="font-size:11px;color:#6b7280">' + esc(e.email || '') + '</span></td><td>' + esc(e.position) + '</td><td>' + esc(store?.name || '—') + '</td><td><div class="stat-value">' + p + '%</div></td><td><span class="badge badge-' + badgeClass + '">' + scoreData.avgScore + '%</span><br><span style="font-size:11px">' + scoreData.totalCorrect + '/' + scoreData.totalQuestions + '</span></td><td>' + status + '</td></tr>';
+    const status = p === 100 ? 'Завершён' : p > 0 ? 'В процессе' : 'Не начат';
+    const badgeColor = scoreData.avgScore >= 80 ? '#10b981' : scoreData.avgScore >= 60 ? '#3b82f6' : scoreData.avgScore >= 40 ? '#f59e0b' : '#ef4444';
+    const statusColor = p === 100 ? '#10b981' : p > 0 ? '#f59e0b' : '#6b7280';
+    
+    tableRows += '<tr>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb"><b>' + esc(e.name) + '</b><br><span style="font-size:11px;color:#6b7280">' + esc(e.email || '') + '</span></td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb">' + esc(e.position) + '</td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb">' + esc(store?.name || '—') + '</td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><div style="font-size:18px;font-weight:bold;color:#8B1E3F">' + p + '%</div></td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><span style="background:' + badgeColor + ';color:white;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">' + scoreData.avgScore + '%</span><br><span style="font-size:11px">' + scoreData.totalCorrect + '/' + scoreData.totalQuestions + '</span></td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><span style="background:' + statusColor + ';color:white;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">' + status + '</span></td>' +
+    '</tr>';
   });
-  html += '</tbody></table><div class="footer">© VITACCI | BASCONI ACADEMY · Отчет сформирован: ' + new Date().toLocaleString('ru-RU') + '</div></body></html>';
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(html);
-  printWindow.document.close();
-  setTimeout(() => { printWindow.print(); }, 500);
+  
+  const html = '<!DOCTYPE html>' +
+    '<html lang="ru">' +
+    '<head>' +
+      '<meta charset="UTF-8">' +
+      '<title>Отчёт по успеваемости — ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + '</title>' +
+      '<style>' +
+        '@page { size: A4 landscape; margin: 15mm; }' +
+        'body { font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #1f2937; font-size: 13px; }' +
+        'h1 { color: #8B1E3F; border-bottom: 3px solid #8B1E3F; padding-bottom: 10px; margin-top: 0; font-size: 22px; }' +
+        'h2 { color: #1A1A1A; margin-top: 25px; font-size: 18px; border-left: 4px solid #8B1E3F; padding-left: 10px; }' +
+        'table { width: 100%; border-collapse: collapse; margin-top: 15px; }' +
+        'th { background: #f9fafb; padding: 10px; text-align: left; font-size: 12px; color: #6b7280; border: 1px solid #e5e7eb; }' +
+        '.header-info { background: linear-gradient(135deg, #fdf2f4, #fef3c7); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }' +
+        '.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #6b7280; text-align: center; }' +
+        '.no-print { display: none; }' +
+        '@media print { body { padding: 10px; } .no-print { display: none !important; } }' +
+      '</style>' +
+    '</head>' +
+    '<body>' +
+      '<h1>📊 Отчёт по успеваемости сотрудников</h1>' +
+      '<div class="header-info">' +
+        '<div><b>Организация:</b> ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + '</div>' +
+        '<div><b>Дата формирования:</b> ' + reportDate + '</div>' +
+        '<div><b>Всего сотрудников:</b> ' + employees.length + ' | <b>Всего курсов:</b> ' + courses.length + '</div>' +
+      '</div>' +
+      '<h2>👥 Сотрудники</h2>' +
+      '<table>' +
+        '<thead><tr>' +
+          '<th>Сотрудник</th>' +
+          '<th>Должность</th>' +
+          '<th>Магазин</th>' +
+          '<th style="text-align:center">Прогресс</th>' +
+          '<th style="text-align:center">Результат тестов</th>' +
+          '<th style="text-align:center">Статус</th>' +
+        '</tr></thead>' +
+        '<tbody>' + tableRows + '</tbody>' +
+      '</table>' +
+      '<div class="footer">© ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + ' · Отчёт сформирован: ' + reportDate + '</div>' +
+      '<div class="no-print" style="margin-top:20px;text-align:center">' +
+        '<button onclick="window.print()" style="background:#8B1E3F;color:white;padding:12px 24px;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600">🖨️ Распечатать / Сохранить как PDF</button>' +
+      '</div>' +
+    '</body>' +
+    '</html>';
+  
+  try {
+    const printWindow = window.open('', '_blank', 'width=1100,height=700,scrollbars=yes,resizable=yes');
+    if (!printWindow) {
+      alert('⚠️ Браузер заблокировал всплывающее окно.\n\nРазрешите всплывающие окна для этого сайта.');
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.onload = function() {
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 500);
+    };
+  } catch (e) {
+    console.error('Ошибка:', e);
+    alert('❌ Не удалось открыть окно печати: ' + e.message);
+  }
 }
 
 function renderProgress() {
@@ -3251,5 +3453,3 @@ if (document.readyState === 'loading') {
 </script>
 </body>
 </html>
-  
-  
