@@ -438,7 +438,17 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
           <div><label class="text-sm text-gray-600">Подзаголовок</label><input id="settingSiteSubtitle" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2"></div>
           <button type="button" onclick="saveSettings()" class="btn-primary">💾 Сохранить</button>
         </div>
-      </div>
+      <div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+  <h3 class="font-bold text-gray-800 mb-4">🔄 Синхронизация</h3>
+  <div class="flex gap-2 flex-wrap">
+    <button type="button" onclick="syncToSupabase()" class="btn-primary">️ Синхронизировать с облаком</button>
+    <button type="button" onclick="loadFromSupabase().then(r => { if(r) { alert('✅ Данные загружены'); renderAll(); } else { alert('⚠️ Не удалось загрузить данные из облака'); } })" class="btn-secondary">️ Загрузить из облака</button>
+    <button type="button" onclick="if(confirm('Сбросить локальные данные и загрузить из облака?')) { localStorage.clear(); location.reload(); }" class="btn-danger">🗑️ Сбросить локальные данные</button>
+  </div>
+  <div class="text-xs text-gray-500 mt-3">
+    💡 Если данные не отображаются — попробуйте "Загрузить из облака" или "Сбросить локальные данные"
+  </div>
+</div>
       <div class="admin-card rounded-2xl p-6 shadow-sm">
         <h3 class="font-bold text-gray-800 mb-4">👑 Администраторы</h3>
         <div class="flex gap-2 mb-4"><input id="newAdminEmail" type="email" placeholder="Email нового администратора" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"><button type="button" onclick="addAdmin()" class="btn-primary">+ Добавить</button></div>
@@ -467,7 +477,7 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
           <div><div id="empSiteTitle" class="text-xl font-bold">VITACCI | BASCONI ACADEMY</div><div id="empSiteSubtitle" class="text-xs opacity-80">Обучающий портал холдинга</div></div>
         </div>
         <div class="flex items-center gap-2">
-          <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👤 Сотрудник</span>
+          <span id="empDisplayName" class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">👤 Сотрудник</span>
           <button type="button" onclick="exitEmployeeMode()" class="btn-ghost text-white/80 hover:text-white text-sm">🚪 Выйти</button>
         </div>
       </div>
@@ -798,63 +808,98 @@ async function loadFromSupabase() {
   
   try {
     updateSyncStatus('syncing', 'Загрузка данных...');
+    let anyLoaded = false;
     
-    const { data: stores, error: storeError } = await supabaseClient.from('stores').select('*');
-    if (!storeError && stores && stores.length > 0) {
-      DB.stores = stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand, createdAt: s.created_at }));
-      console.log('✅ Магазинов:', stores.length);
-    }
+    // 1. Магазины
+    try {
+      const { data: stores, error } = await supabaseClient.from('stores').select('*');
+      if (!error && stores && stores.length > 0) {
+        DB.stores = stores.map(s => ({ id: s.id, name: s.name, address: s.address, brand: s.brand, createdAt: s.created_at }));
+        console.log('✅ Магазинов:', stores.length);
+        anyLoaded = true;
+      }
+    } catch (e) { console.warn('⚠️ Ошибка загрузки магазинов:', e.message); }
     
-    const { data: employees, error: empError } = await supabaseClient.from('employees').select('*');
-    if (!empError && employees && employees.length > 0) {
-      DB.employees = employees.map(e => ({ id: e.id, name: e.name, email: e.email, storeId: e.store_id, position: e.position, role: e.role, isAdmin: e.is_admin }));
-      console.log('✅ Сотрудников:', employees.length);
-    }
+    // 2. Сотрудники
+    try {
+      const { data: employees, error } = await supabaseClient.from('employees').select('*');
+      if (!error && employees && employees.length > 0) {
+        DB.employees = employees.map(e => ({ id: e.id, name: e.name, email: e.email, storeId: e.store_id, position: e.position, role: e.role, isAdmin: e.is_admin }));
+        console.log('✅ Сотрудников:', employees.length);
+        anyLoaded = true;
+      }
+    } catch (e) { console.warn('️ Ошибка загрузки сотрудников:', e.message); }
     
-    const { data: courses, error: courseError } = await supabaseClient.from('courses').select('*');
-if (!courseError && courses && courses.length > 0) {
-  DB.courses = courses.map(c => ({
-    id: c.id,
-    title: c.title,
-    description: c.description,
-    duration: c.duration,
-    icon: c.icon || '📚',
-    blocks: c.blocks || [],
-    createdAt: c.created_at
-  }));
-  console.log('✅ Курсов:', courses.length);
-}
+    // 3. Курсы (с повторной попыткой)
+    try {
+      let coursesData = null;
+      let coursesError = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const result = await supabaseClient.from('courses').select('*');
+        coursesData = result.data;
+        coursesError = result.error;
+        if (!coursesError) break;
+        console.warn(`⚠️ Попытка загрузки курсов ${attempt + 1}/3 не удалась`);
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      }
+      if (!coursesError && coursesData && coursesData.length > 0) {
+        DB.courses = coursesData.map(c => ({ id: c.id, title: c.title, description: c.description, duration: c.duration, icon: c.icon, blocks: c.blocks || [], createdAt: c.created_at }));
+        console.log('✅ Курсов:', coursesData.length);
+        anyLoaded = true;
+      } else if (coursesError) {
+        console.warn('⚠️ Курсы не загружены из облака:', coursesError.message);
+      }
+    } catch (e) { console.warn('⚠️ Ошибка загрузки курсов:', e.message); }
     
-    const { data: codes, error: codeError } = await supabaseClient.from('access_codes').select('*');
-    if (!codeError && codes && codes.length > 0) {
-      DB.links = codes.map(c => ({ token: c.code, employeeId: c.employee_id, courseId: c.course_id, createdAt: c.created_at }));
-      console.log('✅ Кодов:', codes.length);
-    }
-   
-    const { data: progress, error: progError } = await supabaseClient.from('progress').select('*');
-    if (!progError && progress && progress.length > 0) {
-      const progressMap = {};
-      progress.forEach(p => {
-        if (!progressMap[p.employee_id]) progressMap[p.employee_id] = {};
-        if (!progressMap[p.employee_id][p.course_id]) progressMap[p.employee_id][p.course_id] = {};
-        progressMap[p.employee_id][p.course_id][p.block_id] = {
-          completed: p.completed,
-          score: p.score,
-          total: p.total,
-          percentage: p.percentage,
-          practiceAnswers: p.practice_answers || {},
-          quizAnswers: p.quiz_answers || {},
-          at: p.created_at
-        };
-      });
-      DB.progress = progressMap;
-      console.log('✅ Прогресс загружен:', progress.length, 'записей');
-    }
+    // 4. Коды доступа
+    try {
+      const { data: codes, error } = await supabaseClient.from('access_codes').select('*');
+      if (!error && codes && codes.length > 0) {
+        DB.links = codes.map(c => ({ token: c.code, employeeId: c.employee_id, courseId: c.course_id, createdAt: c.created_at }));
+        console.log('✅ Кодов:', codes.length);
+        anyLoaded = true;
+      }
+    } catch (e) { console.warn('⚠️ Ошибка загрузки кодов:', e.message); }
+    
+    // 5. Прогресс (с повторной попыткой)
+    try {
+      let progressData = null;
+      let progressError = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const result = await supabaseClient.from('progress').select('*');
+        progressData = result.data;
+        progressError = result.error;
+        if (!progressError) break;
+        console.warn(`⚠️ Попытка загрузки прогресса ${attempt + 1}/3 не удалась`);
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      }
+      if (!progressError && progressData && progressData.length > 0) {
+        const progressMap = {};
+        progressData.forEach(p => {
+          if (!progressMap[p.employee_id]) progressMap[p.employee_id] = {};
+          if (!progressMap[p.employee_id][p.course_id]) progressMap[p.employee_id][p.course_id] = {};
+          progressMap[p.employee_id][p.course_id][p.block_id] = {
+            completed: p.completed,
+            score: p.score,
+            total: p.total,
+            percentage: p.percentage,
+            practiceAnswers: p.practice_answers || {},
+            quizAnswers: p.quiz_answers || {},
+            at: p.created_at
+          };
+        });
+        DB.progress = progressMap;
+        console.log('✅ Прогресс загружен:', progressData.length, 'записей');
+        anyLoaded = true;
+      } else if (progressError) {
+        console.warn('️ Прогресс не загружен из облака:', progressError.message);
+      }
+    } catch (e) { console.warn('⚠️ Ошибка загрузки прогресса:', e.message); }
     
     updateSyncStatus('online');
-    return true;
+    return anyLoaded;
   } catch (e) {
-    console.error('❌ Ошибка загрузки:', e);
+    console.error('❌ Критическая ошибка загрузки:', e);
     updateSyncStatus('offline');
     return false;
   }
@@ -1697,11 +1742,15 @@ async function loginByToken() {
     return;
   }
   
+  const empDisplayName = document.getElementById('empDisplayName');
+  if (empDisplayName) {
+    empDisplayName.textContent = '👤 ' + currentEmployee.name;
+  }
+  
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('employeeMode').classList.remove('hidden');
   document.getElementById('adminMode').classList.add('hidden');
   document.getElementById('courseMode').classList.add('hidden');
-  
   switchEmployeeTab('courses');
 }
 
@@ -3088,22 +3137,32 @@ async function initDemo() {
 
 async function init() {
   console.log('🚀 Инициализация приложения...');
-  try { await FileDB.init(); } catch (e) { console.warn('FileDB не инициализирован:', e); }
+  
+  // Инициализация FileDB
+  try { await FileDB.init(); } catch (e) { console.warn('FileDB:', e); }
+  
   let connected = false;
   try {
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Таймаут')), 8000));
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Таймаут')), 10000));
     connected = await Promise.race([initSupabase(), timeoutPromise]);
   } catch (e) {
     console.warn('⚠️ Supabase недоступен:', e.message);
     connected = false;
   }
+  
   if (connected) {
     console.log('✅ Supabase подключен, загружаем данные...');
     try {
       const loaded = await loadFromSupabase();
       if (!loaded) {
-        console.log('️ Данные не загружены из облака, используем локальные');
+        console.log('⚠️ Данные не загружены из облака, используем локальные');
         await initDemo();
+      } else {
+        // Если курсы не загрузились из облака — используем локальные
+        if (DB.courses.length === 0) {
+          console.log('⚠️ Курсы не загружены из облака, используем локальные');
+          await initDemo();
+        }
       }
     } catch (e) {
       console.error('Ошибка загрузки из Supabase:', e);
@@ -3113,8 +3172,10 @@ async function init() {
     console.log('💾 Используем локальные данные');
     await initDemo();
   }
+  
   const loadingOverlay = document.getElementById('loadingOverlay');
   if (loadingOverlay) loadingOverlay.classList.add('hidden');
+  
   if (isAdminModeActive()) {
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('adminMode').classList.remove('hidden');
@@ -3123,22 +3184,15 @@ async function init() {
     switchTab('dashboard');
     return;
   }
+  
   const params = new URLSearchParams(location.search);
   const hashParams = new URLSearchParams(location.hash.substring(1));
   const token = params.get('token') || hashParams.get('token');
   if (token) {
     const link = DB.links.find(l => l.token === token);
-    if (link) {
-      currentToken = token;
-      currentEmployee = DB.employees.find(function(e) { return e.id === link.employeeId; });
-      if (currentEmployee) {
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('employeeMode').classList.remove('hidden');
-        switchEmployeeTab('courses');
-        return;
-      }
-    }
+    if (link) { startCourseMode(token); return; }
   }
+  
   document.getElementById('loginPage').classList.remove('hidden');
   document.getElementById('adminMode').classList.add('hidden');
   document.getElementById('employeeMode').classList.add('hidden');
@@ -3149,8 +3203,6 @@ async function init() {
     tokenInput.focus();
   }
   console.log('✅ Приложение готово');
-  console.log(' Email: admin@academy.ru');
-  console.log('🔑 Пароль: admin123');
 }
 
 if (document.readyState === 'loading') {
@@ -3162,4 +3214,5 @@ if (document.readyState === 'loading') {
 </body>
 </html>
   
+   
   
