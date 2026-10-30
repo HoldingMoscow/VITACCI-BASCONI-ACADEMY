@@ -717,6 +717,34 @@ async function syncToSupabase() {
     console.log('✅ Курсы синхронизированы:', coursesData.length);
   }
 }
+// Синхронизация библиотеки
+if (DB.library.length > 0) {
+  const libraryData = DB.library.map(item => ({
+    id: item.id,
+    name: item.name,
+    type: item.type || 'other',
+    mime_type: item.mimeType || '',
+    original_name: item.originalName || item.name,
+    size: item.size || 0,
+    storage_key: item.key || item.storageKey || '',
+    file_url: item.fileUrl || item.link || '',
+    category: item.category || 'Другое',
+    description: item.description || '',
+    uploaded_by: item.uploadedBy || '',
+    is_link: item.isLink || false,
+    created_at: new Date(item.createdAt).toISOString()
+  }));
+  
+  const { error: libError } = await supabaseClient
+    .from('library')
+    .upsert(libraryData, { onConflict: 'id' });
+  
+  if (libError) {
+    console.error('Ошибка синхронизации библиотеки:', libError);
+  } else {
+    console.log('✅ Библиотека синхронизирована:', libraryData.length, 'файлов');
+  }
+}
     updateSyncStatus('online');
     alert('✅ Данные синхронизированы с облаком!');
   } catch (e) {
@@ -896,6 +924,28 @@ async function loadFromSupabase() {
       }
     } catch (e) { console.warn('⚠️ Ошибка загрузки прогресса:', e.message); }
     
+// Загрузка библиотеки
+const { data: library, error: libError } = await supabaseClient.from('library').select('*');
+if (!libError && library && library.length > 0) {
+  DB.library = library.map(item => ({
+    id: item.id,
+    name: item.name,
+    type: item.type || 'other',
+    mimeType: item.mime_type || '',
+    originalName: item.original_name || item.name,
+    size: item.size || 0,
+    key: item.storage_key || '',
+    storageKey: item.storage_key || '',
+    fileUrl: item.file_url || '',
+    link: item.file_url || '',
+    category: item.category || 'Другое',
+    description: item.description || '',
+    uploadedBy: item.uploaded_by || '',
+    isLink: item.is_link || false,
+    createdAt: item.created_at ? new Date(item.created_at).getTime() : Date.now()
+  }));
+  console.log('✅ Библиотека загружена:', library.length, 'файлов');
+}
     updateSyncStatus('online');
     return anyLoaded;
   } catch (e) {
@@ -1348,6 +1398,105 @@ function openLibraryLink(id) {
 function deleteLibraryFile(id) {
   if (!confirm('Удалить файл?')) return;
   const library = DB.library;
+  DB.library = library.filter(i => i.id !== id);
+  renderLibrary();
+}
+
+async function syncLibraryItemToCloud(item) {
+  if (!isSupabaseConnected || !supabaseClient) return;
+  
+  try {
+    const { error } = await supabaseClient
+      .from('library')
+      .upsert({
+        id: item.id,
+        name: item.name,
+        type: item.type || 'other',
+        mime_type: item.mimeType || '',
+        original_name: item.originalName || item.name,
+        size: item.size || 0,
+        storage_key: item.key || item.storageKey || '',
+        file_url: item.fileUrl || item.link || '',
+        category: item.category || 'Другое',
+        description: item.description || '',
+        uploaded_by: item.uploadedBy || '',
+        is_link: item.isLink || false,
+        created_at: new Date(item.createdAt).toISOString()
+      }, { onConflict: 'id' });
+    
+    if (error) {
+      console.error('❌ Ошибка синхронизации библиотеки:', error);
+    } else {
+      console.log('✅ Библиотека синхронизирована:', item.name);
+    }
+  } catch (e) {
+    console.error('Ошибка синхронизации библиотеки:', e);
+  }
+}
+
+async function saveLibraryFile() {
+  const fileName = document.getElementById('libraryFileName').value.trim();
+  const category = document.getElementById('libraryFileCategory').value;
+  const description = document.getElementById('libraryFileDescription').value.trim();
+  
+  if (!fileName) return alert('Введите название файла');
+  
+  const libraryItem = {
+    id: 'lib_' + Date.now(),
+    name: fileName,
+    type: 'other',
+    category: category,
+    description: description,
+    uploadedBy: getCurrentAdminEmail() || 'Администратор',
+    createdAt: Date.now(),
+    isLink: false
+  };
+  
+  // Сохраняем локально
+  const library = DB.library;
+  library.push(libraryItem);
+  DB.library = library;
+  
+  // Синхронизируем с облаком
+  if (isSupabaseConnected && supabaseClient) {
+    try {
+      await syncLibraryItemToCloud(libraryItem);
+      console.log('✅ Файл синхронизирован с облаком:', fileName);
+    } catch (e) {
+      console.error('⚠️ Ошибка синхронизации файла:', e);
+    }
+  }
+  
+  closeModal();
+  renderLibrary();
+  alert('✅ Файл добавлен в библиотеку!');
+}
+
+async function deleteLibraryFileWithSync(id) {
+  if (!confirm('Удалить файл из библиотеки?')) return;
+  
+  const library = DB.library;
+  const item = library.find(i => i.id === id);
+  
+  // Удаляем из Supabase
+  if (isSupabaseConnected && supabaseClient && item) {
+    try {
+      const { error } = await supabaseClient
+        .from('library')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Ошибка удаления из облака:', error);
+      } else {
+        console.log('✅ Файл удалён из облака:', item.name);
+      }
+    } catch (e) {
+      console.error('Ошибка удаления из облака:', e);
+    }
+  }
+  
+  // Удаляем локально
   DB.library = library.filter(i => i.id !== id);
   renderLibrary();
 }
