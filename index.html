@@ -940,7 +940,12 @@ const DB = {
 
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-
+function formatFileSize(bytes) {
+  if (!bytes || bytes === 0) return '0 Б';
+  if (bytes < 1024) return bytes + ' Б';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+}
 function showSaveNotification(message, type) {
   const notification = document.getElementById('saveNotification');
   const notificationText = document.getElementById('saveNotificationText');
@@ -1291,18 +1296,53 @@ function renderLibrary() {
   const library = DB.library; const el = document.getElementById('libraryList');
   const search = (document.getElementById('librarySearch')?.value || '').toLowerCase();
   const categoryFilter = document.getElementById('libraryCategoryFilter')?.value || '';
+  
   if (library.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">📚</div><div class="text-lg font-medium">Библиотека пуста</div></div>'; return; }
+  
   let filtered = library.filter(item => {
     if (categoryFilter && item.category !== categoryFilter) return false;
-    if (search && !item.name.toLowerCase().includes(search)) return false;
+    if (search && !item.name.toLowerCase().includes(search) && !(item.description || '').toLowerCase().includes(search)) return false;
     return true;
   });
-  if (filtered.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4"></div><div class="text-lg font-medium">Ничего не найдено</div></div>'; return; }
+  
+  if (filtered.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">🔍</div><div class="text-lg font-medium">Ничего не найдено</div></div>'; return; }
+  
   el.innerHTML = filtered.map(item => {
-    const icon = item.type === 'pdf' ? '📕' : item.type === 'excel' ? '📊' : item.type === 'word' ? '📝' : item.type === 'video' ? '🎬' : '📄';
+    const icon = item.type === 'pdf' ? '📕' : item.type === 'excel' ? '📊' : item.type === 'word' ? '' : item.type === 'video' ? '' : item.type === 'image' ? '🖼️' : '📄';
     const date = new Date(item.createdAt).toLocaleDateString('ru-RU');
-    return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex items-start gap-3 mb-3"><div class="text-4xl">' + icon + '</div><div class="flex-1 min-w-0"><div class="font-bold text-gray-800 text-sm truncate">' + esc(item.name) + '</div><div class="text-xs text-gray-500 mt-1">' + esc(item.category || 'Без категории') + '</div></div></div><div class="text-xs text-gray-500 mb-3">📅 ' + date + ' · 👤 ' + esc(item.uploadedBy || 'Администратор') + '</div><div class="flex gap-2"><button type="button" class="btn-primary btn-sm flex-1">️ Скачать</button><button type="button" class="btn-danger btn-sm" onclick="deleteLibraryFile(\'' + item.id + '\')">🗑️</button></div></div>';
+    const isLink = item.isLink || item.link;
+    const linkBadge = isLink ? '<span class="chip bg-blue-100 text-blue-700">🔗 Ссылка</span>' : '';
+    
+    let actionButtons = '';
+    if (isLink) {
+      actionButtons = '<button type="button" class="btn-info btn-sm flex-1" onclick="openLibraryLink(\'' + item.id + '\')">🔗 Открыть ссылку</button>';
+    } else {
+      actionButtons = '<button type="button" class="btn-primary btn-sm flex-1" onclick="downloadLibraryFile(\'' + item.id + '\')">️ Скачать</button>';
+    }
+    
+    return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover">' +
+      '<div class="flex items-start gap-3 mb-3">' +
+        '<div class="text-4xl">' + icon + '</div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="font-bold text-gray-800 text-sm truncate">' + esc(item.name) + '</div>' +
+          '<div class="text-xs text-gray-500 mt-1">' + esc(item.category || 'Без категории') + '</div>' +
+          '<div class="mt-1 flex gap-1 flex-wrap">' + linkBadge + '</div>' +
+        '</div>' +
+      '</div>' +
+      (item.description ? '<div class="text-xs text-gray-600 mb-3 line-clamp-2">' + esc(item.description) + '</div>' : '<div class="mb-3"></div>') +
+      '<div class="text-xs text-gray-500 mb-3">📅 ' + date + ' · 👤 ' + esc(item.uploadedBy || 'Администратор') + '</div>' +
+      '<div class="flex gap-2">' +
+        actionButtons +
+        '<button type="button" class="btn-danger btn-sm" onclick="deleteLibraryFile(\'' + item.id + '\')">🗑️</button>' +
+      '</div>' +
+    '</div>';
   }).join('');
+}
+
+function openLibraryLink(id) {
+  const item = DB.library.find(i => i.id === id);
+  if (!item || !item.link) { alert('Ссылка не найдена'); return; }
+  window.open(item.link, '_blank');
 }
 
 function deleteLibraryFile(id) {
@@ -1314,22 +1354,199 @@ function deleteLibraryFile(id) {
 
 function openLibraryUploadModal() {
   openModal(
-    '<div class="p-6 max-w-2xl mx-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-bold text-gray-800">📤 Загрузка файла</h3><button type="button" class="btn-ghost text-xl" onclick="closeModal()"></button></div><div class="space-y-4"><div><label class="text-sm text-gray-600 font-medium">Название файла</label><input id="libraryFileName" type="text" placeholder="Например: Мерчбук VITACCI ОЗ 2024" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div><div><label class="text-sm text-gray-600 font-medium">Категория</label><select id="libraryFileCategory" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"><option value="Мерчбуки">Мерчбуки</option><option value="Инструкции">Инструкции</option><option value="Видеоуроки">Видеоуроки</option><option value="Презентации">Презентации</option><option value="Другое">Другое</option></select></div><div><label class="text-sm text-gray-600 font-medium">Описание</label><textarea id="libraryFileDescription" placeholder="Краткое описание..." class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none" rows="3"></textarea></div><div class="flex gap-2 mt-6"><button type="button" onclick="saveLibraryFile()" class="btn-primary flex-1">📤 Загрузить</button><button type="button" onclick="closeModal()" class="btn-secondary flex-1">Отмена</button></div></div></div>',
+    '<div class="p-6 max-w-2xl mx-auto">' +
+      '<div class="flex items-center justify-between mb-4">' +
+        '<h3 class="text-xl font-bold text-gray-800">📤 Загрузка файла</h3>' +
+        '<button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button>' +
+      '</div>' +
+      '<div class="space-y-4">' +
+        '<div><label class="text-sm text-gray-600 font-medium">Название файла</label>' +
+          '<input id="libraryFileName" type="text" placeholder="Например: Мерчбук VITACCI ОЗ 2024" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none"></div>' +
+        '<div><label class="text-sm text-gray-600 font-medium">Категория</label>' +
+          '<select id="libraryFileCategory" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none">' +
+            '<option value="Мерчбуки">Мерчбуки</option>' +
+            '<option value="Инструкции">Инструкции</option>' +
+            '<option value="Видеоуроки">Видеоуроки</option>' +
+            '<option value="Презентации">Презентации</option>' +
+            '<option value="Другое">Другое</option>' +
+          '</select></div>' +
+        '<div><label class="text-sm text-gray-600 font-medium">Описание</label>' +
+          '<textarea id="libraryFileDescription" placeholder="Краткое описание..." class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none" rows="3"></textarea></div>' +
+        
+        '<div class="border-t border-gray-200 pt-4 mt-4">' +
+          '<div class="flex gap-2 mb-3">' +
+            '<button type="button" id="btnModeUpload" class="btn-primary flex-1" onclick="switchLibraryMode(\'upload\')"> Загрузить файл</button>' +
+            '<button type="button" id="btnModeLink" class="btn-secondary flex-1" onclick="switchLibraryMode(\'link\')">🔗 Добавить по ссылке</button>' +
+          '</div>' +
+        '</div>' +
+        
+        '<div id="uploadSection">' +
+          '<div><label class="text-sm text-gray-600 font-medium">Файл</label>' +
+            '<div class="drop-zone mt-1" id="libraryDropZone" style="border:2px dashed #D4A5A0;border-radius:0.75rem;padding:1.5rem;text-align:center;cursor:pointer;background:#fdf2f4;">' +
+              '<input type="file" id="libraryFileInput" class="hidden" onchange="handleLibraryFileSelect(event)">' +
+              '<div id="libraryFilePreview" class="text-gray-500">' +
+                '<div class="text-4xl mb-2">📁</div>' +
+                '<div class="text-sm font-medium">Нажмите для выбора файла</div>' +
+                '<div class="text-xs mt-1 text-gray-400">PDF, Word, Excel, Видео</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        
+        '<div id="linkSection" class="hidden">' +
+          '<div><label class="text-sm text-gray-600 font-medium">Ссылка на файл</label>' +
+            '<input id="libraryFileLink" type="url" placeholder="https://drive.google.com/... или https://disk.yandex.ru/..." class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none">' +
+            '<div class="text-xs text-gray-500 mt-1">💡 Поддерживаются: Google Drive, Яндекс.Диск, Dropbox, прямые ссылки на файлы</div>' +
+          '</div>' +
+          '<div class="mt-3"><label class="text-sm text-gray-600 font-medium">Тип файла</label>' +
+            '<select id="libraryFileLinkType" class="w-full mt-1 border-2 border-gray-200 rounded-lg px-4 py-2 focus:border-vitacci focus:outline-none">' +
+              '<option value="pdf">📕 PDF</option>' +
+              '<option value="word"> Word</option>' +
+              '<option value="excel">📊 Excel</option>' +
+              '<option value="video">🎬 Видео</option>' +
+              '<option value="image">️ Изображение</option>' +
+              '<option value="other">📄 Другое</option>' +
+            '</select>' +
+          '</div>' +
+        '</div>' +
+        
+        '<div id="libraryUploadError" class="hidden bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"></div>' +
+        '<div class="flex gap-2 mt-6">' +
+          '<button type="button" id="btnUploadLibraryFile" class="btn-primary flex-1 py-3">📤 Добавить</button>' +
+          '<button type="button" onclick="closeModal()" class="btn-secondary flex-1 py-3">Отмена</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>',
     'max-w-2xl'
   );
+  
+  document.getElementById('btnUploadLibraryFile').onclick = uploadLibraryFile;
+  
+  const dropZone = document.getElementById('libraryDropZone');
+  dropZone.addEventListener('click', function() {
+    document.getElementById('libraryFileInput').click();
+  });
 }
 
-function saveLibraryFile() {
+function switchLibraryMode(mode) {
+  const uploadSection = document.getElementById('uploadSection');
+  const linkSection = document.getElementById('linkSection');
+  const btnUpload = document.getElementById('btnModeUpload');
+  const btnLink = document.getElementById('btnModeLink');
+  
+  if (mode === 'upload') {
+    uploadSection.classList.remove('hidden');
+    linkSection.classList.add('hidden');
+    btnUpload.className = 'btn-primary flex-1';
+    btnLink.className = 'btn-secondary flex-1';
+  } else {
+    uploadSection.classList.add('hidden');
+    linkSection.classList.remove('hidden');
+    btnUpload.className = 'btn-secondary flex-1';
+    btnLink.className = 'btn-primary flex-1';
+  }
+}
+
+function handleLibraryFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const preview = document.getElementById('libraryFilePreview');
+  const fileNameInput = document.getElementById('libraryFileName');
+  if (!fileNameInput.value.trim()) {
+    fileNameInput.value = file.name.replace(/\.[^/.]+$/, '');
+  }
+  const icon = file.type === 'application/pdf' ? '📕' : file.type.includes('excel') ? '📊' : file.type.includes('word') ? '📝' : file.type.includes('video') ? '🎬' : '📄';
+  preview.innerHTML = '<div class="flex items-center gap-3"><div class="text-4xl">' + icon + '</div><div class="text-left flex-1 min-w-0"><div class="font-medium text-gray-800 text-sm truncate">' + esc(file.name) + '</div><div class="text-xs text-gray-500">' + formatFileSize(file.size) + '</div></div></div>';
+}
+
+async function uploadLibraryFile() {
   const fileName = document.getElementById('libraryFileName').value.trim();
   const category = document.getElementById('libraryFileCategory').value;
   const description = document.getElementById('libraryFileDescription').value.trim();
-  if (!fileName) return alert('Введите название файла');
-  const library = DB.library;
-  library.push({ id: 'lib_' + Date.now(), name: fileName, category: category, description: description, createdAt: Date.now(), uploadedBy: getCurrentAdminEmail() || 'Администратор' });
-  DB.library = library;
-  closeModal();
-  renderLibrary();
-  alert('✅ Файл добавлен в библиотеку!');
+  const errorEl = document.getElementById('libraryUploadError');
+  
+  if (!fileName) { errorEl.textContent = 'Введите название файла'; errorEl.classList.remove('hidden'); return; }
+  
+  const uploadSection = document.getElementById('uploadSection');
+  const isLinkMode = uploadSection.classList.contains('hidden');
+  
+  try {
+    if (isLinkMode) {
+      // Режим ссылки
+      const link = document.getElementById('libraryFileLink').value.trim();
+      const linkType = document.getElementById('libraryFileLinkType').value;
+      
+      if (!link) { errorEl.textContent = 'Введите ссылку на файл'; errorEl.classList.remove('hidden'); return; }
+      if (!link.startsWith('http://') && !link.startsWith('https://')) { errorEl.textContent = 'Ссылка должна начинаться с http:// или https://'; errorEl.classList.remove('hidden'); return; }
+      
+      const library = DB.library;
+      library.push({
+        id: 'lib_' + Date.now(),
+        name: fileName,
+        type: linkType,
+        category: category,
+        description: description,
+        link: link,
+        isLink: true,
+        uploadedBy: getCurrentAdminEmail() || 'Администратор',
+        createdAt: Date.now()
+      });
+      DB.library = library;
+      closeModal();
+      renderLibrary();
+      alert('✅ Ссылка на файл добавлена в библиотеку!');
+    } else {
+      // Режим загрузки файла
+      const fileInput = document.getElementById('libraryFileInput');
+      if (!fileInput.files || fileInput.files.length === 0) { errorEl.textContent = 'Выберите файл'; errorEl.classList.remove('hidden'); return; }
+      
+      const file = fileInput.files[0];
+      const fileType = getFileType(file.type, file.name);
+      const key = 'lib_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+      
+      await FileDB.put(key, file);
+      
+      const library = DB.library;
+      library.push({
+        id: 'lib_' + Date.now(),
+        name: fileName,
+        type: fileType,
+        mimeType: file.type,
+        originalName: file.name,
+        size: file.size,
+        key: key,
+        category: category,
+        description: description,
+        isLink: false,
+        uploadedBy: getCurrentAdminEmail() || 'Администратор',
+        createdAt: Date.now()
+      });
+      DB.library = library;
+      closeModal();
+      renderLibrary();
+      alert('✅ Файл загружен в библиотеку!');
+    }
+  } catch (err) {
+    console.error('Ошибка:', err);
+    errorEl.textContent = 'Ошибка: ' + err.message;
+    errorEl.classList.remove('hidden');
+  }
+}
+
+function getFileType(mimeType, fileName) {
+  if (mimeType === 'application/pdf' || (fileName && fileName.toLowerCase().endsWith('.pdf'))) return 'pdf';
+  if (mimeType.includes('excel') || (fileName && (fileName.toLowerCase().endsWith('.xls') || fileName.toLowerCase().endsWith('.xlsx')))) return 'excel';
+  if (mimeType.includes('word') || (fileName && (fileName.toLowerCase().endsWith('.doc') || fileName.toLowerCase().endsWith('.docx')))) return 'word';
+  if (mimeType.includes('video') || (fileName && (fileName.toLowerCase().endsWith('.mp4') || fileName.toLowerCase().endsWith('.avi')))) return 'video';
+  if (mimeType.includes('image')) return 'image';
+  return 'other';
+}
+
+function formatFileSize(bytes) {
+  if (!bytes || bytes === 0) return '0 Б';
+  if (bytes < 1024) return bytes + ' Б';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
 }
 
 function filterLibrary(category) {
@@ -1451,37 +1668,69 @@ function showEmployeeDetails(empId, courseId) {
 }
 
 function exportEmployeePDF(empId, courseId) {
-  const employee = DB.employees.find(e => e.id === empId); const course = DB.courses.find(c => c.id === courseId);
+  const employee = DB.employees.find(e => e.id === empId);
+  const course = DB.courses.find(c => c.id === courseId);
   if (!employee || !course) return;
+  
   const store = DB.stores.find(s => s.id === employee.storeId);
   const empProgress = DB.progress[empId]?.[courseId] || {};
-  let totalCorrect = 0; let totalQuestions = 0; let completedTests = 0;
+  
+  let totalCorrect = 0;
+  let totalQuestions = 0;
+  let completedTests = 0;
   let testResults = [];
+  
   course.blocks.forEach((b, i) => {
-    const bp = empProgress[b.id] || {}; const score = bp.score || 0; const total = bp.total || 0; const completed = bp.completed || false;
-    totalCorrect += score; totalQuestions += total; if (completed && total > 0) completedTests++;
-    testResults.push({ blockIndex: i, blockTitle: b.title, blockIcon: b.icon, score: score, total: total, completed: completed, percentage: total > 0 ? Math.round((score / total) * 100) : 0 });
+    const bp = empProgress[b.id] || {};
+    const score = bp.score || 0;
+    const total = bp.total || 0;
+    const completed = bp.completed || false;
+    totalCorrect += score;
+    totalQuestions += total;
+    if (completed && total > 0) completedTests++;
+    testResults.push({
+      blockIndex: i,
+      blockTitle: b.title,
+      blockIcon: b.icon,
+      score: score,
+      total: total,
+      completed: completed,
+      percentage: total > 0 ? Math.round((score / total) * 100) : 0
+    });
   });
+  
   const avgTestScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
-  const totalBlocks = course.blocks.length; const completedBlocks = testResults.filter(tr => tr.completed).length;
+  const testStatus = avgTestScore >= 80 ? 'Отлично' : avgTestScore >= 60 ? 'Хорошо' : avgTestScore >= 40 ? 'Удовлетворительно' : 'Требует повторения';
+  const totalBlocks = course.blocks.length;
+  const completedBlocks = testResults.filter(tr => tr.completed).length;
   const totalPractice = course.blocks.reduce((sum, b) => sum + (b.practice?.length || 0), 0);
-  let blocksHtml = testResults.map((tr, i) => {
-    const theoryCount = (course.blocks[i].theoryBlocks || []).length; const practiceCount = (course.blocks[i].practice || []).length; const quizCount = (course.blocks[i].quiz || []).length;
+  const progress = getEmployeeProgress(empId, courseId);
+  
+  // Генерируем HTML отчёта
+  let blocksHtml = '';
+  testResults.forEach((tr, i) => {
+    const theoryCount = (course.blocks[i].theoryBlocks || []).length;
+    const practiceCount = (course.blocks[i].practice || []).length;
+    const quizCount = (course.blocks[i].quiz || []).length;
     const blockProgress = empProgress[course.blocks[i].id] || {};
     const practiceAnswers = blockProgress.practiceAnswers || {};
     const answeredPractices = Object.keys(practiceAnswers).filter(k => practiceAnswers[k] && practiceAnswers[k].length > 0).length;
+    
     let practiceDetailsHtml = '';
     if (answeredPractices > 0) {
       practiceDetailsHtml = '<div style="margin-top:10px">';
       course.blocks[i].practice.forEach(p => {
         const pAnswers = practiceAnswers[p.id] || [];
         if (pAnswers.length > 0) {
-          practiceDetailsHtml += '<div style="background:#f0fdf4;border:1px solid #10b981;border-radius:8px;padding:10px;margin-bottom:8px"><div style="font-weight:bold;margin-bottom:5px"> ' + esc(p.title || 'Ситуация') + '</div>';
+          practiceDetailsHtml += '<div style="background:#f0fdf4;border:1px solid #10b981;border-radius:8px;padding:10px;margin-bottom:8px">';
+          practiceDetailsHtml += '<div style="font-weight:bold;margin-bottom:5px"> ' + esc(p.title || 'Ситуация') + '</div>';
+          if (p.description) practiceDetailsHtml += '<div style="font-size:13px;color:#6b7280;margin-bottom:5px">' + esc(p.description) + '</div>';
+          if (p.question) practiceDetailsHtml += '<div style="font-size:13px;font-weight:600;margin-bottom:5px">❓ ' + esc(p.question) + '</div>';
           pAnswers.forEach(a => {
             const icon = a.type === 'text' ? '📝' : a.type === 'pdf' ? '📕' : a.type === 'image' ? '🖼️' : '🎬';
             const typeLabel = a.type === 'text' ? 'Текст' : a.type === 'pdf' ? 'PDF/DOC' : a.type === 'image' ? 'Изображение' : 'Видео';
             let contentPreview = '';
-            if (a.type === 'text') contentPreview = '<div style="background:#f9fafb;padding:8px;border-radius:4px;margin-top:4px;font-size:13px">' + (a.content || '') + '</div>';
+            if (a.type === 'text') contentPreview = '<div style="background:#f9fafb;padding:8px;border-radius:4px;margin-top:4px;font-size:13px">' + (a.content || 'Текстовый ответ') + '</div>';
             else if (a.type === 'pdf') contentPreview = '<div style="font-size:13px;margin-top:4px">📕 ' + esc(a.fileName || 'Документ') + ' (' + formatFileSize(a.size || 0) + ')</div>';
             else if (a.type === 'image') contentPreview = '<div style="margin-top:4px"><img src="' + a.dataUrl + '" style="max-width:100%;max-height:150px;border-radius:4px"></div>';
             else if (a.type === 'video') contentPreview = '<div style="font-size:13px;margin-top:4px">🎬 ' + esc(a.videoUrl || 'Видео') + '</div>';
@@ -1492,12 +1741,14 @@ function exportEmployeePDF(empId, courseId) {
       });
       practiceDetailsHtml += '</div>';
     }
+    
     let quizDetailsHtml = '';
     if (tr.completed && tr.total > 0 && course.blocks[i].quiz && course.blocks[i].quiz.length > 0) {
       quizDetailsHtml = '<div style="margin-top:10px">';
       course.blocks[i].quiz.forEach((q, qi) => {
         const userAnswer = blockProgress.quizAnswers?.[qi];
-        quizDetailsHtml += '<div style="background:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:10px;margin-bottom:8px"><div style="font-weight:bold;margin-bottom:5px">' + (qi + 1) + '. ' + esc(q.q) + '</div>';
+        quizDetailsHtml += '<div style="background:#dbeafe;border:1px solid #3b82f6;border-radius:8px;padding:10px;margin-bottom:8px">';
+        quizDetailsHtml += '<div style="font-weight:bold;margin-bottom:5px">' + (qi + 1) + '. ' + esc(q.q) + '</div>';
         q.options.forEach((opt, oi) => {
           const isUserChoice = userAnswer === oi;
           const isCorrectAnswer = q.correct === oi;
@@ -1510,33 +1761,195 @@ function exportEmployeePDF(empId, courseId) {
       });
       quizDetailsHtml += '</div>';
     }
-    return '<div style="border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;background:' + (tr.completed ? '#f0fdf4' : 'white') + '"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><span style="font-size:24px">' + tr.blockIcon + '</span> <b>Блок ' + (tr.blockIndex + 1) + ': ' + esc(tr.blockTitle) + '</b><div style="font-size:12px;color:#6b7280;margin-top:4px">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' ·  ' + quizCount + '</div></div><span style="background:' + (tr.completed ? '#dcfce7' : '#f3f4f6') + ';color:' + (tr.completed ? '#166534' : '#6b7280') + ';padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600">' + (tr.completed ? '✓ Завершён' : 'Не начат') + '</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px"><div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">📚 Теория</div><div style="font-size:13px;font-weight:600">' + theoryCount + ' блоков</div></div><div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">🎯 Практика</div><div style="font-size:13px;font-weight:600">' + answeredPractices + '/' + practiceCount + ' отвечено</div></div><div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">📝 Тест</div><div style="font-size:13px;font-weight:600">' + (tr.total > 0 ? tr.score + '/' + tr.total + ' (' + tr.percentage + '%)' : '—') + '</div></div></div>' + practiceDetailsHtml + quizDetailsHtml + '</div>';
-  }).join('');
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Отчет: ' + esc(employee.name) + ' - ' + esc(course.title) + '</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#1f2937}h1{color:#8B1E3F;border-bottom:3px solid #8B1E3F;padding-bottom:10px}h2{color:#1A1A1A;margin-top:20px}.header-info{background:linear-gradient(135deg,#fdf2f4,#fef3c7);padding:15px;border-radius:8px;margin-bottom:20px}.stat-box{display:inline-block;background:white;border:1px solid #e5e7eb;border-radius:8px;padding:10px 15px;margin:5px;text-align:center}.stat-value{font-size:24px;font-weight:bold;color:#8B1E3F}.stat-label{font-size:12px;color:#6b7280}.badge{display:inline-block;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600}.badge-excellent{background:#10b981;color:white}.badge-good{background:#3b82f6;color:white}.badge-average{background:#f59e0b;color:white}.badge-low{background:#ef4444;color:white}.footer{margin-top:30px;padding-top:15px;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280;text-align:center}@media print{body{padding:10px}}</style></head><body><h1>📊 Отчет по успеваемости</h1><div class="header-info"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:18px;font-weight:bold">' + esc(employee.name) + '</div><div style="font-size:14px;color:#6b7280">' + esc(employee.position) + ' · ' + esc(store?.name || '—') + '</div></div><div style="text-align:right"><div style="font-size:12px;color:#6b7280">Курс</div><div style="font-weight:bold">' + esc(course.title) + '</div></div></div></div><h2>📈 Общие результаты</h2><div><div class="stat-box"><div class="stat-value">' + getEmployeeProgress(empId, courseId) + '%</div><div class="stat-label">Прогресс</div></div><div class="stat-box"><div class="stat-value">' + completedBlocks + '/' + totalBlocks + '</div><div class="stat-label">Блоков пройдено</div></div><div class="stat-box"><div class="stat-value">' + totalPractice + '</div><div class="stat-label">Практических ситуаций</div></div><div class="stat-box"><div class="stat-value">' + completedTests + '/' + totalBlocks + '</div><div class="stat-label">Пройдено тестов</div></div><div class="stat-box"><div class="stat-value">' + totalCorrect + '/' + totalQuestions + '</div><div class="stat-label">Правильных ответов</div></div><div class="stat-box"><div class="stat-value">' + avgTestScore + '%</div><div class="stat-label">Средний балл</div></div><div class="stat-box"><div class="stat-value"><span class="badge badge-' + (avgTestScore >= 80 ? 'excellent' : avgTestScore >= 60 ? 'good' : avgTestScore >= 40 ? 'average' : 'low') + '">' + testStatus + '</span></div><div class="stat-label">Общий результат</div></div></div><h2>📋 Детализация по блокам</h2>' + blocksHtml + '<div class="footer">© VITACCI | BASCONI ACADEMY · Отчет сформирован: ' + new Date().toLocaleString('ru-RU') + '</div></body></html>');
-  printWindow.document.close();
-  setTimeout(() => { printWindow.print(); }, 500);
+    
+    blocksHtml += '<div style="border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:12px;background:' + (tr.completed ? '#f0fdf4' : 'white') + '">';
+    blocksHtml += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    blocksHtml += '<div><span style="font-size:24px">' + tr.blockIcon + '</span> <b>Блок ' + (tr.blockIndex + 1) + ': ' + esc(tr.blockTitle) + '</b>';
+    blocksHtml += '<div style="font-size:12px;color:#6b7280;margin-top:4px">📚 ' + theoryCount + ' · 🎯 ' + practiceCount + ' · 📝 ' + quizCount + '</div></div>';
+    blocksHtml += '<span style="background:' + (tr.completed ? '#dcfce7' : '#f3f4f6') + ';color:' + (tr.completed ? '#166534' : '#6b7280') + ';padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600">' + (tr.completed ? '✓ Завершён' : 'Не начат') + '</span>';
+    blocksHtml += '</div>';
+    blocksHtml += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">';
+    blocksHtml += '<div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">📚 Теория</div><div style="font-size:13px;font-weight:600">' + theoryCount + ' блоков</div></div>';
+    blocksHtml += '<div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">🎯 Практика</div><div style="font-size:13px;font-weight:600">' + answeredPractices + '/' + practiceCount + ' отвечено</div></div>';
+    blocksHtml += '<div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px"><div style="font-size:11px;color:#6b7280">📝 Тест</div><div style="font-size:13px;font-weight:600">' + (tr.total > 0 ? tr.score + '/' + tr.total + ' (' + tr.percentage + '%)' : '—') + '</div></div>';
+    blocksHtml += '</div>';
+    blocksHtml += practiceDetailsHtml + quizDetailsHtml;
+    blocksHtml += '</div>';
+  });
+  
+  const badgeColor = avgTestScore >= 80 ? '#10b981' : avgTestScore >= 60 ? '#3b82f6' : avgTestScore >= 40 ? '#f59e0b' : '#ef4444';
+  const reportDate = new Date().toLocaleString('ru-RU');
+  
+  const html = '<!DOCTYPE html>' +
+    '<html lang="ru">' +
+    '<head>' +
+      '<meta charset="UTF-8">' +
+      '<title>Отчёт: ' + esc(employee.name) + ' — ' + esc(course.title) + '</title>' +
+      '<style>' +
+        '@page { size: A4; margin: 15mm; }' +
+        'body { font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #1f2937; font-size: 13px; line-height: 1.5; }' +
+        'h1 { color: #8B1E3F; border-bottom: 3px solid #8B1E3F; padding-bottom: 10px; margin-top: 0; font-size: 22px; }' +
+        'h2 { color: #1A1A1A; margin-top: 25px; font-size: 18px; border-left: 4px solid #8B1E3F; padding-left: 10px; }' +
+        '.header-info { background: linear-gradient(135deg, #fdf2f4, #fef3c7); padding: 15px; border-radius: 8px; margin-bottom: 20px; }' +
+        '.stat-box { display: inline-block; background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 15px; margin: 5px; text-align: center; min-width: 100px; }' +
+        '.stat-value { font-size: 24px; font-weight: bold; color: #8B1E3F; }' +
+        '.stat-label { font-size: 11px; color: #6b7280; margin-top: 4px; }' +
+        '.badge { display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; color: white; }' +
+        '.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #6b7280; text-align: center; }' +
+        '.no-print { display: none; }' +
+        '@media print { body { padding: 10px; } .no-print { display: none !important; } }' +
+      '</style>' +
+    '</head>' +
+    '<body>' +
+      '<h1>📊 Отчёт по успеваемости сотрудника</h1>' +
+      '<div class="header-info">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">' +
+          '<div>' +
+            '<div style="font-size:20px;font-weight:bold">' + esc(employee.name) + '</div>' +
+            '<div style="font-size:14px;color:#6b7280">' + esc(employee.position) + ' · ' + esc(store?.name || '—') + '</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin-top:4px"> ' + esc(employee.email || '—') + '</div>' +
+          '</div>' +
+          '<div style="text-align:right">' +
+            '<div style="font-size:12px;color:#6b7280">Курс</div>' +
+            '<div style="font-weight:bold;font-size:14px">' + esc(course.title) + '</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin-top:4px">📅 ' + reportDate + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<h2>📈 Общие результаты</h2>' +
+      '<div>' +
+        '<div class="stat-box"><div class="stat-value">' + progress + '%</div><div class="stat-label">Общий прогресс</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + completedBlocks + '/' + totalBlocks + '</div><div class="stat-label">Блоков пройдено</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + totalPractice + '</div><div class="stat-label">Практических ситуаций</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + completedTests + '/' + totalBlocks + '</div><div class="stat-label">Пройдено тестов</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + totalCorrect + '/' + totalQuestions + '</div><div class="stat-label">Правильных ответов</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + avgTestScore + '%</div><div class="stat-label">Средний балл</div></div>' +
+        '<div class="stat-box"><div class="stat-value"><span class="badge" style="background:' + badgeColor + '">' + testStatus + '</span></div><div class="stat-label">Общий результат</div></div>' +
+      '</div>' +
+      '<h2>📋 Детализация по блокам</h2>' +
+      blocksHtml +
+      '<div class="footer">© ' + esc(DB.settings.siteTitle || 'VITACCI | BASCONI ACADEMY') + ' · Отчёт сформирован: ' + reportDate + '</div>' +
+      '<div class="no-print" style="margin-top:20px;text-align:center">' +
+        '<button onclick="window.print()" style="background:#8B1E3F;color:white;padding:12px 24px;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600">🖨️ Распечатать / Сохранить как PDF</button>' +
+      '</div>' +
+    '</body>' +
+    '</html>';
+  
+  // Надёжный способ открытия окна печати
+  try {
+    const printWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes,resizable=yes');
+    if (!printWindow) {
+      alert('⚠️ Браузер заблокировал всплывающее окно.\n\nРазрешите всплывающие окна для этого сайта или используйте кнопку "Распечатать" в браузере (Ctrl+P).');
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    
+    // Ждём загрузки и вызываем печать
+    printWindow.onload = function() {
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 500);
+    };
+  } catch (e) {
+    console.error('Ошибка открытия окна печати:', e);
+    alert(' Не удалось открыть окно печати: ' + e.message);
+  }
 }
 
 function exportAllProgressPDF() {
   const employees = DB.employees;
   if (employees.length === 0) { alert('Нет данных для экспорта'); return; }
+  
   const courses = DB.courses;
   const stores = DB.stores;
-  let html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Отчет по успеваемости - VITACCI | BASCONI ACADEMY</title><style>body{font-family:Arial,sans-serif;padding:20px;color:#1f2937}h1{color:#8B1E3F;border-bottom:3px solid #8B1E3F;padding-bottom:10px}h2{color:#1A1A1A;margin-top:20px}.employee-card{background:white;border:1px solid #e5e7eb;border-radius:12px;padding:15px;margin-bottom:15px}.stat-box{display:inline-block;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px 12px;margin:3px;text-align:center}.stat-value{font-size:18px;font-weight:bold;color:#8B1E3F}.stat-label{font-size:11px;color:#6b7280}.badge{display:inline-block;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600}.badge-excellent{background:#10b981;color:white}.badge-good{background:#3b82f6;color:white}.badge-average{background:#f59e0b;color:white}.badge-low{background:#ef4444;color:white}.footer{margin-top:30px;padding-top:15px;border-top:1px solid #e5e7eb;font-size:11px;color:#6b7280;text-align:center}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{border:1px solid #e5e7eb;padding:8px;text-align:left;font-size:13px}th{background:#f9fafb;font-weight:600}@media print{body{padding:10px}}</style></head><body><h1> Отчет по успеваемости сотрудников</h1><div style="background:linear-gradient(135deg,#fdf2f4,#fef3c7);padding:15px;border-radius:8px;margin-bottom:20px"><div style="font-size:14px"><b>Дата формирования:</b> ' + new Date().toLocaleString('ru-RU') + '</div><div style="font-size:14px"><b>Всего сотрудников:</b> ' + employees.length + '</div><div style="font-size:14px"><b>Всего курсов:</b> ' + courses.length + '</div></div><h2> Сотрудники</h2><table><thead><tr><th>Сотрудник</th><th>Должность</th><th>Магазин</th><th>Прогресс</th><th>Результат тестов</th><th>Статус</th></tr></thead><tbody>';
+  const s = DB.settings;
+  const reportDate = new Date().toLocaleString('ru-RU');
+  
+  let tableRows = '';
   employees.forEach(e => {
     const store = stores.find(s => s.id === e.storeId);
     const p = getEmployeeProgress(e.id);
     const scoreData = getEmployeeTestScore(e.id);
-    const status = p === 100 ? 'Завершен' : p > 0 ? 'В процессе' : 'Не начат';
-    const badgeClass = scoreData.avgScore >= 80 ? 'excellent' : scoreData.avgScore >= 60 ? 'good' : scoreData.avgScore >= 40 ? 'average' : 'low';
-    html += '<tr><td><b>' + esc(e.name) + '</b><br><span style="font-size:11px;color:#6b7280">' + esc(e.email || '') + '</span></td><td>' + esc(e.position) + '</td><td>' + esc(store?.name || '—') + '</td><td><div class="stat-value">' + p + '%</div></td><td><span class="badge badge-' + badgeClass + '">' + scoreData.avgScore + '%</span><br><span style="font-size:11px">' + scoreData.totalCorrect + '/' + scoreData.totalQuestions + '</span></td><td>' + status + '</td></tr>';
+    const status = p === 100 ? 'Завершён' : p > 0 ? 'В процессе' : 'Не начат';
+    const badgeColor = scoreData.avgScore >= 80 ? '#10b981' : scoreData.avgScore >= 60 ? '#3b82f6' : scoreData.avgScore >= 40 ? '#f59e0b' : '#ef4444';
+    const statusColor = p === 100 ? '#10b981' : p > 0 ? '#f59e0b' : '#6b7280';
+    
+    tableRows += '<tr>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb"><b>' + esc(e.name) + '</b><br><span style="font-size:11px;color:#6b7280">' + esc(e.email || '') + '</span></td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb">' + esc(e.position) + '</td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb">' + esc(store?.name || '—') + '</td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><div style="font-size:18px;font-weight:bold;color:#8B1E3F">' + p + '%</div></td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><span style="background:' + badgeColor + ';color:white;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">' + scoreData.avgScore + '%</span><br><span style="font-size:11px">' + scoreData.totalCorrect + '/' + scoreData.totalQuestions + '</span></td>' +
+      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><span style="background:' + statusColor + ';color:white;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">' + status + '</span></td>' +
+    '</tr>';
   });
-  html += '</tbody></table><div class="footer">© VITACCI | BASCONI ACADEMY · Отчет сформирован: ' + new Date().toLocaleString('ru-RU') + '</div></body></html>';
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(html);
-  printWindow.document.close();
-  setTimeout(() => { printWindow.print(); }, 500);
+  
+  const html = '<!DOCTYPE html>' +
+    '<html lang="ru">' +
+    '<head>' +
+      '<meta charset="UTF-8">' +
+      '<title>Отчёт по успеваемости — ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + '</title>' +
+      '<style>' +
+        '@page { size: A4 landscape; margin: 15mm; }' +
+        'body { font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #1f2937; font-size: 13px; }' +
+        'h1 { color: #8B1E3F; border-bottom: 3px solid #8B1E3F; padding-bottom: 10px; margin-top: 0; font-size: 22px; }' +
+        'h2 { color: #1A1A1A; margin-top: 25px; font-size: 18px; border-left: 4px solid #8B1E3F; padding-left: 10px; }' +
+        'table { width: 100%; border-collapse: collapse; margin-top: 15px; }' +
+        'th { background: #f9fafb; padding: 10px; text-align: left; font-size: 12px; color: #6b7280; border: 1px solid #e5e7eb; }' +
+        '.header-info { background: linear-gradient(135deg, #fdf2f4, #fef3c7); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }' +
+        '.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #6b7280; text-align: center; }' +
+        '.no-print { display: none; }' +
+        '@media print { body { padding: 10px; } .no-print { display: none !important; } }' +
+      '</style>' +
+    '</head>' +
+    '<body>' +
+      '<h1>📊 Отчёт по успеваемости сотрудников</h1>' +
+      '<div class="header-info">' +
+        '<div><b>Организация:</b> ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + '</div>' +
+        '<div><b>Дата формирования:</b> ' + reportDate + '</div>' +
+        '<div><b>Всего сотрудников:</b> ' + employees.length + ' | <b>Всего курсов:</b> ' + courses.length + '</div>' +
+      '</div>' +
+      '<h2>👥 Сотрудники</h2>' +
+      '<table>' +
+        '<thead><tr>' +
+          '<th>Сотрудник</th>' +
+          '<th>Должность</th>' +
+          '<th>Магазин</th>' +
+          '<th style="text-align:center">Прогресс</th>' +
+          '<th style="text-align:center">Результат тестов</th>' +
+          '<th style="text-align:center">Статус</th>' +
+        '</tr></thead>' +
+        '<tbody>' + tableRows + '</tbody>' +
+      '</table>' +
+      '<div class="footer">© ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + ' · Отчёт сформирован: ' + reportDate + '</div>' +
+      '<div class="no-print" style="margin-top:20px;text-align:center">' +
+        '<button onclick="window.print()" style="background:#8B1E3F;color:white;padding:12px 24px;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600">🖨️ Распечатать / Сохранить как PDF</button>' +
+      '</div>' +
+    '</body>' +
+    '</html>';
+  
+  try {
+    const printWindow = window.open('', '_blank', 'width=1100,height=700,scrollbars=yes,resizable=yes');
+    if (!printWindow) {
+      alert('⚠️ Браузер заблокировал всплывающее окно.\n\nРазрешите всплывающие окна для этого сайта.');
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.onload = function() {
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 500);
+    };
+  } catch (e) {
+    console.error('Ошибка:', e);
+    alert('❌ Не удалось открыть окно печати: ' + e.message);
+  }
 }
 
 function renderProgress() {
@@ -1835,18 +2248,77 @@ function renderEmployeeLibrary() {
   const library = DB.library; const el = document.getElementById('empLibraryList');
   const search = (document.getElementById('empLibrarySearch')?.value || '').toLowerCase();
   const categoryFilter = document.getElementById('empLibraryCategoryFilter')?.value || '';
-  if (library.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4"></div><div class="text-lg font-medium">Библиотека пуста</div></div>'; return; }
+  
+  if (library.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">📚</div><div class="text-lg font-medium">Библиотека пуста</div></div>'; return; }
+  
   let filtered = library.filter(item => {
     if (categoryFilter && item.category !== categoryFilter) return false;
-    if (search && !item.name.toLowerCase().includes(search)) return false;
+    if (search && !item.name.toLowerCase().includes(search) && !(item.description || '').toLowerCase().includes(search)) return false;
     return true;
   });
+  
   if (filtered.length === 0) { el.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400"><div class="text-6xl mb-4">🔍</div><div class="text-lg font-medium">Ничего не найдено</div></div>'; return; }
+  
   el.innerHTML = filtered.map(item => {
-    const icon = item.type === 'pdf' ? '📕' : item.type === 'excel' ? '📊' : item.type === 'word' ? '📝' : item.type === 'video' ? '🎬' : '📄';
+    const icon = item.type === 'pdf' ? '📕' : item.type === 'excel' ? '📊' : item.type === 'word' ? '' : item.type === 'video' ? '' : item.type === 'image' ? '🖼️' : '📄';
     const date = new Date(item.createdAt).toLocaleDateString('ru-RU');
-    return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover"><div class="flex items-start gap-3 mb-3"><div class="text-4xl">' + icon + '</div><div class="flex-1 min-w-0"><div class="font-bold text-gray-800 text-sm truncate">' + esc(item.name) + '</div><div class="text-xs text-gray-500 mt-1">' + esc(item.category || 'Без категории') + '</div></div></div><div class="text-xs text-gray-500 mb-3"> ' + date + ' · 👤 ' + esc(item.uploadedBy || 'Администратор') + '</div><div class="flex gap-2"><button type="button" class="btn-primary btn-sm flex-1">⬇️ Скачать</button></div></div>';
+    const isLink = item.isLink || item.link;
+    const linkBadge = isLink ? '<span class="chip bg-blue-100 text-blue-700">🔗 Ссылка</span>' : '';
+    
+    let actionButtons = '';
+    if (isLink) {
+      actionButtons = '<button type="button" class="btn-info btn-sm flex-1" onclick="openLibraryLink(\'' + item.id + '\')">🔗 Открыть ссылку</button>';
+    } else {
+      actionButtons = '<button type="button" class="btn-primary btn-sm flex-1" onclick="downloadLibraryFile(\'' + item.id + '\')">⬇️ Скачать</button>';
+    }
+    
+    return '<div class="bg-white rounded-2xl p-5 shadow-sm card-hover">' +
+      '<div class="flex items-start gap-3 mb-3">' +
+        '<div class="text-4xl">' + icon + '</div>' +
+        '<div class="flex-1 min-w-0">' +
+          '<div class="font-bold text-gray-800 text-sm truncate">' + esc(item.name) + '</div>' +
+          '<div class="text-xs text-gray-500 mt-1">' + esc(item.category || 'Без категории') + '</div>' +
+          '<div class="mt-1 flex gap-1 flex-wrap">' + linkBadge + '</div>' +
+        '</div>' +
+      '</div>' +
+      (item.description ? '<div class="text-xs text-gray-600 mb-3 line-clamp-2">' + esc(item.description) + '</div>' : '<div class="mb-3"></div>') +
+      '<div class="text-xs text-gray-500 mb-3">📅 ' + date + '</div>' +
+      '<div class="flex gap-2">' +
+        actionButtons +
+      '</div>' +
+    '</div>';
   }).join('');
+}
+
+async function downloadLibraryFile(id) {
+  const library = DB.library;
+  const item = library.find(i => i.id === id);
+  if (!item) { alert('Файл не найден'); return; }
+  
+  // Если это ссылка - открываем её
+  if (item.isLink || item.link) {
+    window.open(item.link, '_blank');
+    return;
+  }
+  
+  // Иначе скачиваем из IndexedDB
+  if (!item.key) { alert('Файл не сохранён в хранилище'); return; }
+  
+  try {
+    const blob = await FileDB.get(item.key);
+    if (!blob) { alert('Файл не найден в хранилище'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = item.originalName || item.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Ошибка скачивания:', err);
+    alert('Ошибка скачивания: ' + err.message);
+  }
 }
 
 function filterEmployeeLibrary(category) {
