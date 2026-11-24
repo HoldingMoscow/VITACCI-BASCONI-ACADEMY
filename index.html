@@ -403,31 +403,45 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
     </section>
 
     <section id="tab-progress" class="tab-content hidden fade-in">
-      <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
-        <h2 class="text-2xl font-bold text-gray-800">Успеваемость</h2>
-        <div class="flex gap-2">
-          <button type="button" onclick="exportAllProgressPDF()" class="btn-primary">📥 Скачать PDF отчет</button>
-        </div>
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Успеваемость</h2>
+  
+  <!-- Фильтры -->
+  <div class="bg-white rounded-2xl p-5 shadow-sm mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div>
+        <label class="text-sm text-gray-600">Бренд</label>
+        <select id="progressBrandFilter" onchange="renderProgress()" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="">Все бренды</option>
+          <option value="vitacci">VITACCI</option>
+          <option value="basconi">BASCONI</option>
+        </select>
       </div>
-      <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
-        <div class="flex gap-3 flex-wrap">
-          <select id="filterBrand" onchange="onBrandFilterChange()" class="border border-gray-200 rounded-lg px-4 py-2 text-sm">
-            <option value="">Все бренды</option>
-            <option value="vitacci">VITACCI</option>
-            <option value="basconi">BASCONI</option>
-          </select>
-          <select id="filterStore" onchange="renderProgress()" class="border border-gray-200 rounded-lg px-4 py-2 text-sm">
-            <option value="">Все магазины</option>
-          </select>
-          <select id="filterCourse" onchange="renderProgress()" class="border border-gray-200 rounded-lg px-4 py-2 text-sm">
-            <option value="">Все курсы</option>
-          </select>
-          <button type="button" onclick="resetFilters()" class="btn-secondary">🔄 Сбросить</button>
-        </div>
-        <div id="filterSummary" class="mt-3 text-sm text-gray-600"></div>
+      <div>
+        <label class="text-sm text-gray-600">Магазин</label>
+        <select id="progressStoreFilter" onchange="renderProgress()" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="">Все магазины</option>
+        </select>
       </div>
-      <div id="progressList" class="space-y-4"></div>
-    </section>
+      <div>
+        <label class="text-sm text-gray-600">Курс</label>
+        <select id="progressCourseFilter" onchange="renderProgress()" class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm">
+          <option value="">Все курсы</option>
+        </select>
+      </div>
+      <div class="flex items-end">
+        <button type="button" onclick="resetProgressFilters()" class="btn-secondary w-full">🔄 Сбросить</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Кнопка экспорта -->
+  <div class="flex justify-between items-center mb-4">
+    <div class="text-sm text-gray-600" id="progressCount"></div>
+    <button type="button" onclick="exportAllProgressPDF()" class="btn-primary">📥 Скачать PDF отчёт</button>
+  </div>
+  
+  <div id="progressList" class="space-y-4"></div>
+</section>
 
     <section id="tab-settings" class="tab-content hidden fade-in">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">⚙️ Настройки</h2>
@@ -454,6 +468,14 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
         <div class="flex gap-2 mb-4"><input id="newAdminEmail" type="email" placeholder="Email нового администратора" class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"><button type="button" onclick="addAdmin()" class="btn-primary">+ Добавить</button></div>
         <div id="adminsList" class="space-y-2"></div>
       </div>
+<div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+  <h3 class="font-bold text-gray-800 mb-4">🗑️ Очистка данных</h3>
+  <div class="flex gap-2 flex-wrap">
+    <button type="button" onclick="if(confirm('Очистить локальный прогресс?')) { localStorage.removeItem('vba_progress'); location.reload(); }" class="btn-danger">🗑️ Очистить прогресс</button>
+    <button type="button" onclick="if(confirm('Сбросить все локальные данные?')) { localStorage.clear(); location.reload(); }" class="btn-danger">🗑️ Сбросить всё</button>
+  </div>
+  <div class="text-xs text-gray-500 mt-3">💡 Данные синхронизируются с облаком Supabase</div>
+</div>
     </section>
   </main>
 </div>
@@ -567,6 +589,49 @@ body { font-family: 'Montserrat', sans-serif; background: #fafafa; }
 // =========================================================================
 // FILEDB - ХРАНИЛИЩЕ ФАЙЛОВ В БРАУЗЕРЕ
 // =========================================================================
+// IndexedDB для прогресса (без лимита 5 МБ)
+const ProgressDB = {
+  dbName: 'vba_progress_db',
+  storeName: 'progress',
+  db: null,
+  initPromise: null,
+  
+  init() {
+    if (this.initPromise) return this.initPromise;
+    this.initPromise = new Promise((resolve, reject) => {
+      const req = indexedDB.open(this.dbName, 1);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('progress')) {
+          db.createObjectStore('progress');
+        }
+      };
+      req.onsuccess = (e) => { this.db = e.target.result; resolve(this.db); };
+      req.onerror = (e) => reject(e);
+    });
+    return this.initPromise;
+  },
+  
+  async save(data) {
+    await this.init();
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction('progress', 'readwrite');
+      tx.objectStore('progress').put(data, 'all_progress');
+      tx.oncomplete = () => resolve();
+      tx.onerror = (e) => reject(e);
+    });
+  },
+  
+  async load() {
+    await this.init();
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction('progress', 'readonly');
+      const req = tx.objectStore('progress').get('all_progress');
+      req.onsuccess = () => resolve(req.result || {});
+      req.onerror = (e) => reject(e);
+    });
+  }
+};
 const FileDB = {
   dbName: 'vba_files_v27', storeName: 'files', db: null, initPromise: null,
   init() {
@@ -972,8 +1037,14 @@ const DB = {
   set employees(v) { localStorage.setItem('vba_employees', JSON.stringify(v)); },
   get links() { return JSON.parse(localStorage.getItem('vba_links') || '[]'); },
   set links(v) { localStorage.setItem('vba_links', JSON.stringify(v)); },
-  get progress() { return JSON.parse(localStorage.getItem('vba_progress') || '{}'); },
-  set progress(v) { localStorage.setItem('vba_progress', JSON.stringify(v)); },
+  get progress() { 
+  if (!window._progressCache) window._progressCache = {};
+  return window._progressCache;
+},
+set progress(v) { 
+  window._progressCache = v;
+  ProgressDB.save(v).catch(e => console.error('Ошибка сохранения прогресса:', e));
+},
   get courses() { return JSON.parse(localStorage.getItem('vba_courses') || '[]'); },
   set courses(v) { localStorage.setItem('vba_courses', JSON.stringify(v)); },
   get webinars() { return JSON.parse(localStorage.getItem('vba_webinars') || '[]'); },
@@ -990,6 +1061,57 @@ const DB = {
 
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function escAttr(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function getVideoType(url) {
+  if (!url) return 'unknown';
+  url = url.toLowerCase();
+  if (url.includes('youtube.com/watch') || url.includes('youtu.be/') || url.includes('youtube.com/shorts')) return 'youtube';
+  if (url.includes('vimeo.com/')) return 'vimeo';
+  if (url.includes('disk.yandex.ru') || url.includes('disk.360.yandex.ru') || url.includes('yadi.sk')) return 'yandex';
+  if (url.includes('drive.google.com')) return 'google';
+  if (url.includes('rutube.ru')) return 'rutube';
+  if (url.match(/\.(mp4|webm|ogg|mov)(\?|$)/i)) return 'direct';
+  return 'iframe';
+}
+
+function getVideoEmbedUrl(url) {
+  if (!url) return '';
+  const type = getVideoType(url);
+  if (type === 'youtube') {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+    return match ? 'https://www.youtube.com/embed/' + match[1] : url;
+  }
+  if (type === 'vimeo') {
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    return match ? 'https://player.vimeo.com/video/' + match[1] : url;
+  }
+  if (type === 'yandex') {
+    return url.replace('disk.360.yandex.ru', 'disk.yandex.ru') + '?embedded=true';
+  }
+  if (type === 'google') {
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    return match ? 'https://drive.google.com/file/d/' + match[1] + '/preview' : url;
+  }
+  if (type === 'rutube') {
+    const match = url.match(/rutube\.ru\/video\/([a-f0-9]+)/);
+    return match ? 'https://rutube.ru/play/embed/' + match[1] : url;
+  }
+  return url;
+}
+
+function renderVideoPlayer(url, width, height) {
+  width = width || '100%';
+  height = height || '400px';
+  const type = getVideoType(url);
+  if (type === 'direct') {
+    return '<div style="border-radius:0.75rem;overflow:hidden;background:#000;"><video controls preload="metadata" style="width:' + width + ';max-height:' + height + ';display:block;"><source src="' + escAttr(url) + '" type="video/mp4">Ваш браузер не поддерживает видео.</video></div>';
+  }
+  if (type === 'yandex' || type === 'google') {
+    const embedUrl = getVideoEmbedUrl(url);
+    return '<div style="border-radius:0.75rem;overflow:hidden;background:#f9fafb;border:1px solid #e5e7eb;"><iframe src="' + escAttr(embedUrl) + '" style="width:' + width + ';height:' + height + ';border:none;" allowfullscreen></iframe><div style="padding:8px;background:#f3f4f6;text-align:center;"><a href="' + escAttr(url) + '" target="_blank" style="color:#8B1E3F;text-decoration:none;font-weight:600;font-size:13px;">🔗 Открыть видео в новой вкладке</a></div></div>';
+  }
+  const embedUrl = getVideoEmbedUrl(url);
+  return '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.75rem;background:#000;"><iframe src="' + escAttr(embedUrl) + '" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>';
+}
 function formatFileSize(bytes) {
   if (!bytes || bytes === 0) return '0 Б';
   if (bytes < 1024) return bytes + ' Б';
@@ -2017,24 +2139,101 @@ function exportAllProgressPDF() {
   const s = DB.settings;
   const reportDate = new Date().toLocaleString('ru-RU');
   
-  let tableRows = '';
-  employees.forEach(e => {
-    const store = stores.find(s => s.id === e.storeId);
-    const p = getEmployeeProgress(e.id);
-    const scoreData = getEmployeeTestScore(e.id);
-    const status = p === 100 ? 'Завершён' : p > 0 ? 'В процессе' : 'Не начат';
-    const badgeColor = scoreData.avgScore >= 80 ? '#10b981' : scoreData.avgScore >= 60 ? '#3b82f6' : scoreData.avgScore >= 40 ? '#f59e0b' : '#ef4444';
-    const statusColor = p === 100 ? '#10b981' : p > 0 ? '#f59e0b' : '#6b7280';
-    
-    tableRows += '<tr>' +
-      '<td style="padding:8px;border:1px solid #e5e7eb"><b>' + esc(e.name) + '</b><br><span style="font-size:11px;color:#6b7280">' + esc(e.email || '') + '</span></td>' +
-      '<td style="padding:8px;border:1px solid #e5e7eb">' + esc(e.position) + '</td>' +
-      '<td style="padding:8px;border:1px solid #e5e7eb">' + esc(store?.name || '—') + '</td>' +
-      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><div style="font-size:18px;font-weight:bold;color:#8B1E3F">' + p + '%</div></td>' +
-      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><span style="background:' + badgeColor + ';color:white;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">' + scoreData.avgScore + '%</span><br><span style="font-size:11px">' + scoreData.totalCorrect + '/' + scoreData.totalQuestions + '</span></td>' +
-      '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><span style="background:' + statusColor + ';color:white;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">' + status + '</span></td>' +
-    '</tr>';
+  // Читаем текущие значения фильтров из DOM
+  const brandFilter = document.getElementById('progressBrandFilter')?.value || '';
+  const storeFilter = document.getElementById('progressStoreFilter')?.value || '';
+  const courseFilter = document.getElementById('progressCourseFilter')?.value || '';
+  
+  // Фильтруем сотрудников по выбранным критериям
+  let filteredEmployees = employees.filter(e => {
+    // Фильтр по бренду
+    if (brandFilter) {
+      const store = stores.find(s => s.id === e.storeId);
+      if (!store || store.brand !== brandFilter) return false;
+    }
+    // Фильтр по магазину
+    if (storeFilter && e.storeId !== storeFilter) return false;
+    return true;
   });
+  
+  // Фильтруем по курсу (если выбран конкретный курс)
+  let relevantCourses = courses;
+  if (courseFilter) {
+    relevantCourses = courses.filter(c => c.id === courseFilter);
+  }
+  
+  // Формируем строки таблицы
+  let tableRows = '';
+  let totalProgress = 0;
+  let totalScore = 0;
+  let totalQuestions = 0;
+  let totalCorrect = 0;
+  let completedCount = 0;
+  
+  filteredEmployees.forEach(e => {
+    const store = stores.find(s => s.id === e.storeId);
+    const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase());
+    
+    relevantCourses.forEach(course => {
+      const empProgress = DB.progress[e.id]?.[course.id] || {};
+      const completedBlocks = Object.values(empProgress).filter(b => b.completed).length;
+      const totalBlocks = course.blocks.length;
+      const progress = totalBlocks > 0 ? Math.round((completedBlocks / totalBlocks) * 100) : 0;
+      
+      // Подсчёт результатов тестов
+      let courseCorrect = 0;
+      let courseTotal = 0;
+      let courseCompletedTests = 0;
+      
+      course.blocks.forEach(b => {
+        const bp = empProgress[b.id] || {};
+        if (bp.completed && bp.total > 0) {
+          courseCorrect += bp.score || 0;
+          courseTotal += bp.total;
+          courseCompletedTests++;
+        }
+      });
+      
+      const avgScore = courseTotal > 0 ? Math.round((courseCorrect / courseTotal) * 100) : 0;
+      const status = progress === 100 ? 'Завершён' : progress > 0 ? 'В процессе' : 'Не начат';
+      const badgeColor = avgScore >= 80 ? '#10b981' : avgScore >= 60 ? '#3b82f6' : avgScore >= 40 ? '#f59e0b' : '#9ca3af';
+      const statusColor = progress === 100 ? '#10b981' : progress > 0 ? '#f59e0b' : '#9ca3af';
+      
+      totalProgress += progress;
+      totalScore += avgScore;
+      totalCorrect += courseCorrect;
+      totalQuestions += courseTotal;
+      if (progress === 100) completedCount++;
+      
+      tableRows += '<tr>' +
+        '<td style="padding:8px;border:1px solid #e5e7eb"><b>' + esc(e.name) + '</b>' + (isAdmin ? '<br><span style="font-size:10px;color:#f59e0b;">АДМИН</span>' : '') + '<br><span style="font-size:11px;color:#6b7280">' + esc(e.email || '') + '</span></td>' +
+        '<td style="padding:8px;border:1px solid #e5e7eb">' + esc(e.position) + '</td>' +
+        '<td style="padding:8px;border:1px solid #e5e7eb">' + esc(store?.name || '—') + '</td>' +
+        '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center;font-size:12px;color:#6b7280">' + esc(course.title.substring(0, 30)) + (course.title.length > 30 ? '...' : '') + '</td>' +
+        '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><div style="font-size:18px;font-weight:bold;color:#8B1E3F">' + progress + '%</div><div style="font-size:10px;color:#6b7280">' + completedBlocks + '/' + totalBlocks + ' блоков</div></td>' +
+        '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><span style="background:' + badgeColor + ';color:white;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">' + avgScore + '%</span><br><span style="font-size:11px">' + courseCorrect + '/' + courseTotal + '</span></td>' +
+        '<td style="padding:8px;border:1px solid #e5e7eb;text-align:center"><span style="background:' + statusColor + ';color:white;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">' + status + '</span></td>' +
+      '</tr>';
+    });
+  });
+  
+  // Статистика по отфильтрованным данным
+  const totalRecords = filteredEmployees.length * relevantCourses.length;
+  const avgProgress = totalRecords > 0 ? Math.round(totalProgress / totalRecords) : 0;
+  const avgTestScore = totalRecords > 0 ? Math.round(totalScore / totalRecords) : 0;
+  
+  // Формируем описание фильтров
+  let filterDescription = '';
+  if (brandFilter) filterDescription += '<b>Бренд:</b> ' + (brandFilter === 'vitacci' ? 'VITACCI' : brandFilter === 'basconi' ? 'BASCONI' : brandFilter) + '<br>';
+  if (storeFilter) {
+    const storeName = stores.find(s => s.id === storeFilter)?.name || '—';
+    filterDescription += '<b>Магазин:</b> ' + esc(storeName) + '<br>';
+  }
+  if (courseFilter) {
+    const courseName = courses.find(c => c.id === courseFilter)?.title || '—';
+    filterDescription += '<b>Курс:</b> ' + esc(courseName) + '<br>';
+  }
+  if (!filterDescription) filterDescription = '<i>Без фильтров (все данные)</i><br>';
   
   const html = '<!DOCTYPE html>' +
     '<html lang="ru">' +
@@ -2042,14 +2241,20 @@ function exportAllProgressPDF() {
       '<meta charset="UTF-8">' +
       '<title>Отчёт по успеваемости — ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + '</title>' +
       '<style>' +
-        '@page { size: A4 landscape; margin: 15mm; }' +
-        'body { font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #1f2937; font-size: 13px; }' +
-        'h1 { color: #8B1E3F; border-bottom: 3px solid #8B1E3F; padding-bottom: 10px; margin-top: 0; font-size: 22px; }' +
-        'h2 { color: #1A1A1A; margin-top: 25px; font-size: 18px; border-left: 4px solid #8B1E3F; padding-left: 10px; }' +
-        'table { width: 100%; border-collapse: collapse; margin-top: 15px; }' +
-        'th { background: #f9fafb; padding: 10px; text-align: left; font-size: 12px; color: #6b7280; border: 1px solid #e5e7eb; }' +
-        '.header-info { background: linear-gradient(135deg, #fdf2f4, #fef3c7); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }' +
-        '.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #6b7280; text-align: center; }' +
+        '@page { size: A4 landscape; margin: 12mm; }' +
+        'body { font-family: Arial, Helvetica, sans-serif; padding: 15px; color: #1f2937; font-size: 12px; }' +
+        'h1 { color: #8B1E3F; border-bottom: 3px solid #8B1E3F; padding-bottom: 8px; margin-top: 0; font-size: 20px; }' +
+        'h2 { color: #1A1A1A; margin-top: 20px; font-size: 16px; border-left: 4px solid #8B1E3F; padding-left: 10px; }' +
+        'table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 11px; }' +
+        'th { background: #f9fafb; padding: 8px 6px; text-align: left; font-size: 11px; color: #6b7280; border: 1px solid #e5e7eb; }' +
+        'td { padding: 6px; border: 1px solid #e5e7eb; vertical-align: middle; }' +
+        '.header-info { background: linear-gradient(135deg, #fdf2f4, #fef3c7); padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; }' +
+        '.stats-grid { display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; }' +
+        '.stat-box { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 15px; text-align: center; flex: 1; min-width: 120px; }' +
+        '.stat-value { font-size: 22px; font-weight: bold; color: #8B1E3F; }' +
+        '.stat-label { font-size: 10px; color: #6b7280; margin-top: 4px; }' +
+        '.filter-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px; margin-bottom: 15px; font-size: 12px; }' +
+        '.footer { margin-top: 25px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 10px; color: #6b7280; text-align: center; }' +
         '.no-print { display: none; }' +
         '@media print { body { padding: 10px; } .no-print { display: none !important; } }' +
       '</style>' +
@@ -2059,21 +2264,27 @@ function exportAllProgressPDF() {
       '<div class="header-info">' +
         '<div><b>Организация:</b> ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + '</div>' +
         '<div><b>Дата формирования:</b> ' + reportDate + '</div>' +
-        '<div><b>Всего сотрудников:</b> ' + employees.length + ' | <b>Всего курсов:</b> ' + courses.length + '</div>' +
       '</div>' +
-      '<h2>👥 Сотрудники</h2>' +
-      '<table>' +
-        '<thead><tr>' +
-          '<th>Сотрудник</th>' +
-          '<th>Должность</th>' +
-          '<th>Магазин</th>' +
-          '<th style="text-align:center">Прогресс</th>' +
-          '<th style="text-align:center">Результат тестов</th>' +
-          '<th style="text-align:center">Статус</th>' +
-        '</tr></thead>' +
-        '<tbody>' + tableRows + '</tbody>' +
-      '</table>' +
-      '<div class="footer">© ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + ' · Отчёт сформирован: ' + reportDate + '</div>' +
+      '<div class="filter-box"><b>🔍 Применённые фильтры:</b><br>' + filterDescription + '</div>' +
+      '<div class="stats-grid">' +
+        '<div class="stat-box"><div class="stat-value">' + filteredEmployees.length + '</div><div class="stat-label">Сотрудников</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + relevantCourses.length + '</div><div class="stat-label">Курсов</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + totalRecords + '</div><div class="stat-label">Записей</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + avgProgress + '%</div><div class="stat-label">Средний прогресс</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + avgTestScore + '%</div><div class="stat-label">Средний балл тестов</div></div>' +
+        '<div class="stat-box"><div class="stat-value">' + completedCount + '</div><div class="stat-label">Завершено курсов</div></div>' +
+      '</div>' +
+      '<h2>👥 Детализация по сотрудникам</h2>' +
+      (tableRows ? '<table><thead><tr>' +
+        '<th>Сотрудник</th>' +
+        '<th>Должность</th>' +
+        '<th>Магазин</th>' +
+        '<th>Курс</th>' +
+        '<th style="text-align:center">Прогресс</th>' +
+        '<th style="text-align:center">Результат тестов</th>' +
+        '<th style="text-align:center">Статус</th>' +
+      '</tr></thead><tbody>' + tableRows + '</tbody></table>' : '<div style="text-align:center;padding:30px;color:#6b7280;">Нет данных по выбранным фильтрам</div>') +
+      '<div class="footer">© ' + esc(s.siteTitle || 'VITACCI | BASCONI ACADEMY') + ' · Отчёт сформирован: ' + reportDate + ' · Записей: ' + totalRecords + '</div>' +
       '<div class="no-print" style="margin-top:20px;text-align:center">' +
         '<button onclick="window.print()" style="background:#8B1E3F;color:white;padding:12px 24px;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600">🖨️ Распечатать / Сохранить как PDF</button>' +
       '</div>' +
@@ -2081,7 +2292,7 @@ function exportAllProgressPDF() {
     '</html>';
   
   try {
-    const printWindow = window.open('', '_blank', 'width=1100,height=700,scrollbars=yes,resizable=yes');
+    const printWindow = window.open('', '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
     if (!printWindow) {
       alert('⚠️ Браузер заблокировал всплывающее окно.\n\nРазрешите всплывающие окна для этого сайта.');
       return;
@@ -2102,31 +2313,118 @@ function exportAllProgressPDF() {
 }
 
 function renderProgress() {
-  const employees = getFilteredEmployees();
+  const employees = DB.employees;
+  const stores = DB.stores;
+  const courses = DB.courses;
+  
+  // Заполняем фильтр магазинов (если пусто)
+  const storeFilter = document.getElementById('progressStoreFilter');
+  if (storeFilter && storeFilter.options.length <= 1) {
+    stores.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = s.name;
+      storeFilter.appendChild(opt);
+    });
+  }
+  
+  // Заполняем фильтр курсов (если пусто)
+  const courseFilter = document.getElementById('progressCourseFilter');
+  if (courseFilter && courseFilter.options.length <= 1) {
+    courses.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = (c.icon || '📚') + ' ' + c.title;
+      courseFilter.appendChild(opt);
+    });
+  }
+  
+  // Читаем текущие фильтры
+  const brandFilter = document.getElementById('progressBrandFilter')?.value || '';
+  const storeFilterVal = document.getElementById('progressStoreFilter')?.value || '';
+  const courseFilterVal = document.getElementById('progressCourseFilter')?.value || '';
+  
+  // Фильтруем сотрудников
+  let filteredEmployees = employees.filter(e => {
+    if (brandFilter) {
+      const store = stores.find(s => s.id === e.storeId);
+      if (!store || store.brand !== brandFilter) return false;
+    }
+    if (storeFilterVal && e.storeId !== storeFilterVal) return false;
+    return true;
+  });
+  
+  // Обновляем счётчик
+  const countEl = document.getElementById('progressCount');
+  if (countEl) {
+    const totalRecords = filteredEmployees.length * (courseFilterVal ? 1 : courses.length);
+    countEl.textContent = '📊 Показано: ' + filteredEmployees.length + ' сотрудников' + (courseFilterVal ? ' × 1 курс' : ' × ' + courses.length + ' курсов') + ' = ' + totalRecords + ' записей';
+  }
+  
   const el = document.getElementById('progressList');
-  const summaryEl = document.getElementById('filterSummary');
-  const filterCourse = document.getElementById('filterCourse')?.value || '';
-  const filterBrand = document.getElementById('filterBrand')?.value || '';
-  const filterStore = document.getElementById('filterStore')?.value || '';
-  const s = DB.settings;
-  const brandLabel = filterBrand === 'vitacci' ? s.brandV : filterBrand === 'basconi' ? s.brandB : 'Все бренды';
-  const storeLabel = filterStore ? (DB.stores.find(st => st.id === filterStore)?.name || '—') : 'Все магазины';
-  const courseLabel = filterCourse ? (DB.courses.find(c => c.id === filterCourse)?.title || '—') : 'Все курсы';
-  const totalEmps = employees.length;
-  const avgP = totalEmps ? Math.round(employees.reduce((sum, e) => sum + getEmployeeProgress(e.id), 0) / totalEmps) : 0;
-  const completed = employees.filter(e => getEmployeeProgress(e.id) === 100).length;
-  const inProgress = employees.filter(e => { const p = getEmployeeProgress(e.id); return p > 0 && p < 100; }).length;
-  const notStarted = employees.filter(e => getEmployeeProgress(e.id) === 0).length;
-  if (summaryEl) { summaryEl.innerHTML = '<div class="flex flex-wrap gap-3"><span class="chip bg-blue-100 text-blue-700">🏷️ Бренд: ' + esc(brandLabel) + '</span><span class="chip bg-purple-100 text-purple-700">🏪 Магазин: ' + esc(storeLabel) + '</span><span class="chip bg-green-100 text-green-700">📚 Курс: ' + esc(courseLabel) + '</span><span class="chip bg-gray-100 text-gray-700">👥 ' + totalEmps + ' сотр.</span><span class="chip bg-green-100 text-green-700">✓ ' + completed + ' завершили</span><span class="chip bg-yellow-100 text-yellow-700">🔄 ' + inProgress + ' в процессе</span><span class="chip bg-gray-100 text-gray-600">○ ' + notStarted + ' не начали</span><span class="chip bg-rose-100 text-rose-700">📊 Средний: ' + avgP + '%</span></div>'; }
-  if (employees.length === 0) { el.innerHTML = '<div class="text-center py-12 text-gray-400">Нет данных по выбранным фильтрам</div>'; return; }
-  el.innerHTML = employees.map(e => {
-    const p = getEmployeeProgress(e.id);
-    const store = DB.stores.find(s => s.id === e.storeId);
+  if (filteredEmployees.length === 0) { 
+    el.innerHTML = '<div class="text-center py-12 text-gray-400"><div class="text-6xl mb-4">🔍</div><div class="text-lg font-medium">Нет сотрудников по выбранным фильтрам</div></div>'; 
+    return; 
+  }
+  
+  el.innerHTML = filteredEmployees.map(e => {
+    const store = stores.find(s => s.id === e.storeId);
     const isAdmin = e.isAdmin || DB.admins.some(a => a.toLowerCase() === (e.email || '').toLowerCase());
-    const empLinks = DB.links.filter(l => l.employeeId === e.id);
-    const courseId = empLinks.length > 0 ? empLinks[0].courseId : null;
-    return '<div class="bg-white rounded-2xl p-5 shadow-sm"><div class="flex items-center justify-between mb-4 flex-wrap gap-3"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-lg">' + e.name.charAt(0) + '</div><div><div class="font-bold text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div><div class="text-xs text-gray-500">' + esc(e.position) + ' · ' + esc(store?.name || '—') + '</div></div></div><div class="text-right"><div class="text-2xl font-bold text-vitacci">' + p + '%</div><div class="text-xs text-gray-500 mb-2">прогресс</div>' + (courseId ? '<button type="button" class="btn-info btn-sm" onclick="showEmployeeDetails(\'' + e.id + '\', \'' + courseId + '\')">📊 Подробнее</button>' : '') + '</div></div><div class="bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + p + '%"></div></div></div>';
+    
+    let coursesHtml = '';
+    const relevantCourses = courseFilterVal ? courses.filter(c => c.id === courseFilterVal) : courses;
+    
+    relevantCourses.forEach(course => {
+      const empProgress = DB.progress[e.id]?.[course.id] || {};
+      const completedBlocks = Object.values(empProgress).filter(b => b.completed).length;
+      const totalBlocks = course.blocks.length;
+      const progress = totalBlocks > 0 ? Math.round((completedBlocks / totalBlocks) * 100) : 0;
+      
+      let courseCorrect = 0, courseTotal = 0;
+      course.blocks.forEach(b => {
+        const bp = empProgress[b.id] || {};
+        if (bp.completed && bp.total > 0) {
+          courseCorrect += bp.score || 0;
+          courseTotal += bp.total;
+        }
+      });
+      const avgScore = courseTotal > 0 ? Math.round((courseCorrect / courseTotal) * 100) : 0;
+      const status = progress === 100 ? 'Завершён' : progress > 0 ? 'В процессе' : 'Не начат';
+      const badgeColor = avgScore >= 80 ? '#10b981' : avgScore >= 60 ? '#3b82f6' : avgScore >= 40 ? '#f59e0b' : '#9ca3af';
+      const statusColor = progress === 100 ? '#10b981' : progress > 0 ? '#f59e0b' : '#9ca3af';
+      
+      coursesHtml += '<div class="bg-white rounded-xl p-4 shadow-sm mb-3">' +
+        '<div class="flex items-center justify-between mb-3 flex-wrap gap-2">' +
+          '<div class="flex items-center gap-3">' +
+            '<div class="w-11 h-11 rounded-full gradient-btn text-white flex items-center justify-center font-bold text-lg">' + e.name.charAt(0) + '</div>' +
+            '<div>' +
+              '<div class="font-bold text-gray-800">' + esc(e.name) + (isAdmin ? ' <span class="admin-badge">АДМИН</span>' : '') + '</div>' +
+              '<div class="text-xs text-gray-500">' + esc(e.position) + ' · ' + esc(store?.name || '—') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="text-right">' +
+            '<div class="text-xs text-gray-500">Курс: ' + esc(course.title.substring(0, 40)) + (course.title.length > 40 ? '...' : '') + '</div>' +
+            '<div class="text-2xl font-bold text-vitacci">' + progress + '%</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="grid grid-cols-3 gap-2 mb-3">' +
+          '<div class="bg-gray-50 rounded-lg p-2 text-center"><div class="text-xs text-gray-500">Блоки</div><div class="font-bold text-sm">' + completedBlocks + '/' + totalBlocks + '</div></div>' +
+          '<div class="bg-gray-50 rounded-lg p-2 text-center"><div class="text-xs text-gray-500">Тесты</div><div class="font-bold text-sm">' + courseCorrect + '/' + courseTotal + '</div></div>' +
+          '<div class="bg-gray-50 rounded-lg p-2 text-center"><div class="text-xs text-gray-500">Статус</div><div><span style="background:' + statusColor + ';color:white;padding:2px 8px;border-radius:9999px;font-size:10px;font-weight:600">' + status + '</span></div></div>' +
+        '</div>' +
+        '<div class="bg-gray-200 rounded-full h-2"><div class="bg-gradient-to-r from-vitacci to-basconi-dark h-full rounded-full progress-bar" style="width:' + progress + '%"></div></div>' +
+      '</div>';
+    });
+    
+    return coursesHtml;
   }).join('');
+}
+
+function resetProgressFilters() {
+  document.getElementById('progressBrandFilter').value = '';
+  document.getElementById('progressStoreFilter').value = '';
+  document.getElementById('progressCourseFilter').value = '';
+  renderProgress();
 }
 
 function renderBrandFilters() {
@@ -3055,8 +3353,11 @@ function updateCourseProgress() { var p = getEmployeeProgress(currentEmployee.id
 function renderTheoryContentInCourse(tb) {
   if (tb.type === 'text') return '<div class="prose prose-sm max-w-none mb-3">' + (tb.content || '') + '</div>';
   if (tb.type === 'pdf') return '<div class="mb-3"><div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"><span class="text-2xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName || 'Документ') + '</div></div></div></div>';
-  if (tb.type === 'image') return '<div class="mb-3"><img src="' + tb.dataUrl + '" class="w-full rounded-lg"></div>';
-  if (tb.type === 'video') return '<div class="mb-3"><div class="video-container"><video controls preload="metadata" src="' + tb.videoUrl + '"></video></div></div>';
+  if (tb.type === 'image') return '<div class="mb-3"><img src="' + escAttr(tb.dataUrl || '') + '" class="w-full rounded-lg" style="max-height:500px;object-fit:contain;"></div>';
+  if (tb.type === 'video') {
+    if (!tb.videoUrl) return '<div class="mb-3 text-gray-400 text-sm text-center py-4">Видео не добавлено</div>';
+    return '<div class="mb-3">' + renderVideoPlayer(tb.videoUrl, '100%', '450px') + '</div>';
+  }
   return '';
 }
 
@@ -3068,11 +3369,11 @@ function renderAdminAnswerContent(a) {
   return '';
 }
 
-function openBlock(idx, isReview) {
-  isReview = isReview || false;
+function openBlock(idx) {
+  var block = currentCourse.blocks[idx];
   
-  // Проверяем, доступен ли блок
-  if (idx > 0 && !isReview) {
+  // Проверяем блокировку
+  if (idx > 0) {
     var progress = DB.progress[currentEmployee.id]?.[currentCourse.id] || {};
     var prevBlock = currentCourse.blocks[idx - 1];
     var prevProgress = progress[prevBlock.id];
@@ -3086,36 +3387,63 @@ function openBlock(idx, isReview) {
     }
   }
   
-  var block = currentCourse.blocks[idx];
   var videoSrc = block.videoUrl || '';
   var videoHtml = videoSrc ? '<div class="mb-4"><div class="video-container"><video controls preload="metadata" src="' + videoSrc + '"></video></div></div>' : '';
-  var theoryHtml = (block.theoryBlocks || []).map(function(tb) { return renderTheoryContentInCourse(tb); }).join('');
+  
+  var theoryHtml = (block.theoryBlocks || []).map(function(tb) { 
+    return renderTheoryContentInCourse(tb); 
+  }).join('');
   if (!theoryHtml) theoryHtml = '<div class="text-gray-400 text-sm text-center py-4">Теория не добавлена</div>';
+  
   var practiceHtml = (block.practice || []).map(function(p, pi) {
     return renderStudentPracticeForm(block.id, p, pi);
   }).join('');
   if (!practiceHtml) practiceHtml = '<div class="text-gray-400 text-sm text-center py-4">Практические задания не добавлены</div>';
   
-  // Кнопка теста - заблокирована в режиме просмотра
   var quizBtn = '';
   if (block.quiz && block.quiz.length > 0) {
-    if (isReview) {
-      quizBtn = '<button type="button" class="btn-secondary flex-1" style="opacity:0.5;cursor:not-allowed;" title="Тест уже пройден. Повторное тестирование недоступно." disabled>📝 Тест уже пройден</button>';
-    } else {
-      quizBtn = '<button type="button" class="btn-primary flex-1" onclick="startQuiz(' + idx + ')">Перейти к тесту →</button>';
-    }
+    quizBtn = '<button type="button" class="btn-primary flex-1" onclick="startQuiz(' + idx + ')">Перейти к тесту →</button>';
   } else {
-    if (isReview) {
-      quizBtn = '<button type="button" class="btn-secondary flex-1" style="opacity:0.5;cursor:not-allowed;" disabled>✓ Блок завершён</button>';
-    } else {
-      quizBtn = '<button type="button" class="btn-primary flex-1" onclick="completeBlockWithoutQuiz(' + idx + ')">Завершить блок →</button>';
-    }
+    quizBtn = '<button type="button" class="btn-primary flex-1" onclick="completeBlockWithoutQuiz(' + idx + ')">Завершить блок →</button>';
   }
   
-  var modalTitle = isReview ? '👁️ Просмотр блока' : '📖 Изучение блока';
-  var modeBadge = isReview ? '<span style="background:#3b82f6;color:white;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">РЕЖИМ ПРОСМОТРА</span>' : '';
+  var modalHtml = '<div class="p-6">' +
+    '<div class="flex items-center justify-between mb-4">' +
+      '<div class="flex items-center gap-3">' +
+        '<div class="text-3xl">' + (block.icon || '📖') + '</div>' +
+        '<div>' +
+          '<div class="text-xs text-gray-500">Блок ' + (idx + 1) + ' из ' + currentCourse.blocks.length + '</div>' +
+          '<h3 class="text-lg font-bold text-gray-800">' + esc(block.title) + '</h3>' +
+        '</div>' +
+      '</div>' +
+      '<button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button>' +
+    '</div>' +
+    videoHtml +
+    '<div class="mb-6">' +
+      '<div class="section-header">' +
+        '<div class="flex items-center gap-2">' +
+          '<span class="text-xl">📚</span>' +
+          '<span class="font-bold text-gray-800">Теория</span>' +
+        '</div>' +
+      '</div>' +
+      theoryHtml +
+    '</div>' +
+    '<div class="mb-6">' +
+      '<div class="section-header" style="border-left-color: #10b981;">' +
+        '<div class="flex items-center gap-2">' +
+          '<span class="text-xl">🎯</span>' +
+          '<span class="font-bold text-gray-800">Практика</span>' +
+        '</div>' +
+      '</div>' +
+      practiceHtml +
+    '</div>' +
+    '<div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">' +
+      quizBtn +
+      '<button type="button" class="btn-secondary" onclick="closeModal()">Закрыть</button>' +
+    '</div>' +
+  '</div>';
   
-  openModal('<div class="p-6"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="text-3xl">' + block.icon + '</div><div><div class="text-xs text-gray-500">Блок ' + (idx + 1) + ' из ' + currentCourse.blocks.length + '</div><h3 class="text-lg font-bold text-gray-800">' + esc(block.title) + '</h3>' + modeBadge + '</div></div><button type="button" class="btn-ghost text-xl" onclick="closeModal()">✕</button></div>' + videoHtml + '<div class="mb-6"><div class="section-header"><div class="flex items-center gap-2"><span class="text-xl">📚</span><span class="font-bold text-gray-800">Теория</span></div></div>' + theoryHtml + '</div><div class="mb-6"><div class="section-header" style="border-left-color: #10b981;"><div class="flex items-center gap-2"><span class="text-xl">🎯</span><span class="font-bold text-gray-800">Практика</span>' + (isReview ? '<span style="margin-left:auto;font-size:12px;color:#6b7280;">(редактирование доступно)</span>' : '') + '</div></div>' + practiceHtml + '</div><div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">' + quizBtn + '<button type="button" class="btn-secondary" onclick="closeModal()">Закрыть</button></div></div>', 'max-w-4xl');
+  openModal(modalHtml, 'max-w-4xl');
 }
 
 function viewBlock(idx) {
@@ -3513,7 +3841,9 @@ function renderTheoryBlock(tb, tbi) {
   if (tb.type === 'text') { contentHtml = '<div class="border border-gray-200 rounded-lg overflow-hidden mt-2"><div class="bg-gray-50 border-b border-gray-200 px-2 py-1.5 flex gap-1 flex-wrap"><button type="button" class="toolbar-btn" onclick="execCmd(\'bold\')"><b>B</b></button><button type="button" class="toolbar-btn" onclick="execCmd(\'italic\')"><i>I</i></button><button type="button" class="toolbar-btn" onclick="execCmd(\'underline\')"><u>U</u></button><span class="w-px bg-gray-300 mx-1"></span><button type="button" class="toolbar-btn" onclick="execCmd(\'insertUnorderedList\')">• List</button><button type="button" class="toolbar-btn" onclick="execCmd(\'insertOrderedList\')">1. List</button></div><div id="theoryText_' + tbi + '" contenteditable="true" class="rich-editor p-3" style="min-height:100px">' + (tb.content || '') + '</div></div>'; }
   else if (tb.type === 'pdf') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'theoryPdf_' + tbi + '\').click()"><input type="file" id="theoryPdf_' + tbi + '" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadTheoryFile(' + tbi + ', event)"><div class="text-gray-500 text-sm">📕 Нажмите для загрузки PDF/DOC</div></div>' + (tb.fileName ? '<div class="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded"><span class="text-xl">📕</span><div class="flex-1 min-w-0"><div class="text-sm font-medium truncate">' + esc(tb.fileName) + '</div></div></div>' : '') + '</div>'; }
   else if (tb.type === 'image') { contentHtml = '<div class="mt-2"><div class="drop-zone" onclick="document.getElementById(\'theoryImg_' + tbi + '\').click()"><input type="file" id="theoryImg_' + tbi + '" accept="image/*" class="hidden" onchange="uploadTheoryImage(' + tbi + ', event)"><div class="text-gray-500 text-sm">🖼️ Нажмите для загрузки изображения</div></div>' + (tb.dataUrl ? '<div class="mt-2"><img src="' + tb.dataUrl + '" class="w-full h-40 object-cover rounded-lg"></div>' : '') + '</div>'; }
-  else if (tb.type === 'video') { contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео</label><input value="' + escAttr(tb.videoUrl || '') + '" oninput="updateTheoryVideo(' + tbi + ', this.value)" placeholder="https://..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (tb.videoUrl ? '<div class="video-container mt-2"><video controls preload="metadata" src="' + tb.videoUrl + '"></video></div>' : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>'; }
+  else if (tb.type === 'video') {
+  contentHtml = '<div class="mt-2"><div><label class="text-xs text-gray-500">Ссылка на видео (YouTube, Vimeo, Яндекс.Диск, прямая ссылка на .mp4)</label><input value="' + escAttr(tb.videoUrl || '') + '" oninput="updateTheoryVideo(' + tbi + ', this.value)" placeholder="https://youtube.com/watch?v=... или https://disk.yandex.ru/i/..." class="w-full mt-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"></div>' + (tb.videoUrl ? renderVideoPlayer(tb.videoUrl, '100%', '250px') : '<div class="mt-2 text-center text-gray-400 text-sm">Введите ссылку на видео</div>') + '</div>';
+}
   return '<div class="content-block"><button type="button" class="remove-btn btn-danger" onclick="removeTheoryBlock(' + tbi + ')">✕</button><div class="flex items-center gap-2 mb-2"><span class="text-xl">' + icon + '</span><span class="text-sm font-medium text-gray-700">' + typeLabel + '</span></div>' + contentHtml + '</div>';
 }
 
@@ -3647,7 +3977,12 @@ async function uploadTheoryImage(tbi, event) {
   }
 }
 
-function updateTheoryVideo(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].videoUrl = value; block.theoryBlocks[tbi].type = 'video'; }
+function updateTheoryVideo(tbi, value) {
+  var block = editorState.course.blocks[editorState.activeBlockIdx];
+  block.theoryBlocks[tbi].videoUrl = value;
+  block.theoryBlocks[tbi].type = 'video';
+  renderCourseEditor();
+}
 function updateTheoryCaption(tbi, value) { var block = editorState.course.blocks[editorState.activeBlockIdx]; block.theoryBlocks[tbi].caption = value; }
 function addPracticeSituation() { var block = editorState.course.blocks[editorState.activeBlockIdx]; if (!block.practice) block.practice = []; block.practice.push({ id: 'p_' + Date.now(), title: 'Новая ситуация', description: '', question: '', answers: [] }); renderCourseEditor(); }
 function removePracticeSituation(pi) { if (!confirm('Удалить ситуацию?')) return; var block = editorState.course.blocks[editorState.activeBlockIdx]; block.practice.splice(pi, 1); renderCourseEditor(); }
@@ -3758,7 +4093,35 @@ async function initDemo() {
 
 async function init() {
   console.log('🚀 Инициализация приложения...');
+  // Инициализация IndexedDB
+  try { await FileDB.init(); } catch (e) { console.warn('FileDB:', e); }
+  try { await ProgressDB.init(); } catch (e) { console.warn('ProgressDB:', e); }
   
+  // Миграция прогресса из localStorage в IndexedDB
+  const oldProgress = localStorage.getItem('vba_progress');
+  if (oldProgress) {
+    try {
+      const parsed = JSON.parse(oldProgress);
+      const existing = await ProgressDB.load();
+      if (Object.keys(existing).length === 0) {
+        await ProgressDB.save(parsed);
+        console.log('✅ Прогресс мигрирован в IndexedDB');
+      }
+      localStorage.removeItem('vba_progress');
+      console.log('✅ Старый прогресс из localStorage удалён');
+    } catch (e) {
+      console.error('Ошибка миграции:', e);
+    }
+  }
+  
+  // Загрузка прогресса из IndexedDB в кэш
+  try {
+    window._progressCache = await ProgressDB.load();
+    console.log('✅ Прогресс загружен из IndexedDB:', Object.keys(window._progressCache).length, 'сотрудников');
+  } catch (e) {
+    window._progressCache = {};
+    console.warn('⚠️ Прогресс не загружен:', e);
+  }
   // Инициализация FileDB
   try { await FileDB.init(); } catch (e) { console.warn('FileDB:', e); }
   
